@@ -7,7 +7,7 @@
 ## 📋 Free Accounts Setup Checklist
 
 ### 1. GitHub Repository
-- [ ] Initialize git and push to GitHub remote (`https://github.com/adisionads/website.git`)
+- [x] Initialize git and push to GitHub remote (`https://github.com/adisionads/website.git`)
 - [ ] Connect repository to Vercel for continuous deployment (Free)
 
 ### 2. Supabase (Database, Auth, Storage) — 100% Free
