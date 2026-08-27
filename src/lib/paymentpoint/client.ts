@@ -95,3 +95,4 @@ export class PaymentPointClient {
 }
 
 export const paymentPoint = new PaymentPointClient();
+

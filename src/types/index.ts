@@ -243,3 +243,4 @@ export interface PerformanceScore {
   total_clicks_generated: number;
   last_updated: string;
 }
+

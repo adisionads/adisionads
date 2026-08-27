@@ -50,3 +50,4 @@ export function calculateCommunityScore(metrics: {
     compositeScore,
   };
 }
+

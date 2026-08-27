@@ -146,3 +146,4 @@ export const NIGERIAN_BANKS = [
   { name: 'Union Bank of Nigeria', code: '032' },
   { name: 'Wema Bank (ALAT)', code: '035' },
 ];
+
