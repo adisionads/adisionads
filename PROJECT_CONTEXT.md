@@ -1,15 +1,15 @@
-# ADISION by REKTINA — Master Project & System Context
+# Adision — Master Project & System Context
 
 > **Official Positioning:** Performance-driven Community Advertising Marketplace  
 > **Launch Distribution Channel:** WhatsApp Groups & Channels  
-> **Brand Mark:** ADISION by REKTINA — *"Reach the right communities"*  
+> **Tagline:** *"Reach the right communities"*  
 > **Document Version:** 1.0.0 (Living Context Document)
 
 ---
 
 ## 1. Executive Summary & Core Value Proposition
 
-**ADISION by REKTINA** connects businesses/advertisers wanting targeted reach with verified owners of digital communities (starting with WhatsApp Groups & Channels).
+**Adision** connects businesses/advertisers wanting targeted reach with verified owners of digital communities (starting with WhatsApp Groups & Channels).
 
 ### The Two-Sided Marketplace
 ```

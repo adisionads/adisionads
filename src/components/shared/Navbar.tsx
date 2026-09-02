@@ -42,14 +42,11 @@ export function Navbar() {
             <div className="h-10 w-auto rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform bg-brand-500 flex items-center px-1">
               <img
                 src="/brand/logo-horizontal.jpg"
-                alt="ADISION by REKTINA"
+                alt="Adision"
                 className="h-9 w-auto object-contain"
               />
             </div>
             <div className="hidden sm:block">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 block -mb-1">
-                by REKTINA
-              </span>
               <span className="text-xs font-semibold text-brand-400">Community Ad Market</span>
             </div>
           </Link>

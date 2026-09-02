@@ -1,7 +1,7 @@
-# ADISION by REKTINA
+# Adision
 
 <p align="center">
-  <img src="public/brand/logo-horizontal.jpg" alt="ADISION by REKTINA" width="480" />
+  <img src="public/brand/logo-horizontal.jpg" alt="Adision" width="480" />
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
 
 ## 🌟 Overview
 
-**ADISION by REKTINA** connects advertisers seeking high-converting, targeted reach with verified owners of WhatsApp Groups, WhatsApp Channels, and digital communities.
+**Adision** connects advertisers seeking high-converting, targeted reach with verified owners of WhatsApp Groups, WhatsApp Channels, and digital communities.
 
 ### Key Capabilities:
 - **For Advertisers**: Multi-step campaign builder, real-time live WhatsApp message preview, guaranteed placement escrow, unique link click attribution, and detailed ROI analytics.
@@ -102,5 +102,5 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 📄 License & Brand Notice
 
-© 2026 **ADISION by REKTINA**. All rights reserved. Official Mark of Authenticity provided by REKTINA.
+© 2026 **Adision**. All rights reserved.
 

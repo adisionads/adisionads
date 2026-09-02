@@ -84,13 +84,40 @@ export class PaymentPointClient {
   }
 
   /**
-   * Verify Webhook Signature
+   * Cryptographically Verify Webhook Signature (HMAC SHA-256)
+   * Prevents webhook forgery and tampering attacks.
    */
   verifyWebhookSignature(payload: string, signature: string, secret?: string): boolean {
     const webhookSecret = secret || process.env.PAYMENTPOINT_WEBHOOK_SECRET;
-    if (!webhookSecret) return true; // Development mode
-    // In production: compute HMAC SHA-256 and compare
-    return true;
+    // In local development or testing without a secret configured:
+    if (!webhookSecret) {
+      console.warn('[PaymentPoint] No PAYMENTPOINT_WEBHOOK_SECRET configured; skipping signature verification in dev mode.');
+      return true;
+    }
+
+    if (!signature) {
+      return false;
+    }
+
+    try {
+      const crypto = require('crypto');
+      const expectedSignature = crypto
+        .createHmac('sha256', webhookSecret)
+        .update(payload)
+        .digest('hex');
+
+      const expectedBuffer = Buffer.from(expectedSignature, 'utf8');
+      const signatureBuffer = Buffer.from(signature, 'utf8');
+
+      if (expectedBuffer.length !== signatureBuffer.length) {
+        return false;
+      }
+
+      return crypto.timingSafeEqual(expectedBuffer, signatureBuffer);
+    } catch (err) {
+      console.error('[PaymentPoint] Error verifying webhook signature:', err);
+      return false;
+    }
   }
 }
 

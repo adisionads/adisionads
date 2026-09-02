@@ -73,7 +73,7 @@ export default function HomePage() {
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-bold tracking-wide">
                 <ShieldCheck className="w-4 h-4 text-brand-400" />
-                <span>ADISION by REKTINA — Official Community Marketplace</span>
+                <span>Adision — Performance Community Ad Marketplace</span>
               </div>
 
               {activePersona === 'advertiser' ? (

@@ -1,5 +1,5 @@
 -- =========================================================================
--- ADISION by REKTINA — COMPLETE PRODUCTION POSTGRESQL SCHEMA
+-- ADISION — COMPLETE PRODUCTION POSTGRESQL SCHEMA
 -- Double-entry ledger, multi-role RBAC, Row Level Security, click analytics
 -- =========================================================================
 
@@ -344,4 +344,159 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ATOMIC STORED PROCEDURE: PROCESS CAMPAIGN PAYMENT & RECORD ESCROW
+CREATE OR REPLACE FUNCTION public.process_campaign_payment(
+    p_payment_reference TEXT,
+    p_amount NUMERIC(14, 2)
+)
+RETURNS JSONB AS $$
+DECLARE
+    v_campaign RECORD;
+    v_wallet RECORD;
+BEGIN
+    -- 1. Lock campaign row for atomic update
+    SELECT * INTO v_campaign
+    FROM public.campaigns
+    WHERE payment_reference = p_payment_reference
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RETURN jsonb_build_object('success', false, 'message', 'Campaign with reference not found');
+    END IF;
+
+    -- 2. Idempotency Check: If already paid, return early safely
+    IF v_campaign.payment_status = 'PAID' THEN
+        RETURN jsonb_build_object('success', true, 'message', 'Payment already processed (idempotent duplicate)', 'campaign_id', v_campaign.id);
+    END IF;
+
+    -- 3. Update Campaign Payment Status
+    UPDATE public.campaigns
+    SET payment_status = 'PAID',
+        status = 'ACTIVE',
+        updated_at = NOW()
+    WHERE id = v_campaign.id;
+
+    -- 4. Fetch or create advertiser wallet
+    SELECT * INTO v_wallet
+    FROM public.wallets
+    WHERE user_id = v_campaign.advertiser_id
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        INSERT INTO public.wallets (user_id, available_balance, pending_balance, lifetime_spent)
+        VALUES (v_campaign.advertiser_id, 0.00, 0.00, p_amount)
+        RETURNING * INTO v_wallet;
+    ELSE
+        UPDATE public.wallets
+        SET lifetime_spent = lifetime_spent + p_amount,
+            updated_at = NOW()
+        WHERE id = v_wallet.id;
+    END IF;
+
+    -- 5. Record immutable ledger transaction
+    INSERT INTO public.ledger_transactions (
+        wallet_id, user_id, transaction_type, amount, direction, balance_after, reference_id, reference_type, description
+    ) VALUES (
+        v_wallet.id,
+        v_campaign.advertiser_id,
+        'ESCROW_HOLD',
+        p_amount,
+        'DEBIT',
+        v_wallet.available_balance,
+        v_campaign.id,
+        'CAMPAIGN_ESCROW',
+        'Escrow deposit held for campaign reach distribution'
+    );
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'message', 'Campaign activated and escrow transaction logged',
+        'campaign_id', v_campaign.id
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ATOMIC STORED PROCEDURE: INCREMENT TRACKING LINK CLICKS
+CREATE OR REPLACE FUNCTION public.increment_tracking_link_clicks(
+    t_code TEXT,
+    is_unique_click BOOLEAN DEFAULT FALSE
+)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.tracking_links
+    SET total_clicks = total_clicks + 1,
+        unique_clicks = CASE WHEN is_unique_click THEN unique_clicks + 1 ELSE unique_clicks END
+    WHERE LOWER(tracking_code) = LOWER(t_code);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ATOMIC STORED PROCEDURE: REQUEST PARTNER WITHDRAWAL
+CREATE OR REPLACE FUNCTION public.request_partner_withdrawal(
+    p_user_id UUID,
+    p_amount NUMERIC(14, 2),
+    p_bank_name TEXT,
+    p_account_number TEXT,
+    p_account_name TEXT
+)
+RETURNS JSONB AS $$
+DECLARE
+    v_wallet RECORD;
+    v_new_available NUMERIC(14, 2);
+    v_withdrawal_id UUID;
+BEGIN
+    -- 1. Lock wallet row
+    SELECT * INTO v_wallet
+    FROM public.wallets
+    WHERE user_id = p_user_id
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Wallet not found for this user.';
+    END IF;
+
+    -- 2. Validate sufficient available balance
+    IF v_wallet.available_balance < p_amount THEN
+        RAISE EXCEPTION 'Insufficient available balance. Requested: %, Available: %', p_amount, v_wallet.available_balance;
+    END IF;
+
+    v_new_available := v_wallet.available_balance - p_amount;
+
+    -- 3. Deduct available balance and move to pending balance
+    UPDATE public.wallets
+    SET available_balance = v_new_available,
+        pending_balance = v_wallet.pending_balance + p_amount,
+        updated_at = NOW()
+    WHERE id = v_wallet.id;
+
+    -- 4. Create withdrawal request entry
+    INSERT INTO public.withdrawal_requests (
+        wallet_id, user_id, amount, bank_name, account_number, account_name, status
+    ) VALUES (
+        v_wallet.id, p_user_id, p_amount, p_bank_name, p_account_number, p_account_name, 'REQUESTED'
+    ) RETURNING id INTO v_withdrawal_id;
+
+    -- 5. Create immutable debit ledger record
+    INSERT INTO public.ledger_transactions (
+        wallet_id, user_id, transaction_type, amount, direction, balance_after, reference_id, reference_type, description
+    ) VALUES (
+        v_wallet.id,
+        p_user_id,
+        'WITHDRAWAL',
+        p_amount,
+        'DEBIT',
+        v_new_available,
+        v_withdrawal_id,
+        'WITHDRAWAL_REQUEST',
+        format('Bank transfer withdrawal requested to %s (%s)', p_bank_name, p_account_number)
+    );
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'withdrawal_id', v_withdrawal_id,
+        'new_available_balance', v_new_available
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 

@@ -13,17 +13,17 @@ export function Footer() {
               <div className="h-10 w-auto rounded-xl overflow-hidden shadow-md bg-brand-500 flex items-center px-1">
                 <img
                   src="/brand/logo-horizontal.jpg"
-                  alt="ADISION by REKTINA"
+                  alt="Adision"
                   className="h-8 w-auto object-contain"
                 />
               </div>
             </div>
             <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-              ADISION by REKTINA is the premier performance-driven marketplace connecting businesses with verified WhatsApp Groups, Channels, and digital communities.
+              Adision is the premier performance-driven marketplace connecting businesses with verified WhatsApp Groups, Channels, and digital communities.
             </p>
             <div className="flex items-center gap-2 p-2.5 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold max-w-sm">
               <ShieldCheck className="w-4 h-4 shrink-0 text-brand-400" />
-              <span>Mark of Authenticity: Official REKTINA Ecosystem Product</span>
+              <span>Verified Community Advertising Network</span>
             </div>
           </div>
 
@@ -95,7 +95,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} ADISION by REKTINA. All rights reserved. Reach the right communities.</p>
+          <p>© {new Date().getFullYear()} Adision. All rights reserved. Reach the right communities.</p>
           <div className="flex items-center gap-6">
             <span>Privacy Policy</span>
             <span>Terms of Service</span>

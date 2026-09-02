@@ -5,7 +5,7 @@ import { Navbar } from '@/components/shared/Navbar';
 import { Footer } from '@/components/shared/Footer';
 
 export const metadata: Metadata = {
-  title: 'ADISION by REKTINA | Performance-Driven Community Advertising Marketplace',
+  title: 'Adision | Performance-Driven Community Advertising Marketplace',
   description:
     'Connect your brand with verified WhatsApp Groups and Channels. Distribute targeted campaigns, track real click performance, and empower community monetization.',
   icons: {
