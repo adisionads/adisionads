@@ -64,7 +64,7 @@ export default function NewCampaignPage() {
       createCampaign({
         title,
         category,
-        adCopy,
+        ad_copy: adCopy,
         media_url: mediaUrl,
         destination_url: destinationUrl,
         cta_text: ctaText,
