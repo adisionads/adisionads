@@ -5,25 +5,17 @@ import Link from 'next/link';
 import { useApp } from '@/lib/store/app-context';
 import {
   ArrowRight,
-  BarChart3,
   CheckCircle2,
   ChevronRight,
-  DollarSign,
   GraduationCap,
-  Layers,
-  MessageCircle,
-  MousePointerClick,
   ShieldCheck,
   Sparkles,
-  TrendingUp,
-  Users,
   Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import { COMMUNITY_CATEGORIES_LIST, CAMPAIGN_PACKAGES } from '@/lib/constants';
-import { formatCurrency, formatNumber } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 
 export default function HomePage() {
   const [activePersona, setActivePersona] = useState<'advertiser' | 'partner'>('advertiser');

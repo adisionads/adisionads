@@ -7,7 +7,7 @@ import { formatCategoryName, formatCurrency, formatNumber } from '@/lib/utils';
 import { StatsCard } from '@/components/shared/StatsCard';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/Button';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import {
   ArrowRight,
   Award,
@@ -15,7 +15,6 @@ import {
   Clock,
   DollarSign,
   PlusCircle,
-  TrendingUp,
   Users,
   Wallet as WalletIcon,
 } from 'lucide-react';

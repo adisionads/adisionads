@@ -7,11 +7,9 @@ import { formatCategoryName, formatCurrency, formatNumber } from '@/lib/utils';
 import { StatsCard } from '@/components/shared/StatsCard';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/Button';
-import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import {
   ArrowRight,
-  BarChart3,
-  ExternalLink,
   Eye,
   Megaphone,
   MousePointerClick,

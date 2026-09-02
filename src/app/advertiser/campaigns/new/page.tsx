@@ -17,12 +17,8 @@ import {
   CheckCircle2,
   Copy,
   CreditCard,
-  ExternalLink,
-  Layers,
   Megaphone,
-  QrCode,
   ShieldCheck,
-  Sparkles,
   Zap,
 } from 'lucide-react';
 
