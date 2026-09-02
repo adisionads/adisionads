@@ -53,9 +53,8 @@ export default function AdvertiserDashboard() {
           <StatsCard
             title="Total Clicks Delivered"
             value={formatNumber(totalClicks)}
-            description={`${formatNumber(totalUniqueClicks)} unique visitors`}
+            description={totalClicks > 0 ? `${formatNumber(totalUniqueClicks)} unique visitors` : 'Attribution ready'}
             icon={MousePointerClick}
-            trend="+24%"
             highlight
           />
           <StatsCard
@@ -65,9 +64,9 @@ export default function AdvertiserDashboard() {
             icon={Megaphone}
           />
           <StatsCard
-            title="Estimated Audience Reach"
-            value="35,000+"
-            description="Targeted community members"
+            title="Total Placements"
+            value={campaigns.reduce((sum, c) => sum + (c.assigned_count || 0), 0)}
+            description="Assigned community broadcasts"
             icon={Users}
           />
           <StatsCard
@@ -92,60 +91,76 @@ export default function AdvertiserDashboard() {
             </Link>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
-                <tr>
-                  <th className="px-6 py-4">Campaign Name & Target</th>
-                  <th className="px-6 py-4">Package & Budget</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Clicks (Unique)</th>
-                  <th className="px-6 py-4">Communities</th>
-                  <th className="px-6 py-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/80">
-                {campaigns.map((camp) => (
-                  <tr key={camp.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="font-bold text-white">{camp.title}</div>
-                      <div className="text-xs text-brand-400 font-medium mt-0.5">
-                        {formatCategoryName(camp.category)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="font-semibold text-white">{formatCurrency(camp.budget_amount)}</div>
-                      <div className="text-xs text-slate-400">{camp.package_name} ({camp.duration_days}d)</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusBadge status={camp.status} />
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="font-bold text-white">
-                        {camp.total_clicks || 0}{' '}
-                        <span className="text-xs text-slate-400 font-normal">
-                          ({camp.unique_clicks || 0} unique)
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="font-semibold text-slate-300">
-                        {camp.assigned_count || 1} Assigned
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Link href={`/advertiser/campaigns/${camp.id}`}>
-                        <Button size="sm" variant="outline" className="gap-1 text-xs">
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>View Analytics</span>
-                        </Button>
-                      </Link>
-                    </td>
+          {campaigns.length === 0 ? (
+            <div className="text-center py-16 px-4">
+              <Megaphone className="w-12 h-12 text-slate-600 mx-auto mb-4 opacity-60" />
+              <h3 className="text-base font-bold text-white">No campaigns created yet</h3>
+              <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto mb-6">
+                Launch your first targeted community ad campaign to start receiving clicks and verified placements.
+              </p>
+              <Link href="/advertiser/campaigns/new">
+                <Button size="md" variant="primary" className="font-bold">
+                  <PlusCircle className="w-4 h-4 mr-1.5" />
+                  <span>Create Your First Campaign</span>
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
+                  <tr>
+                    <th className="px-6 py-4">Campaign Name & Target</th>
+                    <th className="px-6 py-4">Package & Budget</th>
+                    <th className="px-6 py-4">Status</th>
+                    <th className="px-6 py-4">Clicks (Unique)</th>
+                    <th className="px-6 py-4">Communities</th>
+                    <th className="px-6 py-4 text-right">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-800/80">
+                  {campaigns.map((camp) => (
+                    <tr key={camp.id} className="hover:bg-slate-800/30 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-white">{camp.title}</div>
+                        <div className="text-xs text-brand-400 font-medium mt-0.5">
+                          {formatCategoryName(camp.category)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-white">{formatCurrency(camp.budget_amount)}</div>
+                        <div className="text-xs text-slate-400">{camp.package_name} ({camp.duration_days}d)</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusBadge status={camp.status} />
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-white">
+                          {camp.total_clicks || 0}{' '}
+                          <span className="text-xs text-slate-400 font-normal">
+                            ({camp.unique_clicks || 0} unique)
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="font-semibold text-slate-300">
+                          {camp.assigned_count || 1} Assigned
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Link href={`/advertiser/campaigns/${camp.id}`}>
+                          <Button size="sm" variant="outline" className="gap-1 text-xs">
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>View Analytics</span>
+                          </Button>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Card>
       </div>
     </div>

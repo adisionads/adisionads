@@ -22,7 +22,6 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { WhatsAppMockup } from '@/components/previews/WhatsAppMockup';
 import { COMMUNITY_CATEGORIES_LIST, CAMPAIGN_PACKAGES } from '@/lib/constants';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 
@@ -67,114 +66,99 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Hero Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Column: Dynamic Copy based on Persona */}
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-bold tracking-wide">
-                <ShieldCheck className="w-4 h-4 text-brand-400" />
-                <span>Adision — Performance Community Ad Marketplace</span>
-              </div>
-
-              {activePersona === 'advertiser' ? (
-                <>
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1]">
-                    Reach <span className="text-brand-400">Thousands</span> in Verified WhatsApp Communities.
-                  </h1>
-                  <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                    Stop messaging individual group admins and getting scammed. Launch high-converting ad campaigns across verified WhatsApp Groups & Channels with real unique link click tracking.
-                  </p>
-                  <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                    <Link
-                      href="/advertiser/campaigns/new"
-                      onClick={() => setCurrentRole('ADVERTISER')}
-                      className="w-full sm:w-auto"
-                    >
-                      <Button size="lg" variant="primary" className="w-full font-bold text-base">
-                        <span>Launch a Campaign</span>
-                        <ArrowRight className="w-5 h-5" />
-                      </Button>
-                    </Link>
-                    <Link href="/pricing" className="w-full sm:w-auto">
-                      <Button size="lg" variant="outline" className="w-full">
-                        <span>View Pricing Packages</span>
-                      </Button>
-                    </Link>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1]">
-                    Monetize Your <span className="text-brand-400">WhatsApp Group</span> on Autopilot.
-                  </h1>
-                  <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                    Turn your active WhatsApp audience into regular income. Receive pre-paid ad broadcast jobs, post them in your group, submit a screenshot proof, and get paid instantly to your bank account.
-                  </p>
-                  <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                    <Link
-                      href="/partner/communities"
-                      onClick={() => setCurrentRole('COMMUNITY_PARTNER')}
-                      className="w-full sm:w-auto"
-                    >
-                      <Button size="lg" variant="primary" className="w-full font-bold text-base">
-                        <span>Register Your Group</span>
-                        <ArrowRight className="w-5 h-5" />
-                      </Button>
-                    </Link>
-                    <Link
-                      href="/partner/wallet"
-                      onClick={() => setCurrentRole('COMMUNITY_PARTNER')}
-                      className="w-full sm:w-auto"
-                    >
-                      <Button size="lg" variant="outline" className="w-full">
-                        <span>View Partner Earnings Hub</span>
-                      </Button>
-                    </Link>
-                  </div>
-                </>
-              )}
-
-              {/* Quick Trust Counters */}
-              <div className="pt-6 border-t border-slate-800/80 grid grid-cols-3 gap-4 text-center lg:text-left">
-                <div>
-                  <div className="text-2xl sm:text-3xl font-extrabold text-white">50+</div>
-                  <div className="text-xs text-slate-400 font-medium">Verified Groups</div>
-                </div>
-                <div>
-                  <div className="text-2xl sm:text-3xl font-extrabold text-brand-400">120K+</div>
-                  <div className="text-xs text-slate-400 font-medium">Active Reach</div>
-                </div>
-                <div>
-                  <div className="text-2xl sm:text-3xl font-extrabold text-white">99.4%</div>
-                  <div className="text-xs text-slate-400 font-medium">Placement Proof</div>
-                </div>
-              </div>
+          {/* Hero Content - Centered, Clean, No Fake Metrics */}
+          <div className="max-w-4xl mx-auto text-center space-y-8">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-bold tracking-wide">
+              <ShieldCheck className="w-4 h-4 text-brand-400" />
+              <span>Adision — Performance Community Ad Marketplace</span>
             </div>
 
-            {/* Right Column: Live WhatsApp Interactive Mockup */}
-            <div className="lg:col-span-5 flex justify-center">
-              <div className="w-full max-w-sm relative">
-                {/* Visual authenticity tag */}
-                <div className="absolute -top-4 -right-4 bg-brand-500 text-dark-900 text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-lg z-20 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" />
-                  Live Preview
+            {activePersona === 'advertiser' ? (
+              <>
+                <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-[1.1]">
+                  Reach High-Converting Audiences in <span className="text-brand-400">Verified WhatsApp Communities</span>.
+                </h1>
+                <p className="text-base sm:text-xl text-slate-300 leading-relaxed max-w-2xl mx-auto">
+                  Stop messaging individual group admins and getting scammed. Distribute targeted campaigns across verified WhatsApp Groups & Channels with real unique link click attribution.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+                  <Link
+                    href="/advertiser/campaigns/new"
+                    onClick={() => setCurrentRole('ADVERTISER')}
+                    className="w-full sm:w-auto"
+                  >
+                    <Button size="lg" variant="primary" className="w-full font-bold text-base shadow-lg shadow-brand-500/20">
+                      <span>Launch a Campaign</span>
+                      <ArrowRight className="w-5 h-5" />
+                    </Button>
+                  </Link>
+                  <Link href="/pricing" className="w-full sm:w-auto">
+                    <Button size="lg" variant="outline" className="w-full text-base">
+                      <span>View Pricing Packages</span>
+                    </Button>
+                  </Link>
                 </div>
-                <WhatsAppMockup
-                  communityName={
-                    activePersona === 'advertiser'
-                      ? 'UNILAG Tech & Deals Hub 🚀'
-                      : 'Campus Student Union Lounge 📚'
-                  }
-                  adCopy={
-                    activePersona === 'advertiser'
-                      ? `⚡️ NEVER RUN OUT OF DATA AGAIN! ⚡️\n\nGet 1GB Data for just ₦220 on SwiftPay.\nInstant airtime, electricity, and exam pins.\n\n🎁 Use Code: ADISION50 for 10% bonus!`
-                      : `🎉 New Brand Partnership!\n\nCheck out the latest tech gadgets and student discounts for this semester.`
-                  }
-                  mediaUrl="https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80"
-                  destinationUrl="https://adision.co/r/live_preview"
-                  ctaText="Download App & Claim 📲"
-                  trackingCode="ad_live_preview"
-                />
+              </>
+            ) : (
+              <>
+                <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-[1.1]">
+                  Monetize Your <span className="text-brand-400">WhatsApp Group</span> with Guaranteed Payouts.
+                </h1>
+                <p className="text-base sm:text-xl text-slate-300 leading-relaxed max-w-2xl mx-auto">
+                  Turn your active WhatsApp audience into regular income. Receive ad broadcast tasks, post them in your group, submit placement proof, and withdraw directly to your Nigerian bank.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+                  <Link
+                    href="/partner/communities"
+                    onClick={() => setCurrentRole('COMMUNITY_PARTNER')}
+                    className="w-full sm:w-auto"
+                  >
+                    <Button size="lg" variant="primary" className="w-full font-bold text-base shadow-lg shadow-brand-500/20">
+                      <span>Register Your Group</span>
+                      <ArrowRight className="w-5 h-5" />
+                    </Button>
+                  </Link>
+                  <Link
+                    href="/partner/wallet"
+                    onClick={() => setCurrentRole('COMMUNITY_PARTNER')}
+                    className="w-full sm:w-auto"
+                  >
+                    <Button size="lg" variant="outline" className="w-full text-base">
+                      <span>View Partner Earnings Hub</span>
+                    </Button>
+                  </Link>
+                </div>
+              </>
+            )}
+
+            {/* Genuine Value Proposition Pillars (No Fake Metric Numbers) */}
+            <div className="pt-10 border-t border-slate-800/80 grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
+              <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 flex items-start gap-3">
+                <div className="p-2 rounded-xl bg-brand-500/10 text-brand-400 shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white">Verified Admins</div>
+                  <div className="text-xs text-slate-400 mt-0.5">Every group activity and ownership is hand-checked</div>
+                </div>
+              </div>
+              <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 flex items-start gap-3">
+                <div className="p-2 rounded-xl bg-brand-500/10 text-brand-400 shrink-0">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white">Escrow Protected</div>
+                  <div className="text-xs text-slate-400 mt-0.5">Funds held safely until placement proof is approved</div>
+                </div>
+              </div>
+              <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 flex items-start gap-3">
+                <div className="p-2 rounded-xl bg-brand-500/10 text-brand-400 shrink-0">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white">Click Telemetry</div>
+                  <div className="text-xs text-slate-400 mt-0.5">Privacy-safe deduplicated unique link click analytics</div>
+                </div>
               </div>
             </div>
           </div>

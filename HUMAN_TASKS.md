@@ -1,8 +1,17 @@
 # Adision Human Tasks and Setup Guide
 
 Project Adision Community Advertising Marketplace
-Status Architecture and Prototype Ready
-Cost Free Tier Supported
+Status Live on Vercel Build Working
+Next Phase Real Database Setup and Environment Keys
+
+---
+
+## What Has Been Completed
+- Vercel build successfully compiling and live
+- All fake metrics and fabricated numbers removed from website and dashboards
+- WhatsApp live preview hidden for now to keep experience clean
+- Backend security and webhook signature verification implemented
+- Clean empty states added so dashboards are ready for real data
 
 ---
 
@@ -44,15 +53,15 @@ Cost Free Tier Supported
 
 ---
 
-### 4 Vercel Free Hosting
-- Log in to vercel.com with your GitHub account
-- Import your adision repository
-- Add all environment variables to Vercel project settings
-- Click Deploy
+### 4 Vercel Environment Configuration
+- Open your project on vercel.com
+- Go to Settings then Environment Variables
+- Add the keys from your Supabase and PaymentPoint dashboards
+- Redeploy to connect live services
 
 ---
 
-## Local Environment File Setup
+## Local Environment File Template
 
 Create a file named .env.local in the project root folder
 
@@ -77,7 +86,7 @@ CLICK_HASH_SALT=adision_random_secret_salt_12345
 
 ## Community Pre Seeding Tasks
 
-Before launching ads
+Before launching public ads
 - Find 20 to 50 active WhatsApp Group and Channel admins
 - Focus on Tech Students Finance and Wholesale groups
 - Prepare short onboarding message with guaranteed payouts

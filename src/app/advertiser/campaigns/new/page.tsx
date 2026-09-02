@@ -6,7 +6,6 @@ import { useApp } from '@/lib/store/app-context';
 import { CAMPAIGN_PACKAGES, COMMUNITY_CATEGORIES_LIST } from '@/lib/constants';
 import { formatCurrency } from '@/lib/utils';
 import { CommunityCategory } from '@/types';
-import { WhatsAppMockup } from '@/components/previews/WhatsAppMockup';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Input, TextArea } from '@/components/ui/Input';
@@ -117,10 +116,8 @@ export default function NewCampaignPage() {
           </div>
         </div>
 
-        {/* Wizard Main Grid: Form on Left, Live WhatsApp Preview on Right */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left 7 Columns: Step Forms */}
-          <div className="lg:col-span-7 space-y-6">
+        {/* Wizard Form - Clean Centered Layout (Live preview hidden) */}
+        <div className="max-w-3xl mx-auto space-y-6">
             {/* STEP 1: CAMPAIGN DETAILS & TARGETING */}
             {currentStep === 1 && (
               <Card className="p-6 sm:p-8 space-y-6 border-slate-800">
@@ -327,29 +324,6 @@ export default function NewCampaignPage() {
                 </div>
               </Card>
             )}
-          </div>
-
-          {/* Right 5 Columns: Live Interactive WhatsApp Mockup */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="flex items-center justify-between px-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Live WhatsApp Ad Preview
-              </span>
-              <span className="text-[10px] bg-brand-500/20 text-brand-400 font-bold px-2 py-0.5 rounded-full">
-                Real-Time
-              </span>
-            </div>
-
-            <WhatsAppMockup
-              communityName="Matched WhatsApp Community"
-              category={category}
-              adCopy={adCopy}
-              mediaUrl={mediaUrl}
-              destinationUrl={destinationUrl}
-              ctaText={ctaText}
-              trackingCode="ad_live_preview"
-            />
-          </div>
         </div>
       </div>
 

@@ -143,11 +143,19 @@ erDiagram
 
 ---
 
-## 6. Development Priorities
+## 6. Current Development & System Status
 
-- **Phase A (Foundation):** Next.js App Router, Tailwind + shadcn/ui, Supabase Auth & Schema, RBAC, Master Layout & Navigation.
-- **Phase B (Supply Portal):** Community registration, category selection, screenshot proof upload, admin verification table.
-- **Phase C (Demand Portal):** Campaign builder, package selector, WhatsApp ad live mockup preview, PaymentPoint checkout & webhook listener.
-- **Phase D (Distribution & Tracking):** Admin matchmaker, assignment workflow, low-latency `/r/[code]` redirect engine, proof submission & review.
-- **Phase E (Wallet & Scoring):** Double-entry ledger, balance withdrawal requests, community performance scoring algorithm.
+- **Brand & Identity:** Strictly branded as **Adision** across all interfaces, metadata, and backend schemas.
+- **UI & Experience:**
+  - Live WhatsApp mockup preview hidden for MVP to keep layout focused and simple.
+  - Fake mock metrics and sample campaigns purged; dashboards now render clean empty states ready for real data.
+  - Public landing page presents verified benefits without fabricated numbers.
+- **Security & Backend:**
+  - HMAC SHA-256 webhook signature verification with timing-safe comparisons in place.
+  - Bot and preview-scraper filtering active on `/r/[code]` redirect engine.
+  - Atomic PostgreSQL stored procedures created for campaign payment escrow, click incrementing, and balance withdrawals.
+  - Server-side Supabase admin client configured for elevated service-role tasks.
+- **Next Steps:**
+  - Connect live Supabase and PaymentPoint production API keys.
+  - Execute schema migration in Supabase SQL editor.
 

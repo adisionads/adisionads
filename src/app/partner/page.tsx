@@ -76,9 +76,9 @@ export default function PartnerDashboard() {
             icon={DollarSign}
           />
           <StatsCard
-            title="Average Community Score"
-            value="92.4"
-            description="High performance & reliability rating"
+            title="Verified Communities"
+            value={verifiedCommunities.length}
+            description={`${communities.length} total registered`}
             icon={Award}
           />
         </div>
@@ -95,7 +95,7 @@ export default function PartnerDashboard() {
                   You have {activeAssignments.length} new campaign assignment(s) waiting!
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Accept now to broadcast and earn up to {formatCurrency(4500)} per post.
+                  Accept now to broadcast and earn platform payouts.
                 </p>
               </div>
             </div>
@@ -122,49 +122,65 @@ export default function PartnerDashboard() {
             </Link>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
-                <tr>
-                  <th className="px-6 py-4">Community Name</th>
-                  <th className="px-6 py-4">Category</th>
-                  <th className="px-6 py-4">Member Count</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Score</th>
-                  <th className="px-6 py-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/80">
-                {communities.map((comm) => (
-                  <tr key={comm.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="px-6 py-4 font-bold text-white">
-                      {comm.name}
-                      <div className="text-[11px] text-slate-500 font-normal">{comm.platform.replace('_', ' ')}</div>
-                    </td>
-                    <td className="px-6 py-4 text-brand-400 font-medium text-xs">
-                      {formatCategoryName(comm.category)}
-                    </td>
-                    <td className="px-6 py-4 font-semibold text-white">
-                      {formatNumber(comm.member_count)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusBadge status={comm.status} />
-                    </td>
-                    <td className="px-6 py-4 font-bold text-emerald-400">
-                      {comm.performance_score ? `${comm.performance_score}/100` : 'Pending'}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Link href="/partner/assignments">
-                        <Button size="sm" variant="outline" className="text-xs">
-                          View Jobs
-                        </Button>
-                      </Link>
-                    </td>
+          {communities.length === 0 ? (
+            <div className="text-center py-16 px-4">
+              <Users className="w-12 h-12 text-slate-600 mx-auto mb-4 opacity-60" />
+              <h3 className="text-base font-bold text-white">No communities registered yet</h3>
+              <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto mb-6">
+                Connect your WhatsApp Group or Channel to start receiving paid ad broadcasts.
+              </p>
+              <Link href="/partner/communities">
+                <Button size="md" variant="primary" className="font-bold">
+                  <PlusCircle className="w-4 h-4 mr-1.5" />
+                  <span>Register Your First Group</span>
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
+                  <tr>
+                    <th className="px-6 py-4">Community Name</th>
+                    <th className="px-6 py-4">Category</th>
+                    <th className="px-6 py-4">Member Count</th>
+                    <th className="px-6 py-4">Status</th>
+                    <th className="px-6 py-4">Score</th>
+                    <th className="px-6 py-4 text-right">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-800/80">
+                  {communities.map((comm) => (
+                    <tr key={comm.id} className="hover:bg-slate-800/30 transition-colors">
+                      <td className="px-6 py-4 font-bold text-white">
+                        {comm.name}
+                        <div className="text-[11px] text-slate-500 font-normal">{comm.platform.replace('_', ' ')}</div>
+                      </td>
+                      <td className="px-6 py-4 text-brand-400 font-medium text-xs">
+                        {formatCategoryName(comm.category)}
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-white">
+                        {formatNumber(comm.member_count)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusBadge status={comm.status} />
+                      </td>
+                      <td className="px-6 py-4 font-bold text-emerald-400">
+                        {comm.performance_score ? `${comm.performance_score}/100` : 'Pending'}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Link href="/partner/assignments">
+                          <Button size="sm" variant="outline" className="text-xs">
+                            View Jobs
+                          </Button>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Card>
       </div>
     </div>
