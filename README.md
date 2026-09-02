@@ -38,8 +38,8 @@
 
 ### 1. Clone & Setup
 ```bash
-git clone https://github.com/adisionads/website.git
-cd website
+git clone https://github.com/adisionads/adisionads.git
+cd adisionads
 ```
 
 ### 2. Environment Configuration
