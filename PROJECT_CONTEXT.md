@@ -167,8 +167,6 @@ erDiagram
 - **Live Deployment & Credentials:**
   - Production App URL: `https://adisionads.vercel.app`
   - Supabase Project ID: `rgivzqyqcrhqafcxbvfd`
-  - `.env.local` configured with Supabase URL, anon key, and service role key.
-
 ---
 
 ## 7. Strict Founder Directives & Truth-in-Marketing Policy
@@ -191,6 +189,66 @@ erDiagram
 >    - Elevating a user to Admin is done strictly via Supabase SQL: `SELECT public.make_user_admin('founder@example.com');`.
 > 4. **Payment Flow Roadmap:**
 >    - Payment gateways (PaymentPoint) will be wired into live production after account creation and dashboard flows are fully vetted.
+
+---
+
+## 8. Co-Founder Alignment & Next Sprint Roadmap: Community Onboarding Flow
+
+> [!NOTE]
+> **Status as of Sprint Pause:**  
+> The founder is pausing active coding to plan and align with their co-founder on the community verification rules and workflows before building the community onboarding flow. All system context, decisions, and architecture are preserved here so that work can resume seamlessly even if chat history is cleared.
+
+### A. Current Platform State (100% Operational)
+1. **Master Database Setup (`000_FULL_SETUP.sql`):** Executed in Supabase. All 11 tables, triggers, and stored procedures exist.
+2. **Authentication & RBAC:** Supabase Auth is active with "Confirm email" toggled OFF for instant registration without rate limit issues.
+3. **Route Guards:** `/admin/*` requires `ADMIN`, `/advertiser/*` requires `ADVERTISER` or `ADMIN`, `/partner/*` requires `COMMUNITY_PARTNER` or `ADMIN`.
+4. **Founder Account:** Created and elevated to `ADMIN` via `SELECT public.make_user_admin('...');`.
+5. **Early Access Waitlist:** Live on production at `https://adisionads.vercel.app/waitlist`, capturing real signups with country and WhatsApp telephone numbers.
+6. **Design & Typography:** Powered by Plus Jakarta Sans, high-contrast inputs, and smart country code selector (`🇳🇬 +234`, etc.) with automatic leading zero normalization.
+7. **Strict Truth-in-Marketing:** Zero occurrences of "VIP", zero unbacked promo claims, zero fabricated guarantees.
+
+### B. Core Questions & Decisions for Co-Founder Alignment
+When you and your co-founder sit down to align, here are the exact decisions to finalize for Community Onboarding:
+
+1. **WhatsApp Groups vs WhatsApp Channels:**
+   - *Groups:* Capped at 1,024 members. Two-way chats or admin-only announcement mode. Requires an invite link (`chat.whatsapp.com/...`).
+   - *Channels:* Unlimited followers. One-way broadcast directory. Requires public channel link (`whatsapp.com/channel/...`).
+   - *Decision:* Confirm whether both will be accepted from day 1, or if you want to prioritize Groups first.
+
+2. **Admin Verification (Preventing "Fake Admin" Submissions):**
+   - *Problem:* What prevents an ordinary member from submitting an invite link to a large WhatsApp group they don't own?
+   - *Options for discussion:*
+     - **Option A (Screenshot proof):** Require a screenshot of the group's "Group Info" screen showing the user's phone number has the green "Group Admin" badge.
+     - **Option B (Phone number verification):** When the platform admin reviews the group, they join via the invite link and verify that the community owner's registered WhatsApp phone number is listed in the Admin list.
+     - **Option C (Adision Bot / Verification Post):** Ask the admin to temporarily post a 4-digit code in their group description or as an announcement before approval.
+     - *Recommended approach:* Start with Option A + B for manual review during beta.
+
+3. **Form Simplicity (Low Friction for Admins):**
+   - Keep the initial community submission form down to essential fields:
+     1. Community Type (`WhatsApp Group` vs `WhatsApp Channel`)
+     2. Community Name
+     3. Category (`Campus / Student`, `Tech & Coding`, `Business & Finance`, `Crypto & Web3`, `Jobs & Careers`, `Entertainment`, `General / Lifestyle`)
+     4. WhatsApp Invite / Channel Link
+     5. Member / Follower Count
+     6. Admin Verification Screenshot (Optional or Required based on co-founder decision)
+
+4. **Lifecycle & Verification Desk:**
+   - Submissions land in `public.communities` with `status = 'UNDER_REVIEW'`.
+   - Admins open `/admin/communities` to audit the community link and 1-click **Approve** (sets status to `VERIFIED`) or **Reject** (with quick feedback reason).
+
+5. **Broadcast Proof & Fraud Protection:**
+   - How to ensure admins don't delete the ad after 5 minutes?
+   - *Adision Defense:* Click tracking (`/r/[code]`). Payouts are tied to legitimate traffic/engagement and confirmed post duration (e.g. 24 hours), not just an immediate screenshot.
+
+### C. Immediate Next Steps When Resuming Work
+1. **Wire Community Partner Submission to Supabase:**
+   - Update [`src/app/partner/communities/page.tsx`](file:///c:/Users/1LUV/Documents/Coding%20projects/Adision/src/app/partner/communities/page.tsx) to insert directly into `public.communities` with `owner_id = user.id`.
+2. **Wire Admin Community Approval Desk:**
+   - Update [`src/app/admin/communities/page.tsx`](file:///c:/Users/1LUV/Documents/Coding%20projects/Adision/src/app/admin/communities/page.tsx) to query pending communities from Supabase and allow 1-click Approve / Reject.
+3. **Wire Advertiser Campaign Creation:**
+   - Connect campaign draft form in `/advertiser/campaigns/new` to `public.campaigns`.
+
+
 
 
 

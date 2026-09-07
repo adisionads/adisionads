@@ -27,23 +27,14 @@
 
 ---
 
-## Immediate Action: Running the SQL in Supabase
+## Setup Status: Fully Completed & Live
 
-You can choose either of these two options in your Supabase SQL Editor:
-
-### Option A: Waitlist Only (Takes 30 seconds)
-If you just want the waitlist live immediately:
-1. Open Supabase (`rgivzqyqcrhqafcxbvfd`) $\rightarrow$ Click **SQL Editor** on the left menu.
-2. Copy the entire content of [`supabase/migrations/002_waitlist_schema.sql`](file:///c:/Users/1LUV/Documents/Coding%20projects/Adision/supabase/migrations/002_waitlist_schema.sql).
-3. Paste and click **Run**.
-4. The `public.waitlist` table will be created with country, email, phone, and RLS policies.
-
-### Option B: Full Platform Setup (Recommended — Takes 60 seconds)
-If you want the entire platform ready (Waitlist + Marketplace + Escrow Wallets + Campaigns + Tracking):
-1. Open Supabase $\rightarrow$ Click **SQL Editor**.
-2. Copy the entire content of [`supabase/migrations/000_FULL_SETUP.sql`](file:///c:/Users/1LUV/Documents/Coding%20projects/Adision/supabase/migrations/000_FULL_SETUP.sql).
-3. Paste and click **Run**.
-4. This sets up all 11 tables, extensions, enums, RLS policies, and atomic stored procedures.
+The database and authentication are now 100% active in production:
+- **`000_FULL_SETUP.sql`:** Executed in Supabase (all 11 tables, triggers, and stored procedures active).
+- **Founder Admin Account:** Created and elevated via `SELECT public.make_user_admin('...');`.
+- **Role-Based Access Control:** Active via `AuthGuard.tsx` (unauthorized visitors cannot access `/admin`, `/advertiser`, or `/partner`).
+- **Email Confirmation:** Toggled OFF in Supabase (`Authentication -> Providers -> Email`) for instant signups without rate limit issues.
+- **Typography & Phone Selector:** Powered by Plus Jakarta Sans and smart country code selector (`🇳🇬 +234`, etc.) with automatic leading zero stripping.
 
 ---
 
@@ -52,7 +43,7 @@ If you want the entire platform ready (Waitlist + Marketplace + Escrow Wallets +
 You have **two permanent places** to view, manage, and contact everyone who joins:
 
 ### 1. In Your Supabase Dashboard (Raw Database & Spreadsheet View)
-- Go to [supabase.com](https://supabase.com) and select your project.
+- Go to [supabase.com](https://supabase.com) and select your project (`rgivzqyqcrhqafcxbvfd`).
 - Click **Table Editor** on the left menu (the grid/table icon).
 - Click on `waitlist`.
 - You will see a live spreadsheet with every person's `full_name`, `email`, `phone` (WhatsApp), `country`, `role`, `company_or_community_name`, `estimated_reach_or_budget`, `position`, `referral_code`, and `created_at`.
@@ -60,7 +51,7 @@ You have **two permanent places** to view, manage, and contact everyone who join
 
 ### 2. In the Adision Admin Portal
 - Visit: `https://adisionads.vercel.app/admin/waitlist` (or locally at `http://localhost:3000/admin/waitlist`).
-- Click **VIP Waitlist** from the Admin dashboard.
+- Click **Waitlist** from the Admin dashboard.
 - Live features:
   - **KPI Cards:** Live counts of Advertisers, Community Partners, and Countries.
   - **Search & Filter:** Search by name, WhatsApp number, email, or country.
@@ -71,7 +62,7 @@ You have **two permanent places** to view, manage, and contact everyone who join
 
 ## Vercel Environment Variables Configuration
 
-Ensure these are added in your Vercel Dashboard (**Settings** $\rightarrow$ **Environment Variables**) and trigger a redeploy:
+Configured in your Vercel Dashboard (**Settings** $\rightarrow$ **Environment Variables**):
 
 ```env
 NEXT_PUBLIC_APP_URL=https://adisionads.vercel.app
@@ -83,27 +74,13 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 CLICK_HASH_SALT=adision_prod_hash_salt_9283748291
 ```
 
-*(Your local `.env.local` has already been populated with these exact credentials).*
-
 ---
 
-## Authentication & Role-Based Access Control (RBAC)
-
-The platform now locks down all private dashboards:
-- `/admin/*` is locked to users with `role = 'ADMIN'`.
-- `/advertiser/*` is locked to users with `role = 'ADVERTISER'` or `'ADMIN'`.
-- `/partner/*` is locked to users with `role = 'COMMUNITY_PARTNER'` or `'ADMIN'`.
-- Anyone not signed in is automatically redirected to `/login?redirect=...`.
-
-### How to Enable Auth Triggers & Make Yourself Admin:
-1. Open Supabase SQL Editor (`rgivzqyqcrhqafcxbvfd`).
-2. Run [`supabase/migrations/003_auth_profiles_trigger.sql`](file:///c:/Users/1LUV/Documents/Coding%20projects/Adision/supabase/migrations/003_auth_profiles_trigger.sql). This automatically creates profiles and wallets whenever someone signs up via Supabase Auth.
-3. Sign up with your email at `/signup`.
-4. Run this query in Supabase SQL Editor to elevate your account to Admin:
-   ```sql
-   SELECT public.make_user_admin('YOUR_EMAIL_HERE');
-   ```
-5. You can now access `/admin` and `/admin/waitlist` with full administrator permissions.
+## Elevating New Team Members to Admin
+Whenever you or a co-founder create an account at `/signup`, run this query in the Supabase SQL Editor to grant them Admin access:
+```sql
+SELECT public.make_user_admin('partner-email@example.com');
+```
 
 ---
 
