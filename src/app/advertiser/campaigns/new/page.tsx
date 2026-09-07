@@ -19,6 +19,7 @@ import {
   CreditCard,
   Megaphone,
   ShieldCheck,
+  Sparkles,
   Zap,
 } from 'lucide-react';
 
@@ -173,7 +174,7 @@ export default function NewCampaignPage() {
                     }}
                     className="font-bold gap-2"
                   >
-                    <span>Continue to Creative Copy</span>
+                    <span>Continue to Ad Message</span>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -186,43 +187,43 @@ export default function NewCampaignPage() {
                 <CardHeader className="p-0 mb-4">
                   <div className="inline-flex items-center gap-2 text-brand-400 text-xs font-bold uppercase tracking-wider mb-1">
                     <Sparkles className="w-4 h-4" />
-                    <span>Step 2: WhatsApp Ad Creative</span>
+                    <span>Step 2: Your Ad Message</span>
                   </div>
-                  <CardTitle>Craft Your WhatsApp Broadcast</CardTitle>
+                  <CardTitle>Write Your WhatsApp Message</CardTitle>
                   <CardDescription>
-                    Write your engaging ad copy and provide the landing page or WhatsApp order link.
+                    Write what you want members to see, and include where you want them to click.
                   </CardDescription>
                 </CardHeader>
 
                 <div className="space-y-4">
                   <TextArea
-                    label="WhatsApp Ad Copy & Message"
+                    label="Ad Message (Text)"
                     rows={6}
                     placeholder="Type the message that will be broadcasted to group members..."
                     value={adCopy}
                     onChange={(e) => setAdCopy(e.target.value)}
-                    helperText="Emojis and clear line breaks produce the highest click-through rates."
+                    helperText="Emojis and clear line breaks produce the highest clicks and sales."
                   />
 
                   <Input
-                    label="Creative Image Media URL"
+                    label="Promotional Flyer / Image (URL)"
                     placeholder="https://your-domain.com/ad-flyer.jpg"
                     value={mediaUrl}
                     onChange={(e) => setMediaUrl(e.target.value)}
-                    helperText="Link to your promotional flyer or product banner (PNG / JPG / WebP)."
+                    helperText="Optional link to your promotional flyer or product banner."
                   />
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Input
-                      label="Destination URL"
+                      label="Website or WhatsApp Order Link"
                       placeholder="https://yourwebsite.com/deal"
                       value={destinationUrl}
                       onChange={(e) => setDestinationUrl(e.target.value)}
-                      helperText="Where users land when clicking your ad."
+                      helperText="Where people land when clicking your ad."
                     />
 
                     <Input
-                      label="Call-To-Action (CTA) Button"
+                      label="Action Button Text"
                       placeholder="e.g. Order on WhatsApp 🛒"
                       value={ctaText}
                       onChange={(e) => setCtaText(e.target.value)}
@@ -327,8 +328,8 @@ export default function NewCampaignPage() {
       <Modal
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
-        title="Complete Bank Transfer Payment"
-        description="Transfer the exact amount to the PaymentPoint dedicated account below."
+        title="Pay via Bank Transfer"
+        description="Transfer the exact amount to the dedicated account below. Your funds stay safe in escrow until the ad is posted."
         maxWidth="md"
       >
         <div className="space-y-6">
@@ -376,7 +377,7 @@ export default function NewCampaignPage() {
 
             <div className="flex justify-between items-center py-1 border-t border-slate-900">
               <span className="text-slate-400">Account Type:</span>
-              <span className="font-medium text-emerald-400">Dynamic Instant Settlement</span>
+              <span className="font-medium text-emerald-400">Instant Verification Virtual Account</span>
             </div>
           </div>
 
@@ -398,7 +399,7 @@ export default function NewCampaignPage() {
               <span>I Have Transferred {formatCurrency(selectedPackage.price)}</span>
             </Button>
             <p className="text-[11px] text-center text-slate-400">
-              PaymentPoint automatically verifies transfer within 30 seconds.
+              Bank transfers are automatically detected and confirmed within 60 seconds.
             </p>
           </div>
         </div>

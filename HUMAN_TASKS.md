@@ -1,93 +1,94 @@
-# Adision Human Tasks and Setup Guide
+# Adision — Human Tasks & Live Production Setup Guide
 
-Project Adision Community Advertising Marketplace
-Status Live on Vercel Build Working
-Next Phase Real Database Setup and Environment Keys
-
----
-
-## What Has Been Completed
-- Vercel build successfully compiling and live
-- All fake metrics and fabricated numbers removed from website and dashboards
-- WhatsApp live preview hidden for now to keep experience clean
-- Backend security and webhook signature verification implemented
-- Clean empty states added so dashboards are ready for real data
+- **Project:** Adision Community Advertising Marketplace
+- **Live Vercel URL:** `https://adisionads.vercel.app`
+- **Supabase Project Reference:** `rgivzqyqcrhqafcxbvfd`
+- **Current Phase:** Running Database SQL & Launching Waitlist
 
 ---
 
-## Checklist External Accounts and API Keys
-
-### 1 Supabase Database Auth and Media Storage
-- Sign up or log in at supabase.com
-- Create a new project named adision-db
-- Go to Project Settings then API and copy these keys
-  NEXT_PUBLIC_SUPABASE_URL
-  NEXT_PUBLIC_SUPABASE_ANON_KEY
-  SUPABASE_SERVICE_ROLE_KEY
-- Open SQL Editor in Supabase
-  Copy contents of supabase/migrations/001_initial_schema.sql
-  Paste and click Run
-- Go to Storage in Supabase
-  Create public bucket named proof-uploads
-  Create private bucket named verification-docs
-
----
-
-### 2 PaymentPoint Virtual Accounts and Settlement
-- Sign up for a merchant account at paymentpoint.co
-- Complete business profile onboarding
-- Go to Dashboard then Developer API Settings and copy these keys
-  PAYMENTPOINT_API_KEY
-  PAYMENTPOINT_BEARER_TOKEN
-  PAYMENTPOINT_BUSINESS_ID
-  PAYMENTPOINT_WEBHOOK_SECRET
-- Set Webhook URL in PaymentPoint dashboard
-  Production URL https://your-domain.vercel.app/api/webhooks/paymentpoint
+## What Has Been Completed & Tested
+- **Next.js 15 Production Build:** Successfully compiled with 0 errors across all 23 routes.
+- **Dual Light / Dark Mode:** Added with theme toggle (Sun/Moon) in the Navbar, using crisp white & brand green for light mode and obsidian & lime for dark mode.
+- **Standalone Waitlist System:**
+  - Dedicated `/waitlist` page with dual-role options (Advertisers vs Community Partners).
+  - Collects Full Name, WhatsApp Number, Email, and Country (with country selector).
+  - Priority queue positioning (`#42`), referral code generation (`ADIS-XXXXXX`), and 1-click WhatsApp referral sharing.
+  - API endpoint `/api/waitlist` with validation, database insertion, and fallback simulation.
+- **Admin Waitlist Portal:**
+  - Dedicated operations view at `/admin/waitlist` (and linked from `/admin`).
+  - Search by name, email, phone, country, or business.
+  - Filter by Advertisers vs Community Partners.
+  - 1-click **Export to CSV**.
+  - 1-click **Copy WhatsApp Numbers** for easy broadcasting.
+- **Database Migrations Prepared:**
+  - `002_waitlist_schema.sql` — 100% standalone waitlist migration (runs on any fresh database with zero prerequisites).
+  - `000_FULL_SETUP.sql` — Master idempotent migration combining the full marketplace schema (profiles, communities, campaigns, tracking, double-entry escrow ledger, wallets, payouts) AND the waitlist in a single file.
 
 ---
 
-### 3 Resend Transactional Email
-- Sign up at resend.com
-- Go to API Keys and create a new key named RESEND_API_KEY
-- Optional add and verify your custom domain or use default testing domain
+## Immediate Action: Running the SQL in Supabase
+
+You can choose either of these two options in your Supabase SQL Editor:
+
+### Option A: Waitlist Only (Takes 30 seconds)
+If you just want the waitlist live immediately:
+1. Open Supabase (`rgivzqyqcrhqafcxbvfd`) $\rightarrow$ Click **SQL Editor** on the left menu.
+2. Copy the entire content of [`supabase/migrations/002_waitlist_schema.sql`](file:///c:/Users/1LUV/Documents/Coding%20projects/Adision/supabase/migrations/002_waitlist_schema.sql).
+3. Paste and click **Run**.
+4. The `public.waitlist` table will be created with country, email, phone, and RLS policies.
+
+### Option B: Full Platform Setup (Recommended — Takes 60 seconds)
+If you want the entire platform ready (Waitlist + Marketplace + Escrow Wallets + Campaigns + Tracking):
+1. Open Supabase $\rightarrow$ Click **SQL Editor**.
+2. Copy the entire content of [`supabase/migrations/000_FULL_SETUP.sql`](file:///c:/Users/1LUV/Documents/Coding%20projects/Adision/supabase/migrations/000_FULL_SETUP.sql).
+3. Paste and click **Run**.
+4. This sets up all 11 tables, extensions, enums, RLS policies, and atomic stored procedures.
 
 ---
 
-### 4 Vercel Environment Configuration
-- Open your project on vercel.com
-- Go to Settings then Environment Variables
-- Add the keys from your Supabase and PaymentPoint dashboards
-- Redeploy to connect live services
+## Where Will You See the Waitlist Signups?
+
+You have **two permanent places** to view, manage, and contact everyone who joins:
+
+### 1. In Your Supabase Dashboard (Raw Database & Spreadsheet View)
+- Go to [supabase.com](https://supabase.com) and select your project.
+- Click **Table Editor** on the left menu (the grid/table icon).
+- Click on `waitlist`.
+- You will see a live spreadsheet with every person's `full_name`, `email`, `phone` (WhatsApp), `country`, `role`, `company_or_community_name`, `estimated_reach_or_budget`, `position`, `referral_code`, and `created_at`.
+- You can search, filter, edit records, or click **Export to CSV**.
+
+### 2. In the Adision Admin Portal
+- Visit: `https://adisionads.vercel.app/admin/waitlist` (or locally at `http://localhost:3000/admin/waitlist`).
+- Click **VIP Waitlist** from the Admin dashboard.
+- Live features:
+  - **KPI Cards:** Live counts of Advertisers, Community Partners, and Countries.
+  - **Search & Filter:** Search by name, WhatsApp number, email, or country.
+  - **Copy WhatsApp Numbers:** 1-click copies all phone numbers formatted for WhatsApp broadcasts.
+  - **Export CSV:** 1-click downloads a formatted spreadsheet for your records.
 
 ---
 
-## Local Environment File Template
+## Vercel Environment Variables Configuration
 
-Create a file named .env.local in the project root folder
+Ensure these are added in your Vercel Dashboard (**Settings** $\rightarrow$ **Environment Variables**) and trigger a redeploy:
 
 ```env
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=https://adisionads.vercel.app
 
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+NEXT_PUBLIC_SUPABASE_URL=https://rgivzqyqcrhqafcxbvfd.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnaXZ6cXlxY3JocWFmY3hidmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNzI0MzQsImV4cCI6MjEwMzk0ODQzNH0.8-Ckw8fIODKDgWEhI-YPbG4pJambmpq10AqQJUoldCo
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnaXZ6cXlxY3JocWFmY3hidmZkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4ODM3MjQzNCwiZXhwIjoyMTAzOTQ4NDM0fQ.D9kiv4z8Z9Y4723JTt-yRkVs7cTRTejQjPwkvSz-FcU
 
-PAYMENTPOINT_API_KEY=your_paymentpoint_api_key
-PAYMENTPOINT_BEARER_TOKEN=your_paymentpoint_bearer_token
-PAYMENTPOINT_BUSINESS_ID=your_paymentpoint_business_id
-PAYMENTPOINT_WEBHOOK_SECRET=your_paymentpoint_secret
-
-RESEND_API_KEY=your_resend_api_key
-
-CLICK_HASH_SALT=adision_random_secret_salt_12345
+CLICK_HASH_SALT=adision_prod_hash_salt_9283748291
 ```
+
+*(Your local `.env.local` has already been populated with these exact credentials).*
 
 ---
 
-## Community Pre Seeding Tasks
-
-Before launching public ads
-- Find 20 to 50 active WhatsApp Group and Channel admins
-- Focus on Tech Students Finance and Wholesale groups
-- Prepare short onboarding message with guaranteed payouts
-- Verify that groups have active chats and not just ghost members
+## Storage Buckets (Optional for Media Placements)
+When ready for proof screenshots and verification:
+- Go to **Storage** in Supabase.
+- Create bucket: `proof-uploads` (Public).
+- Create bucket: `verification-docs` (Private).

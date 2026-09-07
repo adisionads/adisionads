@@ -20,7 +20,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           type={type}
           ref={ref}
           className={cn(
-            'flex h-11 w-full rounded-xl border border-slate-700/80 bg-slate-900/90 px-4 py-2 text-sm text-white placeholder:text-slate-500 shadow-sm transition-all focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50',
+            'flex h-11 w-full rounded-xl border border-slate-700/80 bg-slate-900/90 px-4 py-2 text-base sm:text-sm text-white placeholder:text-slate-500 shadow-sm transition-all focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50',
             error && 'border-rose-500 focus:border-rose-500 focus:ring-rose-500',
             className
           )}
@@ -53,7 +53,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
         <textarea
           ref={ref}
           className={cn(
-            'flex min-h-[100px] w-full rounded-xl border border-slate-700/80 bg-slate-900/90 p-4 text-sm text-white placeholder:text-slate-500 shadow-sm transition-all focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 resize-y',
+            'flex min-h-[100px] w-full rounded-xl border border-slate-700/80 bg-slate-900/90 p-4 text-base sm:text-sm text-white placeholder:text-slate-500 shadow-sm transition-all focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 resize-y',
             error && 'border-rose-500 focus:border-rose-500 focus:ring-rose-500',
             className
           )}

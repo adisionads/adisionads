@@ -31,9 +31,9 @@ export default function PartnerDashboard() {
         {/* Header with Quick Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">Community Partner Hub</h1>
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">Partner Dashboard</h1>
             <p className="text-sm text-slate-400 mt-1">
-              Manage your registered WhatsApp communities, accept broadcast assignments, and withdraw wallet earnings.
+              Manage your WhatsApp groups, accept paid ad jobs, and withdraw your earnings.
             </p>
           </div>
 
@@ -69,9 +69,9 @@ export default function PartnerDashboard() {
             icon={Clock}
           />
           <StatsCard
-            title="Lifetime Earned"
+            title="Total Earned"
             value={formatCurrency(wallet.lifetime_earned)}
-            description="Total platform payouts received"
+            description="Total earnings to date"
             icon={DollarSign}
           />
           <StatsCard
@@ -137,7 +137,7 @@ export default function PartnerDashboard() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+              <table className="w-full text-left text-sm min-w-[640px]">
                 <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
                   <tr>
                     <th className="px-6 py-4">Community Name</th>

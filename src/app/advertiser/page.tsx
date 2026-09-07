@@ -32,9 +32,9 @@ export default function AdvertiserDashboard() {
         {/* Header with Action */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">Advertiser Hub</h1>
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">Advertiser Dashboard</h1>
             <p className="text-sm text-slate-400 mt-1">
-              Monitor active campaigns, unique click attribution, and verified community placements.
+              Track your live campaigns, link clicks from real members, and verified WhatsApp placements.
             </p>
           </div>
 
@@ -49,22 +49,22 @@ export default function AdvertiserDashboard() {
         {/* Top KPIs */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatsCard
-            title="Total Clicks Delivered"
+            title="Total Link Clicks"
             value={formatNumber(totalClicks)}
-            description={totalClicks > 0 ? `${formatNumber(totalUniqueClicks)} unique visitors` : 'Attribution ready'}
+            description={totalClicks > 0 ? `${formatNumber(totalUniqueClicks)} unique visitors` : 'Ready to track'}
             icon={MousePointerClick}
             highlight
           />
           <StatsCard
             title="Active Campaigns"
             value={activeCampaigns}
-            description="Across verified WhatsApp groups"
+            description="Running in verified WhatsApp groups"
             icon={Megaphone}
           />
           <StatsCard
-            title="Total Placements"
+            title="Active Groups"
             value={campaigns.reduce((sum, c) => sum + (c.assigned_count || 0), 0)}
-            description="Assigned community broadcasts"
+            description="Communities broadcasting your ad"
             icon={Users}
           />
           <StatsCard
@@ -105,7 +105,7 @@ export default function AdvertiserDashboard() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+              <table className="w-full text-left text-sm min-w-[640px]">
                 <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
                   <tr>
                     <th className="px-6 py-4">Campaign Name & Target</th>

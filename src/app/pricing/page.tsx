@@ -29,10 +29,10 @@ export default function PricingPage() {
             <span>Guaranteed Distribution Packages</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
-            Transparent Pricing for High-Impact Community Reach
+            Clear, Transparent Pricing for Real WhatsApp Reach
           </h1>
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            Choose a pre-configured package or calculate your custom reach. All packages include unique link tracking and placement proof verification.
+            Choose a ready-made package or calculate custom reach for your budget. Every plan includes genuine link click tracking and screenshot proof.
           </p>
         </div>
 
@@ -107,13 +107,13 @@ export default function PricingPage() {
             <div className="lg:col-span-7 space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 text-brand-400 text-xs font-bold">
                 <Calculator className="w-4 h-4" />
-                <span>Interactive ROI Calculator</span>
+                <span>Campaign Budget & Reach Calculator</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-                Estimate Your Campaign Performance
+                See What You Get For Your Budget
               </h2>
               <p className="text-slate-300 text-sm leading-relaxed">
-                Adjust your marketing budget to see estimated community placements, audience reach, and click-through projections.
+                Adjust your marketing budget below to see estimated community placements, total member reach, and expected link clicks.
               </p>
 
               {/* Slider Control */}
@@ -144,24 +144,24 @@ export default function PricingPage() {
             {/* Live Calculation Output Card */}
             <div className="lg:col-span-5 bg-dark-900/90 border border-slate-700/80 rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl">
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">
-                Estimated Delivery Projections
+                What You Get
               </h3>
 
               <div className="space-y-4">
                 <div className="p-4 rounded-2xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-300">Verified Communities</span>
+                  <span className="text-xs font-medium text-slate-300">Verified WhatsApp Groups</span>
                   <span className="text-lg font-bold text-white">~{estimatedCommunities} Groups</span>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-300">Total Member Reach</span>
+                  <span className="text-xs font-medium text-slate-300">Estimated Total Members</span>
                   <span className="text-lg font-bold text-brand-400">
                     {formatNumber(estimatedReachMin)} – {formatNumber(estimatedReachMax)}
                   </span>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-slate-800/50 border border-slate-700/60 flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-300">Projected Clicks (CTR 3-5%)</span>
+                  <span className="text-xs font-medium text-slate-300">Expected Link Visits</span>
                   <span className="text-lg font-bold text-emerald-400">~{formatNumber(estimatedClicks)}+ clicks</span>
                 </div>
               </div>

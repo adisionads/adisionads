@@ -70,7 +70,7 @@ export default function PartnerWalletPage() {
             </Link>
             <h1 className="text-3xl font-extrabold text-white tracking-tight">Partner Wallet & Payouts</h1>
             <p className="text-sm text-slate-400">
-              Track earned campaign commissions, immutable ledger history, and withdraw directly to your Nigerian bank.
+              Track what you earn, view your payout history, and withdraw straight to your Nigerian bank account.
             </p>
           </div>
 
@@ -82,16 +82,16 @@ export default function PartnerWalletPage() {
             className="font-bold gap-2 shadow-lg shadow-brand-500/20"
           >
             <CreditCard className="w-4 h-4" />
-            <span>Request Bank Withdrawal</span>
+            <span>Withdraw to Bank</span>
           </Button>
         </div>
 
         {/* Financial KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <StatsCard
-            title="Available Cash Balance"
+            title="Available Balance"
             value={formatCurrency(wallet.available_balance)}
-            description="Withdrawable instantly"
+            description="Ready for instant withdrawal"
             icon={WalletIcon}
             highlight
           />
@@ -102,9 +102,9 @@ export default function PartnerWalletPage() {
             icon={Clock}
           />
           <StatsCard
-            title="Lifetime Payouts"
+            title="Total Earned"
             value={formatCurrency(wallet.lifetime_earned)}
-            description="Total earned on ADISION"
+            description="All-time earnings on Adision"
             icon={DollarSign}
           />
         </div>
@@ -115,21 +115,21 @@ export default function PartnerWalletPage() {
             <div className="flex items-center gap-2">
               <History className="w-5 h-5 text-brand-400" />
               <div>
-                <h2 className="text-lg font-bold text-white">Wallet Transaction Ledger</h2>
-                <p className="text-xs text-slate-400">Double-entry audit log of all credits and disbursements</p>
+                <h2 className="text-lg font-bold text-white">Your Earnings & Payout History</h2>
+                <p className="text-xs text-slate-400">Complete record of all your earnings, bonuses, and withdrawals</p>
               </div>
             </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full text-left text-sm min-w-[640px]">
               <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
                 <tr>
                   <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4">Transaction Details</th>
+                  <th className="px-6 py-4">Description</th>
                   <th className="px-6 py-4">Type</th>
                   <th className="px-6 py-4">Amount</th>
-                  <th className="px-6 py-4">Balance After</th>
+                  <th className="px-6 py-4">New Balance</th>
                   <th className="px-6 py-4 text-right">Status</th>
                 </tr>
               </thead>

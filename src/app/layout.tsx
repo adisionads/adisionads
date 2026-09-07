@@ -1,15 +1,31 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AppProvider } from '@/lib/store/app-context';
+import { ThemeProvider } from '@/lib/theme/theme-context';
 import { Navbar } from '@/components/shared/Navbar';
 import { Footer } from '@/components/shared/Footer';
+import { PWAInstallBanner } from '@/components/shared/PWAInstallBanner';
+
+export const viewport: Viewport = {
+  themeColor: '#090d16',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
-  title: 'Adision | Performance-Driven Community Advertising Marketplace',
+  title: 'Adision | Reach Real Communities on WhatsApp',
   description:
-    'Connect your brand with verified WhatsApp Groups and Channels. Distribute targeted campaigns, track real click performance, and empower community monetization.',
+    'Run targeted ads across verified WhatsApp groups and channels. Track real visits, protect funds in escrow, and empower community monetization.',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Adision',
+  },
   icons: {
-    icon: '/brand/logo-square.jpg',
+    icon: '/icons/icon-192.png',
+    apple: '/icons/apple-touch-icon.png',
   },
 };
 
@@ -19,15 +35,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen flex flex-col bg-dark-900 text-slate-100 antialiased selection:bg-brand-500 selection:text-dark-900">
-        <AppProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </AppProvider>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-touch-fullscreen" content="yes" />
+      </head>
+      <body className="min-h-screen flex flex-col bg-slate-50 dark:bg-dark-900 text-slate-900 dark:text-slate-100 antialiased selection:bg-brand-500 selection:text-dark-900">
+        <ThemeProvider>
+          <AppProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <PWAInstallBanner />
+          </AppProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
-

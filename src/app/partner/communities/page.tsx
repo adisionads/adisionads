@@ -83,7 +83,7 @@ export default function PartnerCommunitiesPage() {
             </Link>
             <h1 className="text-3xl font-extrabold text-white tracking-tight">Your Communities</h1>
             <p className="text-sm text-slate-400">
-              Submit your WhatsApp Groups and Channels for verification to receive high-paying ad assignments.
+              Register your WhatsApp groups and channels to start receiving paid ad tasks.
             </p>
           </div>
 
@@ -166,8 +166,8 @@ export default function PartnerCommunitiesPage() {
       <Modal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        title="Register Digital Community"
-        description="Provide details and audience proof for administrator review."
+        title="Register a Community"
+        description="Tell us about your community so we can verify it and start sending you paid ads."
         maxWidth="lg"
       >
         <form onSubmit={handleSubmitCommunity} className="space-y-4">
@@ -235,11 +235,11 @@ export default function PartnerCommunitiesPage() {
           </div>
 
           <Input
-            label="Verification Screenshot Image URL"
+            label="Group Info Screenshot (Image URL)"
             placeholder="https://your-image-host.com/screenshot.jpg"
             value={proofImageUrl}
             onChange={(e) => setProofImageUrl(e.target.value)}
-            helperText="Screenshot showing group info and member count."
+            helperText="Screenshot showing group name, description, and member count."
           />
 
           <TextArea

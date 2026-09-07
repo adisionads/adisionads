@@ -1,0 +1,90 @@
+# ==============================================================================
+# Antigravity Workspace Ignore (.antigravityignore)
+# Prevents heavy dependencies, build artifacts, cache, and massive binary files
+# from being indexed, watched, or uploaded to save bandwidth and memory.
+# ==============================================================================
+
+# --- Dependencies ---
+node_modules/
+vendor/
+.pnp/
+.pnp.js
+
+# --- Version Control & Environment ---
+.git/
+.svn/
+.hg/
+.env
+.env.*
+!.env.example
+
+# --- Build & Output Artifacts ---
+build/
+dist/
+out/
+.next/
+.nuxt/
+.turbo/
+.vercel/
+target/
+bin/
+obj/
+
+# --- Cache & Temporary Files ---
+.cache/
+.parcel-cache/
+.npm/
+.yarn/
+*.tsbuildinfo
+.eslintcache
+temp/
+tmp/
+.temp/
+
+# --- Logs & Performance Traces ---
+logs/
+*.log
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.heapsnapshot
+*.cpuprofile
+
+# --- Massive Media & Audio/Video Files ---
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.flv
+*.wmv
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+
+# --- Archives & Heavy Binaries ---
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.iso
+*.bin
+*.exe
+*.dmg
+*.pkg
+
+# --- Massive Datasets & Databases ---
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.parquet
+*.arrow
+*.h5
+*.hdf5

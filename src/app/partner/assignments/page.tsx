@@ -78,9 +78,9 @@ export default function PartnerAssignmentsPage() {
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Dashboard</span>
             </Link>
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">Campaign Tasks</h1>
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">Ad Tasks & Jobs</h1>
             <p className="text-sm text-slate-400">
-              Broadcast campaigns to your WhatsApp communities, submit proof of placement, and claim your earnings.
+              Post these ads in your WhatsApp groups, upload your screenshot proof, and claim your payout.
             </p>
           </div>
         </div>
@@ -226,7 +226,7 @@ export default function PartnerAssignmentsPage() {
                       {asgn.status === 'PROOF_SUBMITTED' && (
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-400 text-xs font-semibold border border-amber-500/20">
                           <Clock className="w-4 h-4" />
-                          <span>Proof Under Review by ADISION Team</span>
+                          <span>Proof Under Review (usually approved within 2-4 hours)</span>
                         </div>
                       )}
 
@@ -249,32 +249,32 @@ export default function PartnerAssignmentsPage() {
       <Modal
         isOpen={isProofModalOpen}
         onClose={() => setIsProofModalOpen(false)}
-        title="Submit Placement Proof"
-        description="Upload a screenshot showing the advert published in your WhatsApp group."
+        title="Submit Proof of Post"
+        description="Upload a screenshot showing the ad published in your WhatsApp group."
         maxWidth="md"
       >
         <form onSubmit={handleSubmitProof} className="space-y-4">
           <Input
-            label="Proof Screenshot Image URL"
+            label="Screenshot Image Link (URL)"
             placeholder="https://image-host.com/whatsapp-proof.jpg"
             value={proofImage}
             onChange={(e) => setProofImage(e.target.value)}
-            helperText="Direct image link showing message timestamp and group name."
+            helperText="Clear image showing your group name, message timestamp, and ad link."
             required
           />
 
           <TextArea
-            label="Placement Notes & Duration"
+            label="Notes (Optional)"
             rows={3}
-            placeholder="e.g. Broadcasted to 2,450 members at 8:00 PM and pinned to group."
+            placeholder="e.g. Broadcasted to 2,450 members at 8:00 PM and pinned."
             value={proofNotes}
             onChange={(e) => setProofNotes(e.target.value)}
           />
 
           <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-400 space-y-1">
-            <span className="font-bold text-white block">Verification Guideline:</span>
+            <span className="font-bold text-white block">Quick Checklist:</span>
             <p>
-              Ensure the screenshot clearly shows your group name, member activity, and the ad text with tracking link.
+              Make sure the screenshot shows: 1) Group name, 2) The full ad text, and 3) The special tracking link.
             </p>
           </div>
 

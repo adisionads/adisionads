@@ -56,18 +56,19 @@ export function Modal({
       {/* Modal Dialog */}
       <div
         className={cn(
-          'relative w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl z-10 animate-in zoom-in-95 duration-200',
+          'relative w-full max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl z-10 animate-in zoom-in-95 duration-200 overscroll-contain',
           maxWidths[maxWidth]
         )}
       >
-        <div className="flex items-start justify-between mb-5">
+        <div className="flex items-start justify-between mb-5 sticky top-0 bg-slate-900/90 backdrop-blur-sm pb-2 z-20">
           <div>
             <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>
             {description && <p className="text-sm text-slate-400 mt-1">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="rounded-full p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="rounded-full p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>

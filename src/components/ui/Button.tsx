@@ -14,17 +14,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        'bg-brand-500 hover:bg-brand-600 text-dark-900 font-semibold shadow-lg shadow-brand-500/20 focus:ring-brand-500',
+        'bg-brand-500 hover:bg-brand-600 text-dark-900 font-bold shadow-md shadow-brand-500/20 focus:ring-brand-500',
       secondary:
-        'bg-brand-50 hover:bg-brand-100 text-brand-900 focus:ring-brand-500',
+        'bg-brand-50 hover:bg-brand-100 text-brand-900 dark:bg-brand-950/40 dark:text-brand-300 dark:hover:bg-brand-950/70 focus:ring-brand-500 border border-brand-200/60 dark:border-brand-800/40',
       outline:
-        'border border-slate-700 bg-transparent hover:bg-slate-800/60 text-slate-200 focus:ring-slate-500',
+        'border border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 focus:ring-slate-500',
       ghost:
-        'bg-transparent hover:bg-slate-800/40 text-slate-300 hover:text-white focus:ring-slate-500',
+        'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800/40 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white focus:ring-slate-500',
       danger:
         'bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-600/20 focus:ring-rose-500',
       dark:
-        'bg-dark-800 hover:bg-dark-700 text-white border border-slate-700/60 focus:ring-slate-600',
+        'bg-slate-900 dark:bg-dark-800 hover:bg-slate-800 dark:hover:bg-dark-700 text-white border border-slate-800 dark:border-slate-700/60 focus:ring-slate-600',
     };
 
     const sizes = {
@@ -57,4 +57,3 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 Button.displayName = 'Button';
-

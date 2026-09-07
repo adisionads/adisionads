@@ -25,20 +25,27 @@ export function StatsCard({
   return (
     <Card
       className={cn(
-        'relative overflow-hidden transition-all hover:border-slate-700',
-        highlight && 'border-brand-500/40 bg-gradient-to-br from-brand-500/10 via-slate-900/80 to-slate-900'
+        'relative overflow-hidden transition-all hover:border-slate-300 dark:hover:border-slate-700',
+        highlight &&
+          'border-brand-500/40 bg-gradient-to-br from-brand-50 via-white to-white dark:from-brand-500/10 dark:via-slate-900/80 dark:to-slate-900'
       )}
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{title}</p>
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-white mt-1.5 tracking-tight">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            {title}
+          </p>
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1.5 tracking-tight">
             {value}
           </h3>
-          {description && <p className="text-xs text-slate-400 mt-1">{description}</p>}
+          {description && (
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{description}</p>
+          )}
           {trend && (
             <div className="flex items-center gap-1 mt-2 text-xs font-medium">
-              <span className={trendPositive ? 'text-emerald-400' : 'text-rose-400'}>{trend}</span>
+              <span className={trendPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}>
+                {trend}
+              </span>
               <span className="text-slate-400">vs last month</span>
             </div>
           )}
@@ -48,8 +55,8 @@ export function StatsCard({
           className={cn(
             'p-3 rounded-2xl border',
             highlight
-              ? 'bg-brand-500/20 text-brand-400 border-brand-500/30'
-              : 'bg-slate-800/80 text-slate-300 border-slate-700/60'
+              ? 'bg-brand-500/15 text-brand-700 dark:text-brand-400 border-brand-500/30'
+              : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/60'
           )}
         >
           <Icon className="w-5 h-5" />
@@ -58,4 +65,3 @@ export function StatsCard({
     </Card>
   );
 }
-

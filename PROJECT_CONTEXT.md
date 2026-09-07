@@ -36,15 +36,16 @@ A **Pre-Mortem** assumes the product has already launched and failed 12 months f
 | **1** | **Supply-Side Deletion & Laziness (Cheating)** | Group admins post the advert, take a screenshot, and immediately delete it or let members spam over it. | **Mitigations:**<br>1. *Performance Score:* If a group generates 0 clicks consistently, their score drops and they get zero future campaigns.<br>2. *Proof Rules:* Require timestamped proof + post must stay active for required duration (e.g. 24h/48h).<br>3. *Random Admin Spot Checks:* Platform admins join sample groups to verify ad persistence. |
 | **2** | **Phantom / Ghost Audiences (Dead Groups)** | Groups have 1,000 members, but 95% are bots, inactive numbers, or silent lurkers. | **Mitigations:**<br>1. Mandatory verification includes activity signals (recent group message activity, not just member count).<br>2. Tracking clicks via unique links measures *actual engagement*, not vanity follower counts. |
 | **3** | **Chicken-and-Egg Liquidity Problem** | Advertisers don't spend because there aren't enough verified groups; group admins abandon the platform because there aren't enough ad assignments. | **Mitigations:**<br>1. *Pre-seed Supply First:* Onboard and verify 50–100 active niche groups (Tech, Crypto, Campus, VTU) before launching public advertising.<br>2. *Guaranteed Seed Campaigns:* Launch with introductory advertiser packages or partner brand sponsorships. |
-| **4** | **Platform Disintermediation (Side-Deals)** | Advertisers use ADISION once to find group names, then message the admins directly on WhatsApp to avoid fees. | **Mitigations:**<br>1. *Blind Marketplace:* Advertisers select *Categories & Audience Types* (e.g., "Tech Enthusiasts Lagos - 10k Reach"), not direct group contact numbers.<br>2. *Escrow & Automation Value:* Group admins prefer ADISION because they get guaranteed escrow payments without chasing clients. |
+| **4** | **Platform Disintermediation (Two-Way Side-Deals)** | 1. Advertisers find group names and contact admins directly.<br>2. WhatsApp admins click the ad link, find the advertiser's number/IG, and message them directly saying: *"Pay me directly next time for cheaper!"* | **Mitigations:**<br>1. *Blind Marketplace:* Advertisers never see admin phone numbers or group invite links.<br>2. *The Scale & Convenience Defense:* An advertiser uses Adision to reach 20 groups with 1 transfer and 1 report. They do NOT want the headache of chatting with, bargaining with, and chasing 20 random WhatsApp admins for screenshots.<br>3. *The Escrow Defense:* Admins stay on Adision because they get guaranteed escrow payment. In direct deals on WhatsApp, 60% of small clients scam or ghost admins after the ad is posted.<br>4. *Link Cloaking:* Ad copy drives to clean tracking links (`/r/[code]`), disallowing raw personal numbers in ad body copy.<br>5. *Strict Anti-Poaching Rule:* Any admin caught contacting an advertiser for side-deals suffers immediate account banning and forfeiture of pending wallet balance. |
 | **5** | **WhatsApp Platform Risk (Policy/Bans)** | WhatsApp introduces friction or limits spam links. | **Mitigations:**<br>1. Clean, human-friendly redirect domains with SSL.<br>2. Strict ad copy standards (no illegal VTU/ponzi/spam schemes).<br>3. Architecture designed from day one to expand to Telegram, Discord, and campus newsletters. |
 | **6** | **Payment & Cash-Flow Friction** | Advertisers abandon checkout due to card failure; partners complain of delayed withdrawals. | **Mitigations:**<br>1. Integrate **PaymentPoint Virtual Accounts (Bank Transfer)** which has >95% success rate in Nigeria.<br>2. Clear automated wallet balance & quick withdrawal processing. |
 
 ---
 
-## 3. Free-Tier Feasibility Analysis: Can We Run 100% Free?
+## 3. The "Zero-Budget Enterprise" Principle: 100% Free Stack (Domain Only)
 
-**YES.** For MVP, pilot testing, and your first hundreds of active campaigns, the entire infrastructure costs **$0.00**.
+> **Core Operating Rule:** The **ONLY** money ever spent on this project is the custom domain name (e.g. `adision.co` or `adision.ng`).  
+> Every piece of software, hosting, database, security, and storage architecture MUST permanently operate within robust free tiers while maintaining enterprise-grade cybersecurity.
 
 ### Free-Tier Capacity Breakdown:
 
@@ -147,15 +148,23 @@ erDiagram
 
 - **Brand & Identity:** Strictly branded as **Adision** across all interfaces, metadata, and backend schemas.
 - **UI & Experience:**
+  - **Dual Light / Dark Mode:** Integrated with a persistent toggle (Sun/Moon in Navbar), crisp white/slate background with brand green (#8fc822) in light mode, and obsidian in dark mode.
+  - **VIP Early Access Waitlist (`/waitlist`):** Dual-role signup form for Advertisers and Community Partners, collecting Full Name, Email, WhatsApp Phone, Country, and Business/Community details. Includes queue rank (#42), referral code (`ADIS-XXXXXX`), and 1-click WhatsApp sharing.
+  - **Admin Waitlist Management (`/admin/waitlist`):** Operations portal to view, filter by role/country, search signups, copy all WhatsApp phone numbers in 1 click, and export complete CSV reports.
   - Live WhatsApp mockup preview hidden for MVP to keep layout focused and simple.
-  - Fake mock metrics and sample campaigns purged; dashboards now render clean empty states ready for real data.
-  - Public landing page presents verified benefits without fabricated numbers.
+  - Dashboards render clean empty states ready for real live data.
 - **Security & Backend:**
+  - Standalone and master migrations: `002_waitlist_schema.sql` (standalone waitlist) and `000_FULL_SETUP.sql` (all-in-one idempotent master migration).
   - HMAC SHA-256 webhook signature verification with timing-safe comparisons in place.
   - Bot and preview-scraper filtering active on `/r/[code]` redirect engine.
-  - Atomic PostgreSQL stored procedures created for campaign payment escrow, click incrementing, and balance withdrawals.
+  - Atomic PostgreSQL stored procedures for campaign payment escrow, click incrementing, and balance withdrawals.
   - Server-side Supabase admin client configured for elevated service-role tasks.
+- **Live Deployment & Credentials:**
+  - Production App URL: `https://adisionads.vercel.app`
+  - Supabase Project ID: `rgivzqyqcrhqafcxbvfd`
+  - `.env.local` configured with Supabase URL, anon key, and service role key.
 - **Next Steps:**
-  - Connect live Supabase and PaymentPoint production API keys.
-  - Execute schema migration in Supabase SQL editor.
+  - Execute `002_waitlist_schema.sql` (or `000_FULL_SETUP.sql`) in Supabase SQL Editor.
+  - Add Supabase environment variables into Vercel dashboard and redeploy.
+
 

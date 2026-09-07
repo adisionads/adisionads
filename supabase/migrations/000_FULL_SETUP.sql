@@ -1,6 +1,13 @@
 -- =========================================================================
--- ADISION — COMPLETE PRODUCTION POSTGRESQL SCHEMA
--- Double-entry ledger, multi-role RBAC, Row Level Security, click analytics
+-- ADISION — COMPLETE MASTER DATABASE SETUP (ALL-IN-ONE)
+-- Run this single file in Supabase SQL Editor to set up:
+-- 1. Full Multi-Role RBAC & Profiles
+-- 2. Communities & Verification
+-- 3. Campaigns & Packages
+-- 4. Tracking Links & Telemetry
+-- 5. Double-Entry Escrow Ledger & Wallets
+-- 6. Withdrawals & Stored Procedures
+-- 7. Standalone Waitlist with Country & WhatsApp Telemetry
 -- =========================================================================
 
 -- Enable required extensions
@@ -206,9 +213,9 @@ CREATE TABLE IF NOT EXISTS public.withdrawal_requests (
 CREATE TABLE IF NOT EXISTS public.performance_scores (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     community_id UUID UNIQUE NOT NULL REFERENCES public.communities(id) ON DELETE CASCADE,
-    reliability_score NUMERIC(5, 2) NOT NULL DEFAULT 100.00, -- 40% weight (completion rate)
-    activity_score NUMERIC(5, 2) NOT NULL DEFAULT 80.00,     -- 30% weight (admin verified activity)
-    performance_score NUMERIC(5, 2) NOT NULL DEFAULT 70.00,  -- 30% weight (CTR/clicks generated)
+    reliability_score NUMERIC(5, 2) NOT NULL DEFAULT 100.00,
+    activity_score NUMERIC(5, 2) NOT NULL DEFAULT 80.00,
+    performance_score NUMERIC(5, 2) NOT NULL DEFAULT 70.00,
     composite_score NUMERIC(5, 2) NOT NULL DEFAULT 85.00,
     total_assignments INTEGER NOT NULL DEFAULT 0,
     completed_assignments INTEGER NOT NULL DEFAULT 0,
@@ -216,20 +223,39 @@ CREATE TABLE IF NOT EXISTS public.performance_scores (
     last_updated TIMESTAMPTZ DEFAULT NOW()
 );
 
--- INDEXES FOR MAXIMUM QUERY PERFORMANCE
+-- 11. WAITLIST TABLE (WITH COUNTRY & WHATSAPP)
+CREATE TABLE IF NOT EXISTS public.waitlist (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    full_name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    country TEXT NOT NULL DEFAULT 'Nigeria',
+    role TEXT NOT NULL CHECK (role IN ('ADVERTISER', 'COMMUNITY_PARTNER')),
+    company_or_community_name TEXT,
+    estimated_reach_or_budget TEXT,
+    notes TEXT,
+    referral_code TEXT UNIQUE NOT NULL,
+    referred_by TEXT,
+    position SERIAL,
+    status TEXT NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'INVITED', 'ONBOARDED', 'REJECTED')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- INDEXES
 CREATE INDEX IF NOT EXISTS idx_communities_owner ON public.communities(owner_id);
 CREATE INDEX IF NOT EXISTS idx_communities_status ON public.communities(status);
-CREATE INDEX IF NOT EXISTS idx_communities_category ON public.communities(category);
 CREATE INDEX IF NOT EXISTS idx_campaigns_advertiser ON public.campaigns(advertiser_id);
 CREATE INDEX IF NOT EXISTS idx_campaigns_status ON public.campaigns(status);
 CREATE INDEX IF NOT EXISTS idx_assignments_campaign ON public.campaign_assignments(campaign_id);
-CREATE INDEX IF NOT EXISTS idx_assignments_community ON public.campaign_assignments(community_id);
 CREATE INDEX IF NOT EXISTS idx_assignments_tracking ON public.campaign_assignments(tracking_code);
 CREATE INDEX IF NOT EXISTS idx_click_events_code ON public.click_events(tracking_code);
 CREATE INDEX IF NOT EXISTS idx_ledger_wallet ON public.ledger_transactions(wallet_id);
-CREATE INDEX IF NOT EXISTS idx_ledger_user ON public.ledger_transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_waitlist_email_lower ON public.waitlist (LOWER(email));
+CREATE INDEX IF NOT EXISTS idx_waitlist_role ON public.waitlist (role);
+CREATE INDEX IF NOT EXISTS idx_waitlist_country ON public.waitlist (country);
 
--- ROW LEVEL SECURITY (RLS) POLICIES
+-- ROW LEVEL SECURITY (RLS)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.communities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.campaigns ENABLE ROW LEVEL SECURITY;
@@ -239,9 +265,9 @@ ALTER TABLE public.proof_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.wallets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ledger_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.withdrawal_requests ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.performance_scores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.waitlist ENABLE ROW LEVEL SECURITY;
 
--- Helper function to check if caller is an admin
+-- Helper admin function
 CREATE OR REPLACE FUNCTION public.is_admin(user_id UUID)
 RETURNS BOOLEAN AS $$
 BEGIN
@@ -252,27 +278,33 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Profiles: Users can view their own profile, Admins can view all
+-- Policies for Waitlist
+DROP POLICY IF EXISTS "Public anonymous insert to waitlist" ON public.waitlist;
+CREATE POLICY "Public anonymous insert to waitlist" ON public.waitlist FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow select for waitlist" ON public.waitlist;
+CREATE POLICY "Allow select for waitlist" ON public.waitlist FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow update for waitlist" ON public.waitlist;
+CREATE POLICY "Allow update for waitlist" ON public.waitlist FOR UPDATE USING (true);
+
+-- Profiles & Marketplace Policies
+DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
 CREATE POLICY "Users can read own profile" ON public.profiles FOR SELECT USING (auth.uid() = id OR public.is_admin(auth.uid()));
-CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
--- Communities: Owners view their own, Admins view all, Verified viewable for assignments
+DROP POLICY IF EXISTS "Owners view own communities" ON public.communities;
 CREATE POLICY "Owners view own communities" ON public.communities FOR SELECT USING (auth.uid() = owner_id OR public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "Owners insert communities" ON public.communities;
 CREATE POLICY "Owners insert communities" ON public.communities FOR INSERT WITH CHECK (auth.uid() = owner_id);
-CREATE POLICY "Owners update own communities" ON public.communities FOR UPDATE USING (auth.uid() = owner_id OR public.is_admin(auth.uid()));
 
--- Campaigns: Advertisers view own, Admins view all
+DROP POLICY IF EXISTS "Advertisers view own campaigns" ON public.campaigns;
 CREATE POLICY "Advertisers view own campaigns" ON public.campaigns FOR SELECT USING (auth.uid() = advertiser_id OR public.is_admin(auth.uid()));
-CREATE POLICY "Advertisers insert campaigns" ON public.campaigns FOR INSERT WITH CHECK (auth.uid() = advertiser_id);
-CREATE POLICY "Advertisers update own campaigns" ON public.campaigns FOR UPDATE USING (auth.uid() = advertiser_id OR public.is_admin(auth.uid()));
 
--- Wallets: Users view own wallet, Admins view all
+DROP POLICY IF EXISTS "Users view own wallet" ON public.wallets;
 CREATE POLICY "Users view own wallet" ON public.wallets FOR SELECT USING (auth.uid() = user_id OR public.is_admin(auth.uid()));
 
--- Ledger: Users view own transactions
-CREATE POLICY "Users view own ledger" ON public.ledger_transactions FOR SELECT USING (auth.uid() = user_id OR public.is_admin(auth.uid()));
-
--- ATOMIC STORED PROCEDURE: APPROVE PROOF & RELEASE WALLET CREDIT
+-- STORED PROCEDURE: APPROVE PROOF & RELEASE WALLET CREDIT
 CREATE OR REPLACE FUNCTION public.approve_proof_and_credit_partner(
     p_proof_id UUID,
     p_admin_id UUID,
@@ -286,12 +318,10 @@ DECLARE
     v_new_balance NUMERIC(14, 2);
     v_payout NUMERIC(14, 2);
 BEGIN
-    -- 1. Check admin permission
     IF NOT public.is_admin(p_admin_id) THEN
         RAISE EXCEPTION 'Unauthorized: Only admins can approve proofs.';
     END IF;
 
-    -- 2. Lock and fetch proof record
     SELECT * INTO v_assignment 
     FROM public.campaign_assignments ca
     JOIN public.proof_records pr ON pr.assignment_id = ca.id
@@ -302,19 +332,16 @@ BEGIN
         RAISE EXCEPTION 'Proof or Assignment not found.';
     END IF;
 
-    -- 3. Fetch community and owner
     SELECT * INTO v_community 
     FROM public.communities 
     WHERE id = v_assignment.community_id;
 
-    -- 4. Lock partner wallet
     SELECT * INTO v_wallet 
     FROM public.wallets 
     WHERE user_id = v_community.owner_id 
     FOR UPDATE;
 
     IF NOT FOUND THEN
-        -- Create wallet if missing
         INSERT INTO public.wallets (user_id, available_balance, pending_balance)
         VALUES (v_community.owner_id, 0.00, 0.00)
         RETURNING * INTO v_wallet;
@@ -323,14 +350,12 @@ BEGIN
     v_payout := v_assignment.payout_amount;
     v_new_balance := v_wallet.available_balance + v_payout;
 
-    -- 5. Update Wallet balance atomically
     UPDATE public.wallets
     SET available_balance = v_new_balance,
         lifetime_earned = lifetime_earned + v_payout,
         updated_at = NOW()
     WHERE id = v_wallet.id;
 
-    -- 6. Insert immutable ledger entry
     INSERT INTO public.ledger_transactions (
         wallet_id, user_id, transaction_type, amount, direction, balance_after, reference_id, reference_type, description
     ) VALUES (
@@ -342,10 +367,9 @@ BEGIN
         v_new_balance,
         v_assignment.campaign_id,
         'CAMPAIGN_ASSIGNMENT',
-        'Earnings credited for campaign assignment placement verification'
+        format('Approved ad payout for assignment in %s', v_community.name)
     );
 
-    -- 7. Update proof status
     UPDATE public.proof_records
     SET status = 'APPROVED',
         reviewed_by = p_admin_id,
@@ -353,23 +377,22 @@ BEGIN
         reviewed_at = NOW()
     WHERE id = p_proof_id;
 
-    -- 8. Update assignment status
     UPDATE public.campaign_assignments
-    SET status = 'VERIFIED',
+    SET status = 'COMPLETED',
         completed_at = NOW(),
         updated_at = NOW()
-    WHERE id = v_assignment.assignment_id;
+    WHERE id = v_assignment.id;
 
     RETURN jsonb_build_object(
         'success', true,
-        'payout_amount', v_payout,
-        'new_balance', v_new_balance,
-        'partner_id', v_community.owner_id
+        'message', 'Proof approved, partner wallet credited, and assignment marked completed',
+        'payout_credited', v_payout,
+        'new_wallet_balance', v_new_balance
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- ATOMIC STORED PROCEDURE: PROCESS CAMPAIGN PAYMENT & RECORD ESCROW
+-- STORED PROCEDURE: PROCESS CAMPAIGN PAYMENT & HOLD IN ESCROW
 CREATE OR REPLACE FUNCTION public.process_campaign_payment(
     p_payment_reference TEXT,
     p_amount NUMERIC(14, 2)
@@ -379,29 +402,25 @@ DECLARE
     v_campaign RECORD;
     v_wallet RECORD;
 BEGIN
-    -- 1. Lock campaign row for atomic update
     SELECT * INTO v_campaign
     FROM public.campaigns
     WHERE payment_reference = p_payment_reference
     FOR UPDATE;
 
     IF NOT FOUND THEN
-        RETURN jsonb_build_object('success', false, 'message', 'Campaign with reference not found');
+        RAISE EXCEPTION 'Campaign with reference % not found.', p_payment_reference;
     END IF;
 
-    -- 2. Idempotency Check: If already paid, return early safely
     IF v_campaign.payment_status = 'PAID' THEN
-        RETURN jsonb_build_object('success', true, 'message', 'Payment already processed (idempotent duplicate)', 'campaign_id', v_campaign.id);
+        RETURN jsonb_build_object('success', true, 'message', 'Payment already processed');
     END IF;
 
-    -- 3. Update Campaign Payment Status
     UPDATE public.campaigns
     SET payment_status = 'PAID',
         status = 'ACTIVE',
         updated_at = NOW()
     WHERE id = v_campaign.id;
 
-    -- 4. Fetch or create advertiser wallet
     SELECT * INTO v_wallet
     FROM public.wallets
     WHERE user_id = v_campaign.advertiser_id
@@ -418,7 +437,6 @@ BEGIN
         WHERE id = v_wallet.id;
     END IF;
 
-    -- 5. Record immutable ledger transaction
     INSERT INTO public.ledger_transactions (
         wallet_id, user_id, transaction_type, amount, direction, balance_after, reference_id, reference_type, description
     ) VALUES (
@@ -440,87 +458,3 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- ATOMIC STORED PROCEDURE: INCREMENT TRACKING LINK CLICKS
-CREATE OR REPLACE FUNCTION public.increment_tracking_link_clicks(
-    t_code TEXT,
-    is_unique_click BOOLEAN DEFAULT FALSE
-)
-RETURNS VOID AS $$
-BEGIN
-    UPDATE public.tracking_links
-    SET total_clicks = total_clicks + 1,
-        unique_clicks = CASE WHEN is_unique_click THEN unique_clicks + 1 ELSE unique_clicks END
-    WHERE LOWER(tracking_code) = LOWER(t_code);
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- ATOMIC STORED PROCEDURE: REQUEST PARTNER WITHDRAWAL
-CREATE OR REPLACE FUNCTION public.request_partner_withdrawal(
-    p_user_id UUID,
-    p_amount NUMERIC(14, 2),
-    p_bank_name TEXT,
-    p_account_number TEXT,
-    p_account_name TEXT
-)
-RETURNS JSONB AS $$
-DECLARE
-    v_wallet RECORD;
-    v_new_available NUMERIC(14, 2);
-    v_withdrawal_id UUID;
-BEGIN
-    -- 1. Lock wallet row
-    SELECT * INTO v_wallet
-    FROM public.wallets
-    WHERE user_id = p_user_id
-    FOR UPDATE;
-
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Wallet not found for this user.';
-    END IF;
-
-    -- 2. Validate sufficient available balance
-    IF v_wallet.available_balance < p_amount THEN
-        RAISE EXCEPTION 'Insufficient available balance. Requested: %, Available: %', p_amount, v_wallet.available_balance;
-    END IF;
-
-    v_new_available := v_wallet.available_balance - p_amount;
-
-    -- 3. Deduct available balance and move to pending balance
-    UPDATE public.wallets
-    SET available_balance = v_new_available,
-        pending_balance = v_wallet.pending_balance + p_amount,
-        updated_at = NOW()
-    WHERE id = v_wallet.id;
-
-    -- 4. Create withdrawal request entry
-    INSERT INTO public.withdrawal_requests (
-        wallet_id, user_id, amount, bank_name, account_number, account_name, status
-    ) VALUES (
-        v_wallet.id, p_user_id, p_amount, p_bank_name, p_account_number, p_account_name, 'REQUESTED'
-    ) RETURNING id INTO v_withdrawal_id;
-
-    -- 5. Create immutable debit ledger record
-    INSERT INTO public.ledger_transactions (
-        wallet_id, user_id, transaction_type, amount, direction, balance_after, reference_id, reference_type, description
-    ) VALUES (
-        v_wallet.id,
-        p_user_id,
-        'WITHDRAWAL',
-        p_amount,
-        'DEBIT',
-        v_new_available,
-        v_withdrawal_id,
-        'WITHDRAWAL_REQUEST',
-        format('Bank transfer withdrawal requested to %s (%s)', p_bank_name, p_account_number)
-    );
-
-    RETURN jsonb_build_object(
-        'success', true,
-        'withdrawal_id', v_withdrawal_id,
-        'new_available_balance', v_new_available
-    );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-
