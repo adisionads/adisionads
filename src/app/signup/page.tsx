@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { UserRole } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { COUNTRY_DIAL_CODES, normalizePhoneNumber } from '@/lib/utils';
 import {
   ArrowRight,
   Briefcase,
@@ -15,7 +16,6 @@ import {
   EyeOff,
   Lock,
   Mail,
-  MessageSquare,
   Sparkles,
   User as UserIcon,
   Users,
@@ -31,6 +31,7 @@ function SignUpForm() {
   const [role, setRole] = useState<UserRole>('ADVERTISER');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [dialCode, setDialCode] = useState('+234');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -49,12 +50,20 @@ function SignUpForm() {
       return;
     }
 
+    if (!phone.trim()) {
+      setErrorMsg('Please provide your active WhatsApp phone number.');
+      return;
+    }
+
+    // Automatically format phone number to international WhatsApp standard
+    const formattedPhone = normalizePhoneNumber(phone, dialCode);
+
     setIsLoading(true);
 
     const { error, requiresEmailConfirmation } = await signUp(email, password, {
-      fullName,
+      fullName: fullName.trim(),
       role,
-      phone,
+      phone: formattedPhone,
     });
 
     if (error) {
@@ -90,7 +99,7 @@ function SignUpForm() {
           <Mail className="w-9 h-9" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Check Your Email</h2>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Check Your Email</h2>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
             We sent a verification link to <br />
             <span className="font-bold text-slate-900 dark:text-white">{email}</span>
@@ -116,8 +125,8 @@ function SignUpForm() {
         <div className="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mx-auto text-brand-600 dark:text-brand-400">
           <CheckCircle2 className="w-10 h-10" />
         </div>
-        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Account Created!</h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Account Created!</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-300">
           Welcome to Adision. Redirecting you to your dashboard now...
         </p>
       </Card>
@@ -134,124 +143,148 @@ function SignUpForm() {
             className="h-8 w-auto object-contain"
           />
         </div>
-        <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           Create Your Account
         </h1>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Join Adision to reach active communities or monetize your WhatsApp group.
+        <p className="text-sm text-slate-600 dark:text-slate-300">
+          Join Adision to reach active communities or monetize your WhatsApp audience.
         </p>
       </div>
 
       {/* Role Selection Tabs */}
       <div>
-        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-          I want to:
+        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+          Select Your Goal:
         </label>
         <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
           <button
             type="button"
             onClick={() => setRole('ADVERTISER')}
-            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-bold transition-all ${
               role === 'ADVERTISER'
                 ? 'bg-brand-500 text-dark-900 shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Briefcase className="w-3.5 h-3.5" />
+            <Briefcase className="w-4 h-4" />
             <span>Advertise</span>
           </button>
 
           <button
             type="button"
             onClick={() => setRole('COMMUNITY_PARTNER')}
-            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-bold transition-all ${
               role === 'COMMUNITY_PARTNER'
                 ? 'bg-brand-500 text-dark-900 shadow-sm'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Users className="w-3.5 h-3.5" />
+            <Users className="w-4 h-4" />
             <span>Monetize Group</span>
           </button>
         </div>
       </div>
 
       {errorMsg && (
-        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/50 text-rose-700 dark:text-rose-400 text-xs font-medium">
-          {errorMsg}
+        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-sm font-medium space-y-1">
+          <div className="font-bold flex items-center gap-1.5">
+            <span>⚠️</span>
+            <span>Registration Notice</span>
+          </div>
+          <p className="leading-relaxed">
+            {errorMsg.toLowerCase().includes('rate limit')
+              ? "Supabase email rate limit exceeded. To fix this instantly: open your Supabase Dashboard -> Authentication -> Providers -> Email, toggle 'Confirm email' to OFF, click Save, and submit again for instant signup!"
+              : errorMsg}
+          </p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1.5">
             Full Name *
           </label>
           <div className="relative">
-            <UserIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <UserIcon className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               required
               placeholder="e.g. Tunde Balogun"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-base font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1.5">
             Email Address *
           </label>
           <div className="relative">
-            <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Mail className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="email"
               required
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-base font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
         </div>
 
+        {/* WhatsApp Phone Number with Country Code Dropdown */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1.5">
             WhatsApp Phone Number *
           </label>
-          <div className="relative">
-            <MessageSquare className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="tel"
-              required
-              placeholder="+234 800 000 0000"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-            />
+          <div className="flex gap-2">
+            <select
+              value={dialCode}
+              onChange={(e) => setDialCode(e.target.value)}
+              className="w-32 py-3 px-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+            >
+              {COUNTRY_DIAL_CODES.map((c) => (
+                <option key={c.country} value={c.code}>
+                  {c.flag} {c.code || 'Other'}
+                </option>
+              ))}
+            </select>
+            <div className="relative flex-1">
+              <input
+                type="tel"
+                required
+                placeholder="e.g. 08012345678"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-base font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
           </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+            💡 <strong>How to enter:</strong> Type with or without the 0 (e.g. <strong>08012345678</strong> or <strong>8012345678</strong>). We format it for WhatsApp.
+          </p>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 mb-1.5">
             Password (min 6 characters) *
           </label>
           <div className="relative">
-            <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Lock className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type={showPassword ? 'text' : 'password'}
               required
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full pl-11 pr-11 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-base font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -263,7 +296,7 @@ function SignUpForm() {
           variant="primary"
           size="lg"
           isLoading={isLoading}
-          className="w-full font-bold shadow-lg shadow-brand-500/20 mt-2"
+          className="w-full font-extrabold text-base shadow-lg shadow-brand-500/20 mt-2 py-3.5"
         >
           <span>Create My Account</span>
           <ArrowRight className="w-4 h-4 ml-1.5" />
@@ -271,7 +304,7 @@ function SignUpForm() {
       </form>
 
       <div className="pt-4 border-t border-slate-200 dark:border-slate-800 text-center space-y-3">
-        <p className="text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           Already have an account?{' '}
           <Link
             href={`/login${redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : ''}`}
@@ -281,13 +314,13 @@ function SignUpForm() {
           </Link>
         </p>
 
-        <div className="pt-2">
+        <div className="pt-1">
           <Link
             href="/waitlist"
-            className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400"
+            className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5 text-brand-500" />
-            <span>Looking for early access perks? Join the VIP Waitlist</span>
+            <span>Prefer to join the early access waitlist? Click here</span>
           </Link>
         </div>
       </div>

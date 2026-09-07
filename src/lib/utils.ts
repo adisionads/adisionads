@@ -96,3 +96,35 @@ export function getStatusColor(status: string): { bg: string; text: string; bord
   }
 }
 
+export const COUNTRY_DIAL_CODES = [
+  { country: 'Nigeria', code: '+234', flag: '🇳🇬', label: '🇳🇬 +234 (Nigeria)' },
+  { country: 'Ghana', code: '+233', flag: '🇬🇭', label: '🇬🇭 +233 (Ghana)' },
+  { country: 'Kenya', code: '+254', flag: '🇰🇪', label: '🇰🇪 +254 (Kenya)' },
+  { country: 'South Africa', code: '+27', flag: '🇿🇦', label: '🇿🇦 +27 (South Africa)' },
+  { country: 'United Kingdom', code: '+44', flag: '🇬🇧', label: '🇬🇧 +44 (UK)' },
+  { country: 'United States', code: '+1', flag: '🇺🇸', label: '🇺🇸 +1 (USA)' },
+  { country: 'Canada', code: '+1', flag: '🇨🇦', label: '🇨🇦 +1 (Canada)' },
+  { country: 'Other', code: '+', flag: '🌐', label: '🌐 Other (International)' },
+];
+
+/**
+ * Normalizes any phone number input (e.g. "08012345678", "8012345678", or "+2348012345678")
+ * into a clean, consistent international format for WhatsApp and database storage.
+ */
+export function normalizePhoneNumber(rawPhone: string, dialCode: string = '+234'): string {
+  let cleaned = rawPhone.trim().replace(/[\s\-\(\)]/g, '');
+  if (!cleaned) return '';
+  if (cleaned.startsWith('+')) return cleaned;
+  if (cleaned.startsWith('00')) return '+' + cleaned.slice(2);
+
+  const numericCode = dialCode.replace('+', '');
+  if (numericCode && cleaned.startsWith(numericCode)) {
+    return '+' + cleaned;
+  }
+  if (cleaned.startsWith('0')) {
+    return (dialCode || '+234') + cleaned.slice(1);
+  }
+  return (dialCode || '+234') + cleaned;
+}
+
+
