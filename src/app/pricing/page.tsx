@@ -34,6 +34,12 @@ export default function PricingPage() {
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
             Choose a ready-made package or calculate custom reach for your budget. Every plan includes genuine link click tracking and screenshot proof.
           </p>
+
+          <div className="pt-2">
+            <div className="inline-block p-3.5 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-xs text-brand-300 font-medium">
+              💡 <strong>Early Access Phase:</strong> Select a package below to reserve your priority placement on our waitlist before public onboarding opens.
+            </div>
+          </div>
         </div>
 
         {/* 1. Pre-configured Packages Grid */}
@@ -86,15 +92,14 @@ export default function PricingPage() {
               </div>
 
               <Link
-                href="/advertiser/campaigns/new"
-                onClick={() => setCurrentRole('ADVERTISER')}
+                href="/waitlist"
                 className="w-full"
               >
                 <Button
                   variant={pkg.is_popular ? 'primary' : 'outline'}
                   className="w-full font-bold text-sm"
                 >
-                  Choose {pkg.name}
+                  Reserve {pkg.name}
                 </Button>
               </Link>
             </Card>
@@ -167,13 +172,12 @@ export default function PricingPage() {
               </div>
 
               <Link
-                href="/advertiser/campaigns/new"
-                onClick={() => setCurrentRole('ADVERTISER')}
+                href="/waitlist"
                 className="block pt-2"
               >
                 <Button size="md" variant="primary" className="w-full font-bold">
-                  <span>Launch With This Budget</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Reserve With This Budget</span>
+                  <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>
               </Link>
             </div>

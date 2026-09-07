@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { COUNTRY_DIAL_CODES, normalizePhoneNumber } from '@/lib/utils';
 
 type WaitlistRole = 'ADVERTISER' | 'COMMUNITY_PARTNER';
 
@@ -28,11 +29,20 @@ export default function WaitlistPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [dialCode, setDialCode] = useState('+234');
   const [country, setCountry] = useState('Nigeria');
   const [entityName, setEntityName] = useState('');
   const [category, setCategory] = useState('TECHNOLOGY');
   const [metricEstimate, setMetricEstimate] = useState('');
   const [notes, setNotes] = useState('');
+
+  const handleCountryChange = (selectedCountry: string) => {
+    setCountry(selectedCountry);
+    const found = COUNTRY_DIAL_CODES.find((c) => c.country === selectedCountry);
+    if (found && found.code && found.code !== '+') {
+      setDialCode(found.code);
+    }
+  };
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -49,6 +59,8 @@ export default function WaitlistPage() {
     setErrorMsg(null);
     setIsLoading(true);
 
+    const formattedPhone = normalizePhoneNumber(phone, dialCode);
+
     try {
       const response = await fetch('/api/waitlist', {
         method: 'POST',
@@ -56,7 +68,7 @@ export default function WaitlistPage() {
         body: JSON.stringify({
           full_name: fullName,
           email,
-          phone,
+          phone: formattedPhone,
           country,
           role,
           company_or_community_name: entityName,
@@ -272,8 +284,8 @@ export default function WaitlistPage() {
                     />
                   </div>
 
-                  {/* Email, Phone & Country Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* Email & Country */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                         Work or Personal Email *
@@ -290,37 +302,53 @@ export default function WaitlistPage() {
 
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                        WhatsApp Number *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        placeholder="+234 800 000 0000"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                         Country *
                       </label>
                       <select
                         value={country}
-                        onChange={(e) => setCountry(e.target.value)}
+                        onChange={(e) => handleCountryChange(e.target.value)}
                         className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                       >
-                        <option value="Nigeria">Nigeria 🇳🇬</option>
-                        <option value="Ghana">Ghana 🇬🇭</option>
-                        <option value="Kenya">Kenya 🇰🇪</option>
-                        <option value="South Africa">South Africa 🇿🇦</option>
-                        <option value="United Kingdom">United Kingdom 🇬🇧</option>
-                        <option value="United States">United States 🇺🇸</option>
-                        <option value="Canada">Canada 🇨🇦</option>
-                        <option value="Other">Other / Global</option>
+                        {COUNTRY_DIAL_CODES.map((c) => (
+                          <option key={c.country} value={c.country}>
+                            {c.label}
+                          </option>
+                        ))}
                       </select>
                     </div>
+                  </div>
+
+                  {/* WhatsApp Phone Number */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                      WhatsApp Phone Number *
+                    </label>
+                    <div className="flex gap-2">
+                      <select
+                        value={dialCode}
+                        onChange={(e) => setDialCode(e.target.value)}
+                        className="w-32 py-2.5 px-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+                      >
+                        {COUNTRY_DIAL_CODES.map((c) => (
+                          <option key={c.country} value={c.code}>
+                            {c.flag} {c.code || 'Other'}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="relative flex-1">
+                        <input
+                          type="tel"
+                          required
+                          placeholder="e.g. 08012345678"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                      Start with 0 (e.g. 08012345678) or without 0. We format it automatically for WhatsApp.
+                    </p>
                   </div>
 
                   {/* Dynamic Role Fields */}

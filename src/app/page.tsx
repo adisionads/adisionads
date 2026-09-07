@@ -6,9 +6,11 @@ import { useApp } from '@/lib/store/app-context';
 import {
   ArrowRight,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   DollarSign,
   GraduationCap,
+  HelpCircle,
   ShieldCheck,
   Sparkles,
   Zap,
@@ -18,8 +20,36 @@ import { Card } from '@/components/ui/Card';
 import { COMMUNITY_CATEGORIES_LIST, CAMPAIGN_PACKAGES } from '@/lib/constants';
 import { formatCurrency } from '@/lib/utils';
 
+const FAQ_ITEMS = [
+  {
+    q: 'How does Adision ensure my ad is actually posted?',
+    a: 'Every WhatsApp group or channel admin is required to upload timestamped screenshot proof showing your ad live inside their group. In addition, Adision generates a unique tracking link with your ad so you can monitor real human clicks in real time on your dashboard.',
+  },
+  {
+    q: 'What happens if a group admin deletes the ad or fails to post?',
+    a: 'Your campaign payment is held safely in escrow. Community admins only receive payment after proof of post is submitted and verified. If an admin fails to post or deletes the ad prematurely, they do not get paid, and your campaign budget is refunded or reassigned.',
+  },
+  {
+    q: 'How and when do WhatsApp community admins get paid?',
+    a: 'After you broadcast the assigned ad and upload your screenshot proof, your earnings are credited directly to your Adision wallet. You can withdraw to any Nigerian bank account (OPay, PalmPay, Moniepoint, Kuda, GTB, Access, Zenith, etc.) at any time.',
+  },
+  {
+    q: 'Do I give up control or admin rights of my WhatsApp group?',
+    a: 'Never. You maintain 100% ownership and control of your community. Adision never asks for group ownership. You simply receive sponsored broadcast tasks in your Adision dashboard that you choose to accept and post.',
+  },
+  {
+    q: 'What is the Early Access Waitlist?',
+    a: 'We are onboarding vetted communities and advertisers in curated batches to ensure high audience quality. Joining the waitlist reserves your priority spot and notifies you as soon as campaigns launch in your niche.',
+  },
+  {
+    q: 'Can I advertise with a small budget?',
+    a: 'Yes! Our Starter package starts from ₦7,000, allowing small businesses, creators, and vendors to reach thousands of targeted community members without expensive agency retainers.',
+  },
+];
+
 export default function HomePage() {
   const [activePersona, setActivePersona] = useState<'advertiser' | 'partner'>('advertiser');
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const { setCurrentRole } = useApp();
 
   return (
@@ -86,12 +116,11 @@ export default function HomePage() {
                     </Button>
                   </Link>
                   <Link
-                    href="/advertiser/campaigns/new"
-                    onClick={() => setCurrentRole('ADVERTISER')}
+                    href="/pricing"
                     className="w-full sm:w-auto"
                   >
                     <Button size="lg" variant="outline" className="w-full text-base font-semibold">
-                      <span>Launch a Campaign</span>
+                      <span>Explore Pricing & Packages</span>
                     </Button>
                   </Link>
                 </div>
@@ -115,15 +144,14 @@ export default function HomePage() {
                       <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
-                  <Link
-                    href="/partner/communities"
-                    onClick={() => setCurrentRole('COMMUNITY_PARTNER')}
+                  <a
+                    href="#how-it-works"
                     className="w-full sm:w-auto"
                   >
                     <Button size="lg" variant="outline" className="w-full text-base font-semibold">
-                      <span>Register Your Group</span>
+                      <span>How Community Payouts Work</span>
                     </Button>
-                  </Link>
+                  </a>
                 </div>
               </>
             )}
@@ -163,7 +191,7 @@ export default function HomePage() {
       </section>
 
       {/* 2. HOW IT WORKS (3 SIMPLE STEPS) */}
-      <section className="py-20 bg-white dark:bg-dark-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
+      <section id="how-it-works" className="py-20 bg-white dark:bg-dark-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 mb-2">
@@ -353,7 +381,56 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. CALL TO ACTION BANNER */}
+      {/* 5. FREQUENTLY ASKED QUESTIONS (ZERO AMBIGUITY) */}
+      <section className="py-20 bg-white dark:bg-dark-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 text-brand-700 dark:text-brand-400 text-xs font-bold uppercase tracking-wider mb-3">
+              <HelpCircle className="w-3.5 h-3.5" />
+              <span>Got Questions?</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">
+              Everything you need to know about how advertising, verification, and payouts work on Adision.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {FAQ_ITEMS.map((faq, index) => {
+              const isOpen = openFaq === index;
+              return (
+                <div
+                  key={index}
+                  className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 overflow-hidden transition-colors"
+                >
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : index)}
+                    className="w-full px-6 py-5 flex items-center justify-between text-left gap-4 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 transition-colors"
+                  >
+                    <span className="text-base font-bold text-slate-900 dark:text-white">
+                      {faq.q}
+                    </span>
+                    <ChevronDown
+                      className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200 ${
+                        isOpen ? 'rotate-180 text-brand-500' : ''
+                      }`}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="px-6 pb-5 pt-1 text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-200/50 dark:border-slate-800/50">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. CALL TO ACTION BANNER */}
       <section className="py-20 bg-gradient-to-r from-brand-900/20 via-white dark:via-dark-900 to-brand-900/10 border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/15 text-brand-700 dark:text-brand-400 text-xs font-bold">
