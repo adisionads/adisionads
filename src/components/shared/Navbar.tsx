@@ -102,9 +102,6 @@ export function Navbar() {
             >
               <Sparkles className="w-3.5 h-3.5 text-brand-500 animate-pulse" />
               <span>Waitlist</span>
-              <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-brand-500/15 text-brand-700 dark:text-brand-300 font-bold">
-                VIP
-              </span>
             </Link>
 
             {isAuthenticated && (
@@ -201,7 +198,7 @@ export function Navbar() {
                           className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         >
                           <Sparkles className="w-4 h-4 text-brand-500" />
-                          <span>VIP Waitlist Database</span>
+                          <span>Waitlist Database</span>
                         </Link>
                       )}
 
@@ -277,7 +274,7 @@ export function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-xl text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 font-bold"
             >
-              ⭐ VIP Waitlist
+              Waitlist
             </Link>
 
             {isAuthenticated ? (

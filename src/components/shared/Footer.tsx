@@ -49,7 +49,7 @@ export function Footer() {
               <li>
                 <Link href="/waitlist" className="text-brand-600 dark:text-brand-400 font-bold flex items-center gap-1 hover:underline">
                   <Sparkles className="w-3 h-3" />
-                  <span>VIP Waitlist</span>
+                  <span>Early Access Waitlist</span>
                 </Link>
               </li>
             </ul>

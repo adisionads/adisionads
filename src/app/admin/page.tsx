@@ -62,7 +62,7 @@ export default function AdminControlCenter() {
             <Link href="/admin/waitlist">
               <Button size="md" variant="outline" className="font-bold gap-2 text-brand-600 dark:text-brand-400 border-brand-500/30">
                 <Sparkles className="w-4 h-4 text-brand-500" />
-                <span>VIP Waitlist</span>
+                <span>Waitlist</span>
               </Button>
             </Link>
             <Link href="/admin/campaigns">
@@ -113,10 +113,10 @@ export default function AdminControlCenter() {
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <span className="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded">
-                  VIP Launch
+                  Pre-Launch
                 </span>
               </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">VIP Early Waitlist</h3>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Early Waitlist</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 View all advertiser and community partner signups with WhatsApp contacts.
               </p>

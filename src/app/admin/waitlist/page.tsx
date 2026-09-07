@@ -143,7 +143,7 @@ export default function AdminWaitlistPage() {
               <ArrowLeft className="w-3.5 h-3.5" /> Back to Operations Hub
             </Link>
             <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-              <span>VIP Waitlist Database</span>
+              <span>Waitlist Database</span>
               <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-brand-500/15 text-brand-700 dark:text-brand-400 border border-brand-500/30">
                 {entries.length} Total Signups
               </span>

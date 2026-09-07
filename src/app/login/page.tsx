@@ -155,7 +155,7 @@ function LoginForm() {
             className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400"
           >
             <Sparkles className="w-3.5 h-3.5 text-brand-500" />
-            <span>Not ready? Join the VIP Early Access Waitlist</span>
+            <span>Not ready? Join the Early Access Waitlist</span>
           </Link>
         </div>
       </div>
