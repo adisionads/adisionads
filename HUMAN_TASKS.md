@@ -87,8 +87,29 @@ CLICK_HASH_SALT=adision_prod_hash_salt_9283748291
 
 ---
 
+## Authentication & Role-Based Access Control (RBAC)
+
+The platform now locks down all private dashboards:
+- `/admin/*` is locked to users with `role = 'ADMIN'`.
+- `/advertiser/*` is locked to users with `role = 'ADVERTISER'` or `'ADMIN'`.
+- `/partner/*` is locked to users with `role = 'COMMUNITY_PARTNER'` or `'ADMIN'`.
+- Anyone not signed in is automatically redirected to `/login?redirect=...`.
+
+### How to Enable Auth Triggers & Make Yourself Admin:
+1. Open Supabase SQL Editor (`rgivzqyqcrhqafcxbvfd`).
+2. Run [`supabase/migrations/003_auth_profiles_trigger.sql`](file:///c:/Users/1LUV/Documents/Coding%20projects/Adision/supabase/migrations/003_auth_profiles_trigger.sql). This automatically creates profiles and wallets whenever someone signs up via Supabase Auth.
+3. Sign up with your email at `/signup`.
+4. Run this query in Supabase SQL Editor to elevate your account to Admin:
+   ```sql
+   SELECT public.make_user_admin('YOUR_EMAIL_HERE');
+   ```
+5. You can now access `/admin` and `/admin/waitlist` with full administrator permissions.
+
+---
+
 ## Storage Buckets (Optional for Media Placements)
 When ready for proof screenshots and verification:
 - Go to **Storage** in Supabase.
 - Create bucket: `proof-uploads` (Public).
 - Create bucket: `verification-docs` (Private).
+

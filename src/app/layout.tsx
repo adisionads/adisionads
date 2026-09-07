@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AppProvider } from '@/lib/store/app-context';
+import { AuthProvider } from '@/lib/auth/auth-context';
 import { ThemeProvider } from '@/lib/theme/theme-context';
 import { Navbar } from '@/components/shared/Navbar';
 import { Footer } from '@/components/shared/Footer';
@@ -42,12 +43,14 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col bg-slate-50 dark:bg-dark-900 text-slate-900 dark:text-slate-100 antialiased selection:bg-brand-500 selection:text-dark-900">
         <ThemeProvider>
-          <AppProvider>
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <PWAInstallBanner />
-          </AppProvider>
+          <AuthProvider>
+            <AppProvider>
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <PWAInstallBanner />
+            </AppProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

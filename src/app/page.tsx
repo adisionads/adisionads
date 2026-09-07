@@ -99,7 +99,7 @@ export default function HomePage() {
             ) : (
               <>
                 <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
-                  Monetize Your WhatsApp Audience with <span className="text-brand-600 dark:text-brand-400">Guaranteed Bank Payouts</span>.
+                  Monetize Your WhatsApp Audience with <span className="text-brand-600 dark:text-brand-400">Direct Bank Payouts</span>.
                 </h1>
                 <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
                   Turn your active WhatsApp audience into regular income. Receive paid ad jobs, post them in your community, upload a screenshot proof, and withdraw your cash straight to your Nigerian bank.
@@ -111,7 +111,7 @@ export default function HomePage() {
                   >
                     <Button size="lg" variant="primary" className="w-full font-bold text-base shadow-lg shadow-brand-500/20 gap-2">
                       <Sparkles className="w-4 h-4" />
-                      <span>Join Partner Waitlist (0% Fee)</span>
+                      <span>Join Partner Waitlist</span>
                       <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
@@ -294,7 +294,7 @@ export default function HomePage() {
               Transparent Pricing
             </h2>
             <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Simple Packages. Guaranteed Distribution.
+              Simple Packages. Verified Distribution.
             </h3>
           </div>
 
@@ -364,7 +364,7 @@ export default function HomePage() {
             Reserve Your Early Access Spot Today.
           </h2>
           <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
-            Join the waitlist to receive bonus ad credits or 0% platform commission during our launch batch. Safe escrow payments, live click tracking, and verified communities.
+            Join the waitlist to be notified first when we open campaigns and community onboarding in your category.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
             <Link href="/waitlist">

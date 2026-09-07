@@ -26,7 +26,7 @@ export default function PricingPage() {
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-bold">
             <Zap className="w-3.5 h-3.5" />
-            <span>Guaranteed Distribution Packages</span>
+            <span>Verified Distribution Packages</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
             Clear, Transparent Pricing for Real WhatsApp Reach

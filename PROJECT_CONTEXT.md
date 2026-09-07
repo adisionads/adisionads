@@ -148,23 +148,48 @@ erDiagram
 
 - **Brand & Identity:** Strictly branded as **Adision** across all interfaces, metadata, and backend schemas.
 - **UI & Experience:**
-  - **Dual Light / Dark Mode:** Integrated with a persistent toggle (Sun/Moon in Navbar), crisp white/slate background with brand green (#8fc822) in light mode, and obsidian in dark mode.
-  - **VIP Early Access Waitlist (`/waitlist`):** Dual-role signup form for Advertisers and Community Partners, collecting Full Name, Email, WhatsApp Phone, Country, and Business/Community details. Includes queue rank (#42), referral code (`ADIS-XXXXXX`), and 1-click WhatsApp sharing.
+  - **Dual Light / Dark Mode:** Fully functional persistent theme toggle (Sun/Moon in Navbar). Light mode uses crisp white/slate backgrounds with vibrant brand green (`#8fc822`); dark mode uses high-contrast obsidian (`#0d0f12`) and emerald.
+  - **Clean Early Access Waitlist (`/waitlist`):** Dual-role signup form for Advertisers and Community Partners, collecting Full Name, Email, WhatsApp Phone, Country, and Business/Community details. Truthful, plain-English value propositions (no fabricated bonuses or ambiguous claims).
   - **Admin Waitlist Management (`/admin/waitlist`):** Operations portal to view, filter by role/country, search signups, copy all WhatsApp phone numbers in 1 click, and export complete CSV reports.
-  - Live WhatsApp mockup preview hidden for MVP to keep layout focused and simple.
-  - Dashboards render clean empty states ready for real live data.
+  - **Role-Based Auth System (`/login`, `/signup`):**
+    - Built on top of Supabase Auth with persistent session context (`src/lib/auth/auth-context.tsx`).
+    - Route guards (`AuthGuard.tsx`) protect private dashboards:
+      - `/admin/*` strictly requires `role = 'ADMIN'`. Unauthorized visitors are redirected to `/login`.
+      - `/advertiser/*` requires `role = 'ADVERTISER'` or `'ADMIN'`.
+      - `/partner/*` requires `role = 'COMMUNITY_PARTNER'` or `'ADMIN'`.
+    - Profile auto-generation on signup handled by Supabase trigger in `003_auth_profiles_trigger.sql`.
 - **Security & Backend:**
-  - Standalone and master migrations: `002_waitlist_schema.sql` (standalone waitlist) and `000_FULL_SETUP.sql` (all-in-one idempotent master migration).
+  - `002_waitlist_schema.sql` (standalone waitlist) and `000_FULL_SETUP.sql` (all-in-one idempotent master migration).
+  - `003_auth_profiles_trigger.sql` (auth trigger + `public.make_user_admin(email)` helper).
   - HMAC SHA-256 webhook signature verification with timing-safe comparisons in place.
   - Bot and preview-scraper filtering active on `/r/[code]` redirect engine.
   - Atomic PostgreSQL stored procedures for campaign payment escrow, click incrementing, and balance withdrawals.
-  - Server-side Supabase admin client configured for elevated service-role tasks.
 - **Live Deployment & Credentials:**
   - Production App URL: `https://adisionads.vercel.app`
   - Supabase Project ID: `rgivzqyqcrhqafcxbvfd`
   - `.env.local` configured with Supabase URL, anon key, and service role key.
-- **Next Steps:**
-  - Execute `002_waitlist_schema.sql` (or `000_FULL_SETUP.sql`) in Supabase SQL Editor.
-  - Add Supabase environment variables into Vercel dashboard and redeploy.
+
+---
+
+## 7. Strict Founder Directives & Truth-in-Marketing Policy
+
+> [!CAUTION]
+> **MANDATORY POLICY FOR ALL FUTURE DEVELOPMENT & AI ASSISTANCE:**
+> 1. **Zero Fabricated Data or Perks:**
+>    - **NEVER** invent promo percentages, fake credits, or discounts (e.g., do NOT invent "20% bonus ad spend" or "0% commission for 30 days").
+>    - **NEVER** invent fake guarantees (e.g., do NOT invent "guaranteed seed campaigns" or "escrow-backed guarantee").
+>    - **NEVER** create fake gamification rules (e.g., do NOT claim "inviting a friend jumps you 5 spots" unless backend queue reordering is explicitly implemented and requested).
+> 2. **No Ambiguous Buzzwords:**
+>    - Avoid vague jargon like "escrow-backed guarantee" or unverified claims.
+>    - If the user or founder hasn't explicitly told you a perk or policy exists, **DO NOT ADD IT**.
+>    - Speak in plain, honest, and factual language at all times:
+>      - *Advertisers:* Launch campaigns across vetted WhatsApp communities with unique click tracking.
+>      - *Partners:* Monetize active WhatsApp groups/channels with direct bank payouts upon verified proof.
+> 3. **Authentication & Access Rules:**
+>    - Never allow open unauthenticated browsing into `/admin`, `/advertiser`, or `/partner`.
+>    - Elevating a user to Admin is done strictly via Supabase SQL: `SELECT public.make_user_admin('founder@example.com');`.
+> 4. **Payment Flow Roadmap:**
+>    - Payment gateways (PaymentPoint) will be wired into live production after account creation and dashboard flows are fully vetted.
+
 
 

@@ -8,7 +8,6 @@ import {
   Briefcase,
   CheckCircle2,
   Copy,
-  Gift,
   HelpCircle,
   Megaphone,
   MessageSquare,
@@ -101,8 +100,8 @@ export default function WaitlistPage() {
     const link = getShareLink();
     const text =
       role === 'ADVERTISER'
-        ? `Hey! I just reserved my VIP spot on Adision — the new marketplace to run targeted ads across active WhatsApp groups with verified reach and click analytics. Join the waitlist here: ${link}`
-        : `Hey! I just joined the waitlist for Adision to monetize my WhatsApp group with paid brand sponsorships and guaranteed bank payouts. Join the early access waitlist: ${link}`;
+        ? `Hey! I just joined the early access waitlist for Adision — the marketplace to run targeted ads across active WhatsApp groups with verified click analytics. Check it out here: ${link}`
+        : `Hey! I just joined the early access waitlist for Adision to monetize WhatsApp groups with brand sponsorships and direct bank payouts. Join here: ${link}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -175,7 +174,7 @@ export default function WaitlistPage() {
             {/* Referral / Share Actions */}
             <div className="space-y-4">
               <div className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                🚀 <span className="font-bold text-slate-900 dark:text-white">Jump the queue:</span> Each friend or colleague who joins with your link moves you 5 spots ahead!
+                🔗 <span className="font-bold text-slate-900 dark:text-white">Invite Your Network:</span> Share your invite link with colleagues or community owners:
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -454,12 +453,12 @@ export default function WaitlistPage() {
               </Card>
             </div>
 
-            {/* Right Column: VIP Perks & Guarantees */}
+            {/* Right Column: What to Expect & Support */}
             <div className="lg:col-span-5 space-y-6">
               <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-sm p-6 space-y-5">
                 <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Gift className="w-5 h-5 text-brand-600 dark:text-brand-400" />
-                  <span>Early Bird Perks</span>
+                  <CheckCircle2 className="w-5 h-5 text-brand-600 dark:text-brand-400" />
+                  <span>What to Expect</span>
                 </h3>
 
                 <div className="space-y-4">
@@ -471,10 +470,10 @@ export default function WaitlistPage() {
                         </div>
                         <div>
                           <div className="text-xs font-bold text-slate-900 dark:text-white">
-                            20% Free Bonus Ad Spend
+                            Direct Early Access
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                            Early advertisers get a 20% credit match on their first campaign tier.
+                            Get invited to launch WhatsApp campaigns as soon as onboarding opens for your category.
                           </div>
                         </div>
                       </div>
@@ -485,10 +484,10 @@ export default function WaitlistPage() {
                         </div>
                         <div>
                           <div className="text-xs font-bold text-slate-900 dark:text-white">
-                            Priority Vetted Placements
+                            Verified Audience Placements
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                            Your campaigns get placed first in our top-rated 90+ score communities.
+                            Connect directly with vetted WhatsApp communities with transparent, real-time click tracking.
                           </div>
                         </div>
                       </div>
@@ -499,10 +498,10 @@ export default function WaitlistPage() {
                         </div>
                         <div>
                           <div className="text-xs font-bold text-slate-900 dark:text-white">
-                            1-on-1 Ad Copy Optimization
+                            Onboarding Guidance
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                            Our team helps review your ad copy and CTA before distribution.
+                            Direct assistance from our team to help format your ad broadcast copy and target the right audiences.
                           </div>
                         </div>
                       </div>
@@ -511,14 +510,14 @@ export default function WaitlistPage() {
                     <>
                       <div className="flex gap-3 items-start">
                         <div className="w-8 h-8 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0 mt-0.5">
-                          <Zap className="w-4 h-4" />
+                          <Users className="w-4 h-4" />
                         </div>
                         <div>
                           <div className="text-xs font-bold text-slate-900 dark:text-white">
-                            0% Commission for 30 Days
+                            Priority Group Verification
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                            Keep 100% of the distributable ad payout for every completed assignment.
+                            Your WhatsApp community is reviewed and verified first for upcoming advertiser campaigns.
                           </div>
                         </div>
                       </div>
@@ -529,10 +528,10 @@ export default function WaitlistPage() {
                         </div>
                         <div>
                           <div className="text-xs font-bold text-slate-900 dark:text-white">
-                            Guaranteed Seed Campaigns
+                            Direct Bank Payouts
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                            Immediate ad jobs assigned right after community verification.
+                            Earn from sponsored broadcasts with payouts sent directly to your Nigerian bank account upon verification.
                           </div>
                         </div>
                       </div>
@@ -543,10 +542,10 @@ export default function WaitlistPage() {
                         </div>
                         <div>
                           <div className="text-xs font-bold text-slate-900 dark:text-white">
-                            Priority Fast-Track Verification
+                            Audience Quality Control
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                            Skip the public queue; your WhatsApp group gets reviewed within 12 hours.
+                            You review and approve every ad assignment before posting to protect your group members.
                           </div>
                         </div>
                       </div>
@@ -555,15 +554,15 @@ export default function WaitlistPage() {
                 </div>
               </Card>
 
-              {/* Trust Badge */}
-              <div className="p-5 rounded-2xl border border-brand-500/20 bg-brand-500/5 flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-brand-500 text-dark-900 flex items-center justify-center shrink-0 font-black">
-                  ₦
+              {/* Direct Inquiries / Contact Card */}
+              <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <MessageSquare className="w-5 h-5" />
                 </div>
                 <div className="text-xs">
-                  <div className="font-bold text-slate-900 dark:text-white">Escrow-Backed Guarantee</div>
-                  <div className="text-slate-600 dark:text-slate-400 mt-0.5">
-                    Zero direct bargaining. Zero unpaid ads. Guaranteed settlements directly to your bank account.
+                  <div className="font-bold text-slate-900 dark:text-white">Questions Before Joining?</div>
+                  <div className="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                    Have questions about community eligibility or ad campaigns? Reach out to us at <span className="font-semibold text-slate-900 dark:text-white">adisionads@gmail.com</span>.
                   </div>
                 </div>
               </div>
