@@ -179,7 +179,8 @@ erDiagram
 >    - **NEVER** invent promo percentages, fake credits, or discounts (e.g., do NOT invent "20% bonus ad spend" or "0% commission for 30 days").
 >    - **NEVER** invent fake guarantees (e.g., do NOT invent "guaranteed seed campaigns" or "escrow-backed guarantee").
 >    - **NEVER** create fake gamification rules (e.g., do NOT claim "inviting a friend jumps you 5 spots" unless backend queue reordering is explicitly implemented and requested).
-> 2. **No Ambiguous Buzzwords:**
+> 2. **No Ambiguous Buzzwords or Fabricated Labels:**
+>    - **NEVER** use the word "VIP" anywhere (e.g. no "VIP waitlist", no "VIP perks", no "VIP access"). The user never authorized it. It is strictly **Waitlist** or **Early Access Waitlist**.
 >    - Avoid vague jargon like "escrow-backed guarantee" or unverified claims.
 >    - If the user or founder hasn't explicitly told you a perk or policy exists, **DO NOT ADD IT**.
 >    - Speak in plain, honest, and factual language at all times:
