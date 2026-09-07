@@ -18,7 +18,11 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, meta: SignUpMeta) => Promise<{ error: string | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    meta: SignUpMeta
+  ) => Promise<{ error: string | null; requiresEmailConfirmation?: boolean }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -195,7 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string,
     password: string,
     meta: SignUpMeta
-  ): Promise<{ error: string | null }> => {
+  ): Promise<{ error: string | null; requiresEmailConfirmation?: boolean }> => {
     setIsLoading(true);
     try {
       if (!isSupabaseConfigured()) {
@@ -236,13 +240,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: error.message };
       }
 
-      if (data.user) {
+      // In Supabase, if email confirmation is required, session is null
+      const requiresEmailConfirmation = !data.session && !!data.user;
+
+      if (data.user && data.session) {
         setUser(data.user);
         await fetchProfile(data.user);
       }
 
       setIsLoading(false);
-      return { error: null };
+      return { error: null, requiresEmailConfirmation };
     } catch (err: any) {
       setIsLoading(false);
       return { error: err.message || 'Registration failed. Please try again.' };

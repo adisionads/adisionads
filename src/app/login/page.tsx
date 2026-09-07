@@ -71,8 +71,10 @@ function LoginForm() {
       )}
 
       {errorMsg && (
-        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/50 text-rose-700 dark:text-rose-400 text-xs font-medium">
-          {errorMsg}
+        <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/50 text-rose-700 dark:text-rose-400 text-xs font-medium">
+          {errorMsg.toLowerCase().includes('email not confirmed')
+            ? 'Your email has not been verified yet. Please check your inbox for the confirmation link before signing in.'
+            : errorMsg}
         </div>
       )}
 

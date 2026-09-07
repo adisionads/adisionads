@@ -38,6 +38,7 @@ function SignUpForm() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +51,7 @@ function SignUpForm() {
 
     setIsLoading(true);
 
-    const { error } = await signUp(email, password, {
+    const { error, requiresEmailConfirmation } = await signUp(email, password, {
       fullName,
       role,
       phone,
@@ -62,8 +63,14 @@ function SignUpForm() {
       return;
     }
 
-    setSuccess(true);
     setIsLoading(false);
+
+    if (requiresEmailConfirmation) {
+      setNeedsConfirmation(true);
+      return;
+    }
+
+    setSuccess(true);
 
     setTimeout(() => {
       if (redirectParam && redirectParam.startsWith('/')) {
@@ -75,6 +82,33 @@ function SignUpForm() {
       }
     }, 1500);
   };
+
+  if (needsConfirmation) {
+    return (
+      <Card className="max-w-md w-full mx-auto p-8 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-200">
+        <div className="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mx-auto text-brand-600 dark:text-brand-400">
+          <Mail className="w-9 h-9" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Check Your Email</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            We sent a verification link to <br />
+            <span className="font-bold text-slate-900 dark:text-white">{email}</span>
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 pt-2">
+            Click the link in your email to confirm your account, then you can log in directly.
+          </p>
+        </div>
+        <div className="pt-2">
+          <Link href="/login">
+            <Button variant="primary" size="lg" className="w-full font-bold">
+              Proceed to Sign In
+            </Button>
+          </Link>
+        </div>
+      </Card>
+    );
+  }
 
   if (success) {
     return (
