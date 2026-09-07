@@ -90,3 +90,18 @@ When ready for proof screenshots and verification:
 - Create bucket: `proof-uploads` (Public).
 - Create bucket: `verification-docs` (Private).
 
+---
+
+## Google Search Console Verification (Whenever You Are Ready)
+
+When you are ready to connect Google Search Console, it requires zero code edits:
+1. Go to [Google Search Console](https://search.google.com/search-console).
+2. Add your property: `https://adisionads.vercel.app` (URL prefix).
+3. Select the **HTML tag** verification method. Copy only the code inside `content="XXXXX"`.
+4. In Vercel (**Settings** $\rightarrow$ **Environment Variables**), add:
+   - **Key:** `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`
+   - **Value:** `your_copied_code`
+5. Click **Verify** in Google Search Console.
+6. Under **Sitemaps** on the left menu, enter `sitemap.xml` and click **Submit**. Google will automatically crawl and index your pages (`/`, `/pricing`, `/waitlist`)!
+
+

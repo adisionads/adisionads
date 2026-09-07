@@ -164,6 +164,12 @@ erDiagram
   - HMAC SHA-256 webhook signature verification with timing-safe comparisons in place.
   - Bot and preview-scraper filtering active on `/r/[code]` redirect engine.
   - Atomic PostgreSQL stored procedures for campaign payment escrow, click incrementing, and balance withdrawals.
+- **Enterprise SEO & Search Engine Indexing:**
+  - Dynamic `sitemap.xml` (`src/app/sitemap.ts`) prioritizing public marketplace and pricing pages.
+  - Dynamic `robots.txt` (`src/app/robots.ts`) allowing public indexing and guarding private portal routes (`/admin`, `/partner`, `/api`).
+  - Schema.org JSON-LD structured data: `Organization`, `WebSite`, and `FAQPage` rich search result markup.
+  - OpenGraph & Twitter Card tags with canonical link resolution.
+  - Google Search Console instant verification ready via `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
 - **Live Deployment & Credentials:**
   - Production App URL: `https://adisionads.vercel.app`
   - Supabase Project ID: `rgivzqyqcrhqafcxbvfd`

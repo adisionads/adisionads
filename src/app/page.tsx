@@ -47,6 +47,19 @@ const FAQ_ITEMS = [
   },
 ];
 
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ_ITEMS.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.a,
+    },
+  })),
+};
+
 export default function HomePage() {
   const [activePersona, setActivePersona] = useState<'advertiser' | 'partner'>('advertiser');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -54,6 +67,10 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-dark-900 transition-colors">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       {/* 1. HERO SECTION WITH DUAL PERSONA SWITCHER */}
       <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 border-b border-slate-200 dark:border-slate-800/80 bg-gradient-to-b from-slate-100/80 via-white to-slate-50 dark:from-dark-900 dark:via-dark-900 dark:to-[#070b12]">
         {/* Background glow flares */}
