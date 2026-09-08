@@ -73,7 +73,7 @@ export default function AdvertiserDashboard() {
           <div>
             <h1 className="text-3xl font-extrabold text-white tracking-tight">Advertiser Dashboard</h1>
             <p className="text-sm text-slate-400 mt-1">
-              Track your live campaigns, link clicks from real members, and verified WhatsApp placements.
+              Track your active campaigns, link clicks, and WhatsApp community posts.
             </p>
           </div>
 
@@ -122,7 +122,7 @@ export default function AdvertiserDashboard() {
           <StatsCard
             title="Total Ad Spend"
             value={formatCurrency(totalSpent)}
-            description="Protected in escrow"
+            description="Held safely until ads are posted"
             icon={TrendingUp}
           />
         </div>
@@ -132,7 +132,7 @@ export default function AdvertiserDashboard() {
           <div className="p-6 border-b border-slate-800 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-white">Your Campaigns</h2>
-              <p className="text-xs text-slate-400 mt-0.5">Real-time status, escrow payment, and click performance</p>
+              <p className="text-xs text-slate-400 mt-0.5">Real-time status, payments, and click performance</p>
             </div>
             <Link href="/advertiser/campaigns/new">
               <span className="text-xs font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1">
@@ -163,7 +163,7 @@ export default function AdvertiserDashboard() {
                     <th className="px-6 py-4">Campaign Name & Target</th>
                     <th className="px-6 py-4">Package & Budget</th>
                     <th className="px-6 py-4">Campaign Status</th>
-                    <th className="px-6 py-4">Escrow Payment</th>
+                    <th className="px-6 py-4">Payment Status</th>
                     <th className="px-6 py-4">Clicks (Unique)</th>
                     <th className="px-6 py-4">Communities</th>
                     <th className="px-6 py-4 text-right">Action</th>
@@ -193,7 +193,7 @@ export default function AdvertiserDashboard() {
                               : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                           }`}
                         >
-                          {camp.payment_status === 'PAID' ? 'LOCKED IN ESCROW' : camp.payment_status}
+                          {camp.payment_status === 'PAID' ? 'PAID (HELD SAFELY)' : camp.payment_status}
                         </span>
                       </td>
                       <td className="px-6 py-4">

@@ -426,10 +426,10 @@ export default function NewCampaignPage() {
               </div>
               <h4 className="text-lg font-black text-white">Payment Confirmed!</h4>
               <p className="text-xs text-slate-300">
-                Your payment of {formatCurrency(checkoutData?.amount || selectedPackage.price)} has been verified and safely locked into the escrow ledger.
+                Your payment of {formatCurrency(checkoutData?.amount || selectedPackage.price)} has been received and is safely held until your ad is posted.
               </p>
               <p className="text-xs text-brand-400 font-semibold">
-                Redirecting to your campaign dashboard...
+                Going to your campaign dashboard...
               </p>
             </div>
           ) : (
@@ -514,7 +514,7 @@ export default function NewCampaignPage() {
                 </Button>
 
                 <p className="text-[11px] text-center text-slate-400 leading-relaxed">
-                  💡 <strong>Founder Safety Note:</strong> In live mode, your bank transfer is auto-detected via webhook within 60 seconds. The button above lets you test the full database escrow settlement safely without spending real money.
+                  💡 <strong>Test Mode:</strong> Click the button above to test paying for this campaign safely without spending real money.
                 </p>
               </div>
             </>

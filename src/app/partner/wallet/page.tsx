@@ -261,20 +261,20 @@ export default function PartnerWalletPage() {
           <StatsCard
             title="Available Balance"
             value={formatCurrency(wallet.available_balance)}
-            description="Ready for instant bank withdrawal"
+            description="Money you can withdraw now"
             icon={WalletIcon}
             highlight
           />
           <StatsCard
             title="Pending Verification"
             value={formatCurrency(wallet.pending_balance)}
-            description="Broadcast proofs awaiting verification"
+            description="Ad posts waiting for approval"
             icon={Clock}
           />
           <StatsCard
             title="Total Earned"
             value={formatCurrency(wallet.lifetime_earned)}
-            description="All-time verified community earnings"
+            description="Total money earned to date"
             icon={DollarSign}
           />
         </div>
@@ -286,8 +286,8 @@ export default function PartnerWalletPage() {
             <div className="flex items-center gap-2">
               <History className="w-5 h-5 text-brand-400" />
               <div>
-                <h2 className="text-lg font-bold text-white">Financial Activity</h2>
-                <p className="text-xs text-slate-400">Complete audit trail of earnings and payout requests</p>
+                <h2 className="text-lg font-bold text-white">Earnings & Withdrawals</h2>
+                <p className="text-xs text-slate-400">List of all your earnings and bank withdrawals</p>
               </div>
             </div>
 
@@ -301,7 +301,7 @@ export default function PartnerWalletPage() {
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Earnings Ledger ({ledger.length})
+                Earnings ({ledger.length})
               </button>
               <button
                 type="button"
@@ -312,7 +312,7 @@ export default function PartnerWalletPage() {
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Withdrawal Requests ({withdrawals.length})
+                Bank Withdrawals ({withdrawals.length})
               </button>
             </div>
           </div>
@@ -437,8 +437,8 @@ export default function PartnerWalletPage() {
       <Modal
         isOpen={isWithdrawModalOpen}
         onClose={() => setIsWithdrawModalOpen(false)}
-        title="Request Bank Withdrawal"
-        description="Withdraw available earnings directly to your verified Nigerian bank account."
+        title="Withdraw to Bank"
+        description="Send your earnings directly to your Nigerian bank account."
         maxWidth="md"
       >
         <form onSubmit={handleWithdrawalSubmit} className="space-y-4">
@@ -481,12 +481,12 @@ export default function PartnerWalletPage() {
           </div>
 
           <Input
-            label="NUBAN Account Number (10 Digits)"
+            label="Account Number (10 Digits)"
             maxLength={10}
             placeholder="0123456789"
             value={accountNumber}
             onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ''))}
-            helperText="Enter exactly 10 digits"
+            helperText="Enter your 10-digit bank account number"
             required
           />
 
@@ -495,14 +495,14 @@ export default function PartnerWalletPage() {
             placeholder="Chioma Okonkwo"
             value={accountName}
             onChange={(e) => setAccountName(e.target.value)}
-            helperText="Must strictly match the name on your bank account."
+            helperText="Must match the name on your bank account."
             required
           />
 
           <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-xl text-xs text-slate-400 flex items-start gap-2">
             <Building2 className="w-4 h-4 text-brand-400 mt-0.5 flex-shrink-0" />
             <span>
-              Bank transfers are manually audited and settled to your Nigerian bank within 24 business hours. No hidden fees.
+              Transfers are sent directly to your bank account within 24 hours. No hidden fees.
             </span>
           </div>
 
