@@ -48,36 +48,71 @@ export async function POST(request: NextRequest) {
 
     const distributablePool = Number(budget_amount) * 0.7; // 70% to community partners, 30% platform margin
 
+    function isValidUUID(str?: string): boolean {
+      if (!str) return false;
+      return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+    }
+
     // 3. Persist Campaign to Supabase if configured
     let campaignId = `camp_${Date.now()}`;
     if (isSupabaseAdminConfigured()) {
-      const { data, error } = await supabaseAdmin
-        .from('campaigns')
-        .insert({
-          advertiser_id: advertiser_id || 'usr_adv_001',
-          title,
-          category: category || 'GENERAL',
-          ad_copy: ad_copy || '',
-          media_url: media_url || null,
-          destination_url,
-          cta_text: cta_text || 'Learn More',
-          package_name: package_name || 'Standard Reach',
-          duration_days: 7,
-          budget_amount: Number(budget_amount),
-          commission_rate: 30.0,
-          distributable_pool: distributablePool,
-          status: 'DRAFT',
-          payment_status: 'PENDING',
-          payment_reference: reference,
-          virtual_account_details: virtualAccount,
-        })
-        .select('id')
-        .single();
+      let effectiveAdvertiserId = advertiser_id;
 
-      if (error) {
-        console.error('[Create Checkout DB Insert Error]:', error);
-      } else if (data?.id) {
-        campaignId = data.id;
+      if (!isValidUUID(effectiveAdvertiserId)) {
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .ilike('email', advertiser_email.trim().toLowerCase())
+          .maybeSingle();
+
+        if (profile?.id) {
+          effectiveAdvertiserId = profile.id;
+        } else {
+          // Fallback to first available profile if testing
+          const { data: anyProfile } = await supabaseAdmin
+            .from('profiles')
+            .select('id')
+            .limit(1)
+            .maybeSingle();
+          if (anyProfile?.id) {
+            effectiveAdvertiserId = anyProfile.id;
+          }
+        }
+      }
+
+      if (effectiveAdvertiserId && isValidUUID(effectiveAdvertiserId)) {
+        const { data, error } = await supabaseAdmin
+          .from('campaigns')
+          .insert({
+            advertiser_id: effectiveAdvertiserId,
+            title,
+            category: category || 'GENERAL',
+            ad_copy: ad_copy || '',
+            media_url: media_url || null,
+            destination_url,
+            cta_text: cta_text || 'Learn More',
+            package_name: package_name || 'Standard Reach',
+            duration_days: 7,
+            budget_amount: Number(budget_amount),
+            commission_rate: 30.0,
+            distributable_pool: distributablePool,
+            status: 'DRAFT',
+            payment_status: 'PENDING',
+            payment_reference: reference,
+            virtual_account_details: virtualAccount,
+          })
+          .select('id')
+          .single();
+
+        if (error) {
+          console.error('[Create Checkout DB Insert Error]:', error);
+          return NextResponse.json(
+            { status: false, message: 'Database error saving campaign: ' + error.message },
+            { status: 500 }
+          );
+        } else if (data?.id) {
+          campaignId = data.id;
+        }
       }
     }
 

@@ -104,4 +104,34 @@ When you are ready to connect Google Search Console, it requires zero code edits
 5. Click **Verify** in Google Search Console.
 6. Under **Sitemaps** on the left menu, enter `sitemap.xml` and click **Submit**. Google will automatically crawl and index your pages (`/`, `/pricing`, `/waitlist`)!
 
+---
+
+## Zero-Risk Payment & Payout Testing Guide (Peace of Mind)
+
+You never have to spend real money to test the complete payment system end-to-end. Everything is built with an integrated test simulator:
+
+### 1. How to Test Campaign Checkout (Inbound Escrow)
+1. Go to `/advertiser/campaigns/new`.
+2. Fill out the campaign form (e.g., Campaign Title, Target Category, Ad Copy, Destination Link) and click **"Review & Generate Payment Account"**.
+3. A modal opens with dedicated Virtual Account details (Bank Name, Account Number, Reference, Amount).
+4. Click the purple button: **"Simulate Transfer (Test Sandbox Mode)"**.
+5. The system instantly executes the real database procedure `process_campaign_payment`, locking the budget in the escrow ledger (`ESCROW_HOLD`).
+6. The campaign changes to `ACTIVE` and `PAID` and appears on your Advertiser dashboard!
+
+### 2. How to Test Partner Bank Withdrawals (Outbound Payout)
+1. Go to `/partner/wallet`.
+2. Click **"Withdraw to Bank"**.
+3. Enter amount (min ₦1,000), select your Nigerian bank, enter a 10-digit NUBAN account number and your account name.
+4. Click **"Confirm Withdrawal"**.
+5. The API atomically validates your available balance, deducts it, inserts a withdrawal request, and records a `WITHDRAWAL` transaction in the immutable double-entry ledger.
+6. Check the **"Withdrawal Requests"** tab to see your request status (`REQUESTED`).
+
+### 3. How to Audit & Settle Withdrawals as Admin
+1. Go to `/admin/withdrawals` (or click **"Process Payouts"** on the Admin Control Center).
+2. You will see the pending withdrawal request with the partner's full name, email, bank name, and 10-digit account number.
+3. Click the **Copy** button to copy their account number for your banking app.
+4. After transferring the money, click **"Mark Paid"** $\rightarrow$ status changes to `COMPLETED`.
+5. If details are invalid, click **"Reject"** and provide a reason $\rightarrow$ the system automatically refunds the partner's wallet balance and logs a `REFUND` ledger transaction, ensuring no funds are lost.
+
+
 

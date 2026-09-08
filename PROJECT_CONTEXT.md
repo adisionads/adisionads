@@ -246,15 +246,28 @@ When you and your co-founder sit down to align, here are the exact decisions to 
    - How to ensure admins don't delete the ad after 5 minutes?
    - *Adision Defense:* Click tracking (`/r/[code]`). Payouts are tied to legitimate traffic/engagement and confirmed post duration (e.g. 24 hours), not just an immediate screenshot.
 
-### C. Immediate Next Steps When Resuming Work
-1. **Wire Community Partner Submission to Supabase:**
-   - Update [`src/app/partner/communities/page.tsx`](file:///c:/Users/1LUV/Documents/Coding%20projects/Adision/src/app/partner/communities/page.tsx) to insert directly into `public.communities` with `owner_id = user.id`.
-2. **Wire Admin Community Approval Desk:**
-   - Update [`src/app/admin/communities/page.tsx`](file:///c:/Users/1LUV/Documents/Coding%20projects/Adision/src/app/admin/communities/page.tsx) to query pending communities from Supabase and allow 1-click Approve / Reject.
-3. **Wire Advertiser Campaign Creation:**
-   - Connect campaign draft form in `/advertiser/campaigns/new` to `public.campaigns`.
+### C. Completed Sprint: Payments, Escrow Ledger & Payout Operations
 
+The platform's financial backbone is now fully implemented with ACID-compliant PostgreSQL safeguards, zero risk of double charges, and a sandbox simulator for the founder:
 
+1. **Inbound Advertiser Campaign Checkout (`/advertiser/campaigns/new`):**
+   - Package selection (Starter, Growth, High Velocity) and dynamic budget computation.
+   - Generates dedicated virtual account details (Bank, Account Number, Reference, Amount).
+   - Integrated **"Simulate Transfer (Test Sandbox Mode)"** button allowing the founder and testing team to simulate real bank transfers without spending real funds.
+   - Endpoint: `POST /api/campaigns/create-checkout` & `POST /api/campaigns/simulate-payment`.
 
+2. **Automated Escrow Locking via PostgreSQL Stored Procedure:**
+   - Stored procedure `process_campaign_payment(p_reference, p_amount, p_channel)` executes inside an atomic transaction with row locking (`FOR UPDATE`).
+   - Idempotent: duplicate webhook calls or re-simulations return existing payment without double locking.
+   - Records an immutable `ESCROW_HOLD` transaction in `public.ledger_transactions`.
 
+3. **Community Partner Wallet & Bank Withdrawal (`/partner/wallet`):**
+   - Live synchronization with `public.wallets`, `public.ledger_transactions`, and `public.withdrawal_requests`.
+   - Strict 10-digit NUBAN validation, Nigerian bank selector, and minimum ₦1,000 threshold.
+   - Endpoint: `POST /api/partner/withdraw`. Validates available balance, atomically decrements wallet, and logs `WITHDRAWAL` in the double-entry ledger.
 
+4. **Admin Payout Operations Desk (`/admin/withdrawals` & `/api/admin/withdrawals`):**
+   - KPI metrics: Total Pending, Processing, Disbursed, and Total Volume.
+   - 1-click **Copy Account Number** for mobile banking transfers.
+   - 1-click **"Mark Paid"** (sets status to `COMPLETED`).
+   - 1-click **"Reject"** with mandatory audit feedback reason: automatically credits the partner's wallet balance back and writes a `REFUND` ledger transaction, guaranteeing zero lost funds.

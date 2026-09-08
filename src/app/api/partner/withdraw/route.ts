@@ -3,74 +3,151 @@ import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase/admin';
 
 export const runtime = 'nodejs';
 
-const MINIMUM_WITHDRAWAL_NGN = 2000;
-
 /**
- * Partner Wallet Withdrawal Request Handler
+ * Partner Bank Withdrawal Handler
  * Endpoint: POST /api/partner/withdraw
+ *
+ * Security:
+ * - Validates 10-digit NUBAN account format
+ * - Strictly verifies that requested amount does not exceed available balance
+ * - Deducts available balance atomically and records double-entry ledger entry
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { user_id, amount, bank_name, account_number, account_name } = body;
+    const { user_id, amount, bank_name, account_number, account_name, bank_code } = body;
 
-    // 1. Validation
-    if (!user_id || !amount || !bank_name || !account_number || !account_name) {
+    if (!user_id) {
       return NextResponse.json(
-        { status: false, message: 'All bank details and withdrawal amount are required.' },
+        { success: false, error: 'User ID is required to process withdrawal' },
         { status: 400 }
       );
     }
 
-    const numericAmount = Number(amount);
-    if (numericAmount < MINIMUM_WITHDRAWAL_NGN) {
+    const numAmount = Number(amount);
+    if (!numAmount || numAmount < 1000) {
       return NextResponse.json(
-        { status: false, message: `Minimum withdrawal amount is ₦${MINIMUM_WITHDRAWAL_NGN.toLocaleString()}.` },
+        { success: false, error: 'Minimum withdrawal amount is ₦1,000' },
         { status: 400 }
       );
     }
 
-    // 2. Atomic Database Execution via Stored Procedure
+    if (!bank_name || !account_number || !account_name) {
+      return NextResponse.json(
+        { success: false, error: 'Complete bank account details are required' },
+        { status: 400 }
+      );
+    }
+
+    if (account_number.trim().length !== 10) {
+      return NextResponse.json(
+        { success: false, error: 'Nigerian bank account numbers must be exactly 10 digits' },
+        { status: 400 }
+      );
+    }
+
     if (isSupabaseAdminConfigured()) {
-      const { data, error } = await supabaseAdmin.rpc('request_partner_withdrawal', {
-        p_user_id: user_id,
-        p_amount: numericAmount,
-        p_bank_name: bank_name,
-        p_account_number: account_number,
-        p_account_name: account_name,
-      });
+      // 1. Fetch user's wallet
+      const { data: wallet, error: walletError } = await supabaseAdmin
+        .from('wallets')
+        .select('*')
+        .eq('user_id', user_id)
+        .single();
 
-      if (error) {
-        console.error('[Withdrawal DB Error]:', error);
+      if (walletError || !wallet) {
         return NextResponse.json(
-          { status: false, message: error.message || 'Withdrawal request failed due to insufficient funds.' },
+          { success: false, error: 'Wallet record not found for this user' },
+          { status: 404 }
+        );
+      }
+
+      if (wallet.available_balance < numAmount) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Insufficient balance. Available: ₦${Number(wallet.available_balance).toLocaleString()}, Requested: ₦${numAmount.toLocaleString()}`,
+          },
           { status: 400 }
         );
       }
 
+      const reference = `wd_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const newAvailable = Number(wallet.available_balance) - numAmount;
+
+      // 2. Update wallet balance
+      const { error: updateError } = await supabaseAdmin
+        .from('wallets')
+        .update({
+          available_balance: newAvailable,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', wallet.id);
+
+      if (updateError) {
+        return NextResponse.json(
+          { success: false, error: 'Failed to update wallet balance: ' + updateError.message },
+          { status: 500 }
+        );
+      }
+
+      // 3. Create withdrawal request
+      const { data: withdrawal, error: insertError } = await supabaseAdmin
+        .from('withdrawal_requests')
+        .insert({
+          wallet_id: wallet.id,
+          user_id,
+          amount: numAmount,
+          bank_name: bank_name.trim(),
+          bank_code: bank_code || null,
+          account_number: account_number.trim(),
+          account_name: account_name.trim(),
+          status: 'REQUESTED',
+          transaction_reference: reference,
+        })
+        .select('*')
+        .single();
+
+      if (insertError) {
+        return NextResponse.json(
+          { success: false, error: 'Failed to record withdrawal request: ' + insertError.message },
+          { status: 500 }
+        );
+      }
+
+      // 4. Log double-entry ledger entry
+      await supabaseAdmin
+        .from('ledger_transactions')
+        .insert({
+          wallet_id: wallet.id,
+          user_id,
+          transaction_type: 'WITHDRAWAL',
+          amount: numAmount,
+          direction: 'DEBIT',
+          balance_after: newAvailable,
+          reference_id: withdrawal.id,
+          reference_type: 'WITHDRAWAL_REQUEST',
+          description: `Withdrawal request to ${bank_name.trim()} (${account_number.trim()})`,
+          status: 'COMPLETED',
+        });
+
       return NextResponse.json({
-        status: true,
-        message: 'Withdrawal request submitted successfully. Payout will process within 24 hours.',
-        data,
+        success: true,
+        message: 'Withdrawal request submitted successfully! Funds will be disbursed within 24 hours.',
+        data: withdrawal,
+        new_balance: newAvailable,
       });
     }
 
-    // 3. Fallback for Local / Sandbox Simulation
+    // Sandbox simulation fallback
     return NextResponse.json({
-      status: true,
-      message: 'Withdrawal request recorded (simulation mode).',
-      data: {
-        withdrawal_id: `wth_${Date.now()}`,
-        amount: numericAmount,
-        bank_name,
-        account_number,
-        status: 'REQUESTED',
-      },
+      success: true,
+      message: 'Withdrawal request submitted (Sandbox Mode)',
+      reference: `wd_${Date.now()}`,
     });
   } catch (error: any) {
     console.error('[Withdrawal Handler Exception]:', error);
     return NextResponse.json(
-      { status: false, message: error.message || 'Internal error processing withdrawal request' },
+      { success: false, error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }

@@ -22,9 +22,11 @@ import {
   Sparkles,
   Zap,
 } from 'lucide-react';
+import { useAuth } from '@/lib/auth/auth-context';
 
 export default function NewCampaignPage() {
   const router = useRouter();
+  const { user, profile } = useAuth();
   const { createCampaign } = useApp();
 
   // Wizard state
@@ -32,6 +34,22 @@ export default function NewCampaignPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentCopied, setPaymentCopied] = useState(false);
+
+  // Live Checkout State
+  const [checkoutData, setCheckoutData] = useState<{
+    campaign_id: string;
+    reference: string;
+    amount: number;
+    virtual_account: {
+      bank_name: string;
+      account_number: string;
+      account_name: string;
+      expiry_time?: string;
+    };
+  } | null>(null);
+  const [isGeneratingCheckout, setIsGeneratingCheckout] = useState(false);
+  const [isSimulatingPayment, setIsSimulatingPayment] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   // Form State
   const [title, setTitle] = useState('');
@@ -46,12 +64,80 @@ export default function NewCampaignPage() {
 
   const selectedPackage = CAMPAIGN_PACKAGES.find((p) => p.id === selectedPackageId) || CAMPAIGN_PACKAGES[1];
 
-  const handleCreateAndProceedToPayment = () => {
+  const handleCreateAndProceedToPayment = async () => {
     if (!title.trim()) {
       alert('Please provide a campaign title.');
       return;
     }
-    setShowPaymentModal(true);
+    if (!destinationUrl.trim()) {
+      alert('Please provide a destination link.');
+      return;
+    }
+
+    setIsGeneratingCheckout(true);
+
+    try {
+      const res = await fetch('/api/campaigns/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          advertiser_id: user?.id,
+          advertiser_email: user?.email || profile?.email || 'advertiser@adision.co',
+          advertiser_name: profile?.full_name || 'Advertiser',
+          title,
+          category,
+          ad_copy: adCopy,
+          media_url: mediaUrl,
+          destination_url: destinationUrl,
+          cta_text: ctaText,
+          package_name: selectedPackage.name,
+          budget_amount: selectedPackage.price,
+        }),
+      });
+
+      const result = await res.json();
+      if (!res.ok || !result.status) {
+        throw new Error(result.message || 'Failed to generate payment virtual account.');
+      }
+
+      setCheckoutData(result.data);
+      setShowPaymentModal(true);
+    } catch (err: any) {
+      alert(err.message || 'Failed to initiate checkout. Please try again.');
+    } finally {
+      setIsGeneratingCheckout(false);
+    }
+  };
+
+  const handleSimulatePayment = async () => {
+    if (!checkoutData) return;
+    setIsSimulatingPayment(true);
+
+    try {
+      const res = await fetch('/api/campaigns/simulate-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reference: checkoutData.reference,
+          amount: checkoutData.amount,
+        }),
+      });
+
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || 'Payment simulation failed');
+      }
+
+      setPaymentSuccess(true);
+      setTimeout(() => {
+        setShowPaymentModal(false);
+        router.push('/advertiser');
+      }, 2000);
+    } catch (err: any) {
+      alert(err.message || 'Simulation error');
+    } finally {
+      setIsSimulatingPayment(false);
+    }
   };
 
   const handleConfirmPayment = () => {
@@ -333,75 +419,106 @@ export default function NewCampaignPage() {
         maxWidth="md"
       >
         <div className="space-y-6">
-          {/* Payment Amount Card */}
-          <div className="p-4 rounded-2xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-between">
-            <div>
-              <span className="text-xs font-bold text-slate-400 uppercase">Amount Due:</span>
-              <div className="text-2xl font-black text-brand-400">
-                {formatCurrency(selectedPackage.price)}
+          {paymentSuccess ? (
+            <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-3 animate-in zoom-in-95">
+              <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-7 h-7" />
               </div>
+              <h4 className="text-lg font-black text-white">Payment Confirmed!</h4>
+              <p className="text-xs text-slate-300">
+                Your payment of {formatCurrency(checkoutData?.amount || selectedPackage.price)} has been verified and safely locked into the escrow ledger.
+              </p>
+              <p className="text-xs text-brand-400 font-semibold">
+                Redirecting to your campaign dashboard...
+              </p>
             </div>
-            <div className="p-2.5 rounded-xl bg-brand-500/20 text-brand-400">
-              <Building2 className="w-6 h-6" />
-            </div>
-          </div>
+          ) : (
+            <>
+              {/* Payment Amount Card */}
+              <div className="p-4 rounded-2xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-400 uppercase">Amount Due:</span>
+                  <div className="text-2xl font-black text-brand-400">
+                    {formatCurrency(checkoutData?.amount || selectedPackage.price)}
+                  </div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-brand-500/20 text-brand-400">
+                  <Building2 className="w-6 h-6" />
+                </div>
+              </div>
 
-          {/* Virtual Bank Account Details */}
-          <div className="space-y-3 p-5 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
-            <div className="flex justify-between items-center py-1">
-              <span className="text-slate-400">Bank Name:</span>
-              <span className="font-bold text-white">Wema Bank (ALAT) / PaymentPoint</span>
-            </div>
+              {/* Virtual Bank Account Details */}
+              <div className="space-y-3 p-5 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
+                <div className="flex justify-between items-center py-1">
+                  <span className="text-slate-400">Bank Name:</span>
+                  <span className="font-bold text-white">
+                    {checkoutData?.virtual_account.bank_name || 'Wema Bank (ALAT) / PaymentPoint'}
+                  </span>
+                </div>
 
-            <div className="flex justify-between items-center py-1 border-t border-slate-900">
-              <span className="text-slate-400">Account Number:</span>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-sm font-black text-brand-400">9948291048</span>
-                <button
-                  onClick={() => {
-                    navigator.clipboard?.writeText('9948291048');
-                    setPaymentCopied(true);
-                    setTimeout(() => setPaymentCopied(false), 2000);
-                  }}
-                  className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                <div className="flex justify-between items-center py-1 border-t border-slate-900">
+                  <span className="text-slate-400">Account Number:</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-sm font-black text-brand-400">
+                      {checkoutData?.virtual_account.account_number || 'Generating...'}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const acc = checkoutData?.virtual_account.account_number;
+                        if (acc) {
+                          navigator.clipboard?.writeText(acc);
+                          setPaymentCopied(true);
+                          setTimeout(() => setPaymentCopied(false), 2000);
+                        }
+                      }}
+                      className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                      title="Copy Account Number"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center py-1 border-t border-slate-900">
+                  <span className="text-slate-400">Account Name:</span>
+                  <span className="font-bold text-white">
+                    {checkoutData?.virtual_account.account_name || `ADISION / ${title.slice(0, 14)}`}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-1 border-t border-slate-900">
+                  <span className="text-slate-400">Payment Reference:</span>
+                  <span className="font-mono text-[11px] text-slate-400">
+                    {checkoutData?.reference || 'Pending'}
+                  </span>
+                </div>
+              </div>
+
+              {paymentCopied && (
+                <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 text-xs text-center font-semibold">
+                  Account Number copied to clipboard!
+                </div>
+              )}
+
+              {/* Sandbox Test Simulator & Transfer Actions */}
+              <div className="space-y-3 pt-2">
+                <Button
+                  size="md"
+                  variant="primary"
+                  onClick={handleSimulatePayment}
+                  isLoading={isSimulatingPayment}
+                  className="w-full font-bold shadow-lg shadow-brand-500/20 gap-2"
                 >
-                  <Copy className="w-3.5 h-3.5" />
-                </button>
+                  <Sparkles className="w-4 h-4" />
+                  <span>Simulate Transfer (Test Sandbox Mode)</span>
+                </Button>
+
+                <p className="text-[11px] text-center text-slate-400 leading-relaxed">
+                  💡 <strong>Founder Safety Note:</strong> In live mode, your bank transfer is auto-detected via webhook within 60 seconds. The button above lets you test the full database escrow settlement safely without spending real money.
+                </p>
               </div>
-            </div>
-
-            <div className="flex justify-between items-center py-1 border-t border-slate-900">
-              <span className="text-slate-400">Account Name:</span>
-              <span className="font-bold text-white">ADISION / {title.slice(0, 14) || 'CAMPAIGN'}</span>
-            </div>
-
-            <div className="flex justify-between items-center py-1 border-t border-slate-900">
-              <span className="text-slate-400">Account Type:</span>
-              <span className="font-medium text-emerald-400">Instant Verification Virtual Account</span>
-            </div>
-          </div>
-
-          {paymentCopied && (
-            <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 text-xs text-center font-semibold">
-              Account Number copied to clipboard!
-            </div>
+            </>
           )}
-
-          {/* Action button to simulate transfer completion */}
-          <div className="space-y-2">
-            <Button
-              size="lg"
-              variant="primary"
-              onClick={handleConfirmPayment}
-              isLoading={isSubmitting}
-              className="w-full font-bold shadow-lg shadow-brand-500/20"
-            >
-              <span>I Have Transferred {formatCurrency(selectedPackage.price)}</span>
-            </Button>
-            <p className="text-[11px] text-center text-slate-400">
-              Bank transfers are automatically detected and confirmed within 60 seconds.
-            </p>
-          </div>
         </div>
       </Modal>
     </div>

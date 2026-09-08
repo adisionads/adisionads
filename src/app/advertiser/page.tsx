@@ -1,8 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/lib/store/app-context';
+import { useAuth } from '@/lib/auth/auth-context';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
+import { Campaign } from '@/types';
 import { formatCategoryName, formatCurrency, formatNumber } from '@/lib/utils';
 import { StatsCard } from '@/components/shared/StatsCard';
 import { StatusBadge } from '@/components/shared/StatusBadge';
@@ -16,10 +19,46 @@ import {
   PlusCircle,
   TrendingUp,
   Users,
+  RefreshCw,
 } from 'lucide-react';
 
 export default function AdvertiserDashboard() {
-  const { campaigns } = useApp();
+  const { campaigns: contextCampaigns } = useApp();
+  const { user } = useAuth();
+
+  const [campaigns, setCampaigns] = useState<Campaign[]>(contextCampaigns);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchCampaigns = useCallback(async () => {
+    if (!user?.id || !isSupabaseConfigured()) {
+      setCampaigns(contextCampaigns);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('advertiser_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (data && !error && data.length > 0) {
+        setCampaigns(data as Campaign[]);
+      } else {
+        // If DB has no campaigns for this user yet, fallback to context campaigns
+        setCampaigns(contextCampaigns);
+      }
+    } catch (err) {
+      console.warn('[AdvertiserDashboard] Error loading live campaigns:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.id, contextCampaigns]);
+
+  useEffect(() => {
+    fetchCampaigns();
+  }, [fetchCampaigns]);
 
   const totalClicks = campaigns.reduce((sum, c) => sum + (c.total_clicks || 0), 0);
   const totalUniqueClicks = campaigns.reduce((sum, c) => sum + (c.unique_clicks || 0), 0);
@@ -38,12 +77,25 @@ export default function AdvertiserDashboard() {
             </p>
           </div>
 
-          <Link href="/advertiser/campaigns/new">
-            <Button size="md" variant="primary" className="font-bold shadow-lg shadow-brand-500/20">
-              <PlusCircle className="w-4 h-4" />
-              <span>Create New Campaign</span>
+          <div className="flex items-center gap-3">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={fetchCampaigns}
+              disabled={isLoading}
+              className="text-xs text-slate-400 hover:text-white gap-1.5"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
             </Button>
-          </Link>
+
+            <Link href="/advertiser/campaigns/new">
+              <Button size="md" variant="primary" className="font-bold shadow-lg shadow-brand-500/20">
+                <PlusCircle className="w-4 h-4" />
+                <span>Create New Campaign</span>
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Top KPIs */}
@@ -80,7 +132,7 @@ export default function AdvertiserDashboard() {
           <div className="p-6 border-b border-slate-800 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-white">Your Campaigns</h2>
-              <p className="text-xs text-slate-400 mt-0.5">Real-time status and click performance</p>
+              <p className="text-xs text-slate-400 mt-0.5">Real-time status, escrow payment, and click performance</p>
             </div>
             <Link href="/advertiser/campaigns/new">
               <span className="text-xs font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1">
@@ -110,7 +162,8 @@ export default function AdvertiserDashboard() {
                   <tr>
                     <th className="px-6 py-4">Campaign Name & Target</th>
                     <th className="px-6 py-4">Package & Budget</th>
-                    <th className="px-6 py-4">Status</th>
+                    <th className="px-6 py-4">Campaign Status</th>
+                    <th className="px-6 py-4">Escrow Payment</th>
                     <th className="px-6 py-4">Clicks (Unique)</th>
                     <th className="px-6 py-4">Communities</th>
                     <th className="px-6 py-4 text-right">Action</th>
@@ -131,6 +184,17 @@ export default function AdvertiserDashboard() {
                       </td>
                       <td className="px-6 py-4">
                         <StatusBadge status={camp.status} />
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${
+                            camp.payment_status === 'PAID'
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                              : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                          }`}
+                        >
+                          {camp.payment_status === 'PAID' ? 'LOCKED IN ESCROW' : camp.payment_status}
+                        </span>
                       </td>
                       <td className="px-6 py-4">
                         <div className="font-bold text-white">
@@ -164,4 +228,3 @@ export default function AdvertiserDashboard() {
     </div>
   );
 }
-

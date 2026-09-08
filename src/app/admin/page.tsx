@@ -187,7 +187,7 @@ export default function AdminControlCenter() {
                 Partner withdrawal requests to Nigerian bank accounts (NUBAN).
               </p>
             </div>
-            <Link href="/admin/payouts" className="pt-4 block">
+            <Link href="/admin/withdrawals" className="pt-4 block">
               <Button size="sm" variant="outline" className="w-full text-xs font-bold gap-1">
                 <span>Process Payouts ({pendingWithdrawals.length})</span>
                 <ArrowRight className="w-3.5 h-3.5" />
