@@ -45,16 +45,16 @@ export const CAMPAIGN_PACKAGES: CampaignPackage[] = [
     name: 'Gold Salesman',
     outcome_title: 'I want paying customers.',
     outcome_description: 'Acquire paying customers',
-    price: 10000, // Example: 20 customers × ₦500
-    unit_price: 500,
+    price: 15000, // Example: 20 customers × ₦750
+    unit_price: 750,
     default_quantity: 20,
     billing_model: 'PER_CUSTOMER',
     duration_days: 30,
     estimated_reach: 'Direct Paying Customers',
     community_count: 20,
     features: [
-      '₦500 per qualified paying customer',
-      'Advertiser chooses target number of paying customers (e.g. 20 × ₦500 = ₦10,000)',
+      '₦750 per qualified paying customer',
+      'Advertiser chooses target number of paying customers (e.g. 20 × ₦750 = ₦15,000)',
       'Campaign is funded upfront into your campaign balance',
       'Counts only after signup + qualifying purchase/deposit',
       'Unused balance is not consumed when target is not reached',

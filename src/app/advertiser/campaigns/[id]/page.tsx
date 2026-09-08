@@ -90,9 +90,9 @@ export default function CampaignDetailPage() {
             icon={Users}
           />
           <StatsCard
-            title="Budget in Escrow"
+            title="Protected Budget"
             value={formatCurrency(campaign.budget_amount)}
-            description="Paid via PaymentPoint"
+            description="Held safely until ads are posted"
             icon={CheckCircle2}
           />
         </div>

@@ -27,7 +27,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What happens if a group admin deletes the ad or fails to post?',
-    a: 'Your campaign payment is held safely in escrow. Community admins only receive payment after proof of post is submitted and verified. If an admin fails to post or deletes the ad prematurely, they do not get paid, and your campaign budget is refunded or reassigned.',
+    a: 'Your payment is held safely by Adision. Community admins only receive payment after proof of post is submitted and verified. If an admin fails to post or deletes the ad prematurely, they do not get paid, and your money stays safe in your account.',
   },
   {
     q: 'How and when do WhatsApp community admins get paid?',
@@ -189,7 +189,7 @@ export default function HomePage() {
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-white">Safe Escrow Payments</div>
+                  <div className="text-sm font-bold text-slate-900 dark:text-white">Safe Payment Protection</div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Admins only get paid after they prove your ad was posted</div>
                 </div>
               </div>
@@ -239,7 +239,7 @@ export default function HomePage() {
                 </div>
                 <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Pay via Bank Transfer</h4>
                 <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                  Make a quick transfer to your unique virtual bank account. Adision holds your money safely in escrow until the ad is confirmed live.
+                  Make a quick transfer to your unique virtual bank account. Adision holds your money safely until the ad is confirmed live.
                 </p>
               </Card>
 
@@ -376,7 +376,7 @@ export default function HomePage() {
                       {pkg.billing_model === 'PER_SIGNUP'
                         ? 'per qualified signup (from ₦17,500 deposit)'
                         : pkg.billing_model === 'PER_CUSTOMER'
-                        ? 'per paying customer (from ₦10,000 deposit)'
+                        ? 'per paying customer (from ₦15,000 deposit)'
                         : 'Fixed fee • 14 days + 1 bonus day'}
                     </span>
                   </div>

@@ -112,7 +112,7 @@ export function Footer() {
               Join Early Access Waitlist
             </Link>
             <span>•</span>
-            <span>Escrow Protected</span>
+            <span>Safe Payments Guaranteed</span>
           </div>
         </div>
       </div>

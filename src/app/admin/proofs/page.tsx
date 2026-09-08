@@ -48,7 +48,7 @@ export default function AdminProofsPage() {
             </Link>
             <h1 className="text-3xl font-extrabold text-white tracking-tight">Placement Proof Verification</h1>
             <p className="text-sm text-slate-400">
-              Review submitted WhatsApp broadcast screenshots and release escrow funds directly to partner wallets.
+              Review submitted WhatsApp broadcast screenshots and release payments directly to partner wallets.
             </p>
           </div>
         </div>

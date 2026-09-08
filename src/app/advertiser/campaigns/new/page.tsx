@@ -73,7 +73,7 @@ export default function NewCampaignPage() {
     selectedPackage.billing_model === 'PER_SIGNUP'
       ? targetQuantity * 350
       : selectedPackage.billing_model === 'PER_CUSTOMER'
-      ? targetQuantity * 500
+      ? targetQuantity * 750
       : 5750;
 
   const handleSelectPackage = (pkgId: string) => {
@@ -352,7 +352,7 @@ export default function NewCampaignPage() {
                             {pkg.billing_model === 'PER_SIGNUP'
                               ? '₦350'
                               : pkg.billing_model === 'PER_CUSTOMER'
-                              ? '₦500'
+                              ? '₦750'
                               : '₦5,750'}
                           </span>
                           <span className="text-[11px] text-slate-400 block">
@@ -413,7 +413,7 @@ export default function NewCampaignPage() {
                           Target Number of Paying Customers
                         </label>
                         <span className="text-[11px] text-slate-400">
-                          ₦500 per customer completing signup + qualifying purchase/deposit
+                          ₦750 per customer completing signup + qualifying purchase/deposit
                         </span>
                       </div>
                       <span className="text-2xl font-black text-amber-400">{targetQuantity} Customers</span>
@@ -430,9 +430,9 @@ export default function NewCampaignPage() {
                     />
 
                     <div className="flex justify-between text-[11px] text-slate-500 font-semibold">
-                      <span>10 customers (₦5,000)</span>
-                      <span>20 customers (₦10,000)</span>
-                      <span>150 customers (₦75,000)</span>
+                      <span>10 customers (₦7,500)</span>
+                      <span>20 customers (₦15,000)</span>
+                      <span>150 customers (₦112,500)</span>
                     </div>
                   </div>
                 )}
@@ -452,11 +452,11 @@ export default function NewCampaignPage() {
                         ? '14 Days + 1 Bonus Day (15 Days Total)'
                         : selectedPackage.billing_model === 'PER_SIGNUP'
                         ? `${targetQuantity} Qualified Signups (@ ₦350 each)`
-                        : `${targetQuantity} Paying Customers (@ ₦500 each)`}
+                        : `${targetQuantity} Paying Customers (@ ₦750 each)`}
                     </span>
                   </div>
                   <div className="flex justify-between text-slate-400">
-                    <span>Placement Verification & Escrow Protection:</span>
+                    <span>Placement Verification & Safe Payment Protection:</span>
                     <span className="text-brand-400 font-bold">Included (100% Guaranteed)</span>
                   </div>
                   <div className="pt-3 border-t border-slate-800 flex justify-between text-sm font-black text-white">

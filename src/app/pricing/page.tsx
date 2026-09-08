@@ -29,7 +29,7 @@ export default function PricingPage() {
   const calculateTotalFunding = () => {
     if (selectedPlanId === 'pkg_starter') return 5750;
     if (selectedPlanId === 'pkg_corporate') return corporateSignups * 350;
-    if (selectedPlanId === 'pkg_gold_salesman') return goldCustomers * 500;
+    if (selectedPlanId === 'pkg_gold_salesman') return goldCustomers * 750;
     return 5750;
   };
 
@@ -206,7 +206,7 @@ export default function PricingPage() {
 
                 <div className="my-6">
                   <div className="text-4xl font-extrabold text-white">
-                    ₦500
+                    ₦750
                   </div>
                   <span className="text-xs text-slate-300 font-semibold block mt-1">
                     per qualified paying customer
@@ -215,8 +215,8 @@ export default function PricingPage() {
 
                 <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60 mb-6 text-xs text-slate-300">
                   <span className="text-slate-400 block mb-0.5">Example Funding:</span>
-                  <span className="font-bold text-white">20 customers × ₦500 = </span>
-                  <span className="text-amber-400 font-extrabold">₦10,000</span>
+                  <span className="font-bold text-white">20 customers × ₦750 = </span>
+                  <span className="text-amber-400 font-extrabold">₦15,000</span>
                 </div>
 
                 <ul className="space-y-3 text-xs text-slate-300 mb-8 border-t border-slate-800 pt-6">
@@ -241,7 +241,7 @@ export default function PricingPage() {
 
               <Link href="/waitlist" className="w-full">
                 <Button variant="outline" className="w-full font-bold text-sm border-amber-500/40 text-amber-400 hover:bg-amber-500/10">
-                  Acquire Customers (₦500/Customer)
+                  Acquire Customers (₦750/Customer)
                 </Button>
               </Link>
             </Card>
@@ -347,9 +347,9 @@ export default function PricingPage() {
                     className="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
                   />
                   <div className="flex justify-between text-[11px] text-slate-500 font-semibold">
-                    <span>10 customers (₦5,000)</span>
-                    <span>20 customers (₦10,000)</span>
-                    <span>200 customers (₦100,000)</span>
+                    <span>10 customers (₦7,500)</span>
+                    <span>20 customers (₦15,000)</span>
+                    <span>200 customers (₦150,000)</span>
                   </div>
                 </div>
               )}
@@ -380,7 +380,7 @@ export default function PricingPage() {
                       ? 'Fixed ₦5,750'
                       : selectedPlanId === 'pkg_corporate'
                       ? '₦350 / signup'
-                      : '₦500 / customer'}
+                      : '₦750 / customer'}
                   </span>
                 </div>
 
@@ -487,16 +487,16 @@ export default function PricingPage() {
 
             <div className="space-y-3 pt-2 text-xs">
               <div className="flex justify-between p-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
-                <span className="text-slate-300">Target (20 paying customers @ ₦500 each):</span>
-                <span className="font-bold text-white">₦10,000 max deposit</span>
+                <span className="text-slate-300">Target (20 paying customers @ ₦750 each):</span>
+                <span className="font-bold text-white">₦15,000 max deposit</span>
               </div>
               <div className="flex justify-between p-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
                 <span className="text-slate-300">Delivered Results (13 customers achieved):</span>
-                <span className="font-bold text-emerald-400">₦6,500 consumed</span>
+                <span className="font-bold text-emerald-400">₦9,750 consumed (13 × ₦750)</span>
               </div>
               <div className="flex justify-between p-3 rounded-xl bg-brand-500/10 border border-brand-500/30">
                 <span className="text-brand-300 font-bold">Remaining Balance Preserved:</span>
-                <span className="font-black text-brand-400">₦3,500 remains available</span>
+                <span className="font-black text-brand-400">₦5,250 remains available</span>
               </div>
             </div>
           </Card>

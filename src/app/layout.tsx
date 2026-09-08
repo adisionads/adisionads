@@ -46,8 +46,7 @@ export const metadata: Metadata = {
     'campus student advertising Nigeria',
     'tech community marketing Nigeria',
     'Nigeria performance marketing',
-    'community advertising network',
-    'escrow protected advertising',
+    'safe payment advertising',
     'Adision',
     'Adision ads',
     'Adision Nigeria',
@@ -62,7 +61,7 @@ export const metadata: Metadata = {
     siteName: 'Adision',
     title: 'Adision | Reach Real Communities on WhatsApp',
     description:
-      'Run targeted ads across verified WhatsApp groups and channels. Track real visits with screenshot proof and secure escrow payouts.',
+      'Run targeted ads across verified WhatsApp groups and channels. Track real visits with screenshot proof and safe payouts.',
     images: [
       {
         url: '/brand/logo-square.jpg',

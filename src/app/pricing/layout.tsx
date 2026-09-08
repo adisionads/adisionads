@@ -3,17 +3,17 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Campaign Packages & Pricing',
   description:
-    'Transparent pricing packages for WhatsApp advertising in Nigeria. Plans starting from ₦7,000 with verified click tracking, screenshot placement proof, and escrow protection.',
+    'Outcome-based pricing for WhatsApp customer acquisition in Nigeria. Pay for reach (₦5,750), qualified signups (₦350), or paying customers (₦750) with verified click tracking, screenshot proof, and safe payment protection.',
   openGraph: {
-    title: 'Adision Pricing — Verified WhatsApp Advertising Packages',
+    title: 'Adision Pricing — WhatsApp Customer Acquisition & Advertising',
     description:
-      'Transparent campaign packages starting from ₦7,000. Reach campus students, tech developers, business founders, and crypto communities with verified proof.',
+      'Outcome-based advertising starting from ₦5,750. Pay for reach, signups, or paying customers with verified screenshot proof.',
     url: '/pricing',
   },
   twitter: {
-    title: 'Adision Pricing — Verified WhatsApp Advertising Packages',
+    title: 'Adision Pricing — WhatsApp Customer Acquisition & Advertising',
     description:
-      'Transparent campaign packages starting from ₦7,000. Verified click tracking and screenshot proof for every group.',
+      'Outcome-based advertising starting from ₦5,750. Verified click tracking and screenshot proof for every group.',
   },
 };
 

@@ -54,7 +54,7 @@ export default function AdminControlCenter() {
               </h1>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Manage community KYC, campaign distribution matchmaking, proof approvals, escrow payouts, and early waitlist.
+              Manage community KYC, campaign distribution matchmaking, proof approvals, partner bank payouts, and early waitlist.
             </p>
           </div>
 

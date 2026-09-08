@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: 'Payment simulated and campaign activated in escrow successfully!',
+        message: 'Payment simulated and campaign activated safely!',
         data,
       });
     }
