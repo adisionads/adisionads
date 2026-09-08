@@ -246,28 +246,26 @@ When you and your co-founder sit down to align, here are the exact decisions to 
    - How to ensure admins don't delete the ad after 5 minutes?
    - *Adision Defense:* Click tracking (`/r/[code]`). Payouts are tied to legitimate traffic/engagement and confirmed post duration (e.g. 24 hours), not just an immediate screenshot.
 
-### C. Completed Sprint: Payments, Escrow Ledger & Payout Operations
+### C. Completed Sprint: Outcome-Based Pricing Model & PocketFi Integration
 
-The platform's financial backbone is now fully implemented with ACID-compliant PostgreSQL safeguards, zero risk of double charges, and a sandbox simulator for the founder:
+1. **The 3 Official Outcome Tiers (from `Adision_Pricing_Model.pdf`):**
+   - **Starter (Reach & Visibility):** Fixed fee of **₦5,750**. 14-day campaign + 1 bonus day (15 days total) distributed across relevant WhatsApp groups/channels. Campaign tracking and basic reporting.
+   - **Corporate (Acquire New Users):** **₦350 / qualified signup**. Advertiser sets target number of signups (e.g. 50 signups × ₦350 = ₦17,500 deposit). Only verified new users count; unused balance remains available.
+   - **Gold Salesman (Acquire Paying Customers):** **₦500 / qualified paying customer**. Advertiser sets target number of paying customers (e.g. 20 customers × ₦500 = ₦10,000 deposit). Counts only after signup + qualifying purchase/deposit. Unused balance is not consumed if target is not reached.
 
-1. **Inbound Advertiser Campaign Checkout (`/advertiser/campaigns/new`):**
-   - Package selection (Starter, Growth, High Velocity) and dynamic budget computation.
-   - Generates dedicated virtual account details (Bank, Account Number, Reference, Amount).
-   - Integrated **"Simulate Transfer (Test Sandbox Mode)"** button allowing the founder and testing team to simulate real bank transfers without spending real funds.
-   - Endpoint: `POST /api/campaigns/create-checkout` & `POST /api/campaigns/simulate-payment`.
+2. **Prepaid Campaign Balance & Consumption:**
+   - Advertisers fund the maximum campaign value upfront into their balance.
+   - Only qualifying delivered results consume the per-result amount.
+   - Remaining/unused balance is preserved and not wasted.
 
-2. **Automated Escrow Locking via PostgreSQL Stored Procedure:**
-   - Stored procedure `process_campaign_payment(p_reference, p_amount, p_channel)` executes inside an atomic transaction with row locking (`FOR UPDATE`).
-   - Idempotent: duplicate webhook calls or re-simulations return existing payment without double locking.
-   - Records an immutable `ESCROW_HOLD` transaction in `public.ledger_transactions`.
+3. **PocketFi Payment Gateway Integration (`pocketfi.ng`):**
+   - Client: `src/lib/pocketfi/client.ts`
+   - Generates dedicated dynamic virtual bank accounts (`POST /virtual-accounts/create`) with Kuda Bank, SafeHaven, 9PSB, etc.
+   - Generates hosted checkout links (`POST /checkout/request`) for card/transfer payments.
+   - Webhook Handler: `POST /api/webhooks/pocketfi` with cryptographic SHA-512 HMAC signature verification.
+   - Zero-Risk Sandbox Test Mode: Built-in test simulator allows instant checkout testing without spending real money.
 
-3. **Community Partner Wallet & Bank Withdrawal (`/partner/wallet`):**
-   - Live synchronization with `public.wallets`, `public.ledger_transactions`, and `public.withdrawal_requests`.
-   - Strict 10-digit NUBAN validation, Nigerian bank selector, and minimum ₦1,000 threshold.
-   - Endpoint: `POST /api/partner/withdraw`. Validates available balance, atomically decrements wallet, and logs `WITHDRAWAL` in the double-entry ledger.
+4. **Community Partner Wallet & Admin Payouts:**
+   - Bank withdrawals at `/partner/wallet` with 10-digit account validation.
+   - Admin disbursement desk at `/admin/withdrawals` with 1-click copy and auto-refund on rejection.
 
-4. **Admin Payout Operations Desk (`/admin/withdrawals` & `/api/admin/withdrawals`):**
-   - KPI metrics: Total Pending, Processing, Disbursed, and Total Volume.
-   - 1-click **Copy Account Number** for mobile banking transfers.
-   - 1-click **"Mark Paid"** (sets status to `COMPLETED`).
-   - 1-click **"Reject"** with mandatory audit feedback reason: automatically credits the partner's wallet balance back and writes a `REFUND` ledger transaction, guaranteeing zero lost funds.

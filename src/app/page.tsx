@@ -360,15 +360,30 @@ export default function HomePage() {
                 )}
 
                 <div>
+                  <div className="text-[11px] font-bold text-brand-600 dark:text-brand-400 mb-1">
+                    {pkg.outcome_title || 'Outcome-Based'}
+                  </div>
                   <h4 className="text-xl font-bold text-slate-900 dark:text-white">{pkg.name}</h4>
-                  <div className="mt-4 mb-6">
-                    <span className="text-4xl font-black text-slate-900 dark:text-white">{formatCurrency(pkg.price)}</span>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 block mt-1">{pkg.duration_days} Days Active Distribution</span>
+                  <div className="mt-3 mb-6">
+                    <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">
+                      {pkg.billing_model === 'PER_SIGNUP'
+                        ? '₦350'
+                        : pkg.billing_model === 'PER_CUSTOMER'
+                        ? '₦500'
+                        : formatCurrency(pkg.price)}
+                    </span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 block mt-1">
+                      {pkg.billing_model === 'PER_SIGNUP'
+                        ? 'per qualified signup (from ₦17,500 deposit)'
+                        : pkg.billing_model === 'PER_CUSTOMER'
+                        ? 'per paying customer (from ₦10,000 deposit)'
+                        : 'Fixed fee • 14 days + 1 bonus day'}
+                    </span>
                   </div>
 
                   <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 mb-6 text-xs text-slate-700 dark:text-slate-300 font-semibold flex items-center justify-between">
-                    <span>Target Reach:</span>
-                    <span className="text-brand-600 dark:text-brand-400 font-bold">{pkg.estimated_reach}</span>
+                    <span>Goal:</span>
+                    <span className="text-brand-600 dark:text-brand-400 font-bold">{pkg.outcome_description}</span>
                   </div>
 
                   <ul className="space-y-3 text-xs text-slate-600 dark:text-slate-300 mb-8">

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { paymentPoint } from '@/lib/paymentpoint/client';
+import { pocketFi } from '@/lib/pocketfi/client';
 import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase/admin';
 
 export const runtime = 'nodejs';
 
 /**
- * Campaign Virtual Account Checkout Generator
+ * Campaign Virtual Account & Checkout Generator (PocketFi)
  * Endpoint: POST /api/campaigns/create-checkout
  */
 export async function POST(request: NextRequest) {
@@ -24,6 +24,10 @@ export async function POST(request: NextRequest) {
       advertiser_email,
       advertiser_name,
       phone_number,
+      duration_days,
+      billing_model,
+      target_quantity,
+      unit_price,
     } = body;
 
     // Basic Validation
@@ -37,13 +41,24 @@ export async function POST(request: NextRequest) {
     // 1. Generate Unique Payment Reference
     const reference = `ads_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 
-    // 2. Request Dedicated Virtual Bank Account from PaymentPoint
-    const virtualAccount = await paymentPoint.createDedicatedVirtualAccount({
+    // 2. Request Dedicated Virtual Bank Account from PocketFi
+    const virtualAccount = await pocketFi.createVirtualAccount({
       amount: Number(budget_amount),
       email: advertiser_email,
       name: advertiser_name || 'Adision Advertiser',
-      phoneNumber: phone_number,
+      phone: phone_number,
       reference,
+      bank: 'kuda',
+    });
+
+    // 3. Also generate PocketFi checkout payment link (card, transfer, USSD)
+    const checkoutSession = await pocketFi.createCheckoutSession({
+      amount: Number(budget_amount),
+      email: advertiser_email,
+      name: advertiser_name || 'Adision Advertiser',
+      phone: phone_number,
+      reference,
+      redirectUrl: 'https://adisionads.vercel.app/advertiser',
     });
 
     const distributablePool = Number(budget_amount) * 0.7; // 70% to community partners, 30% platform margin
@@ -53,7 +68,7 @@ export async function POST(request: NextRequest) {
       return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
     }
 
-    // 3. Persist Campaign to Supabase if configured
+    // 4. Persist Campaign to Supabase if configured
     let campaignId = `camp_${Date.now()}`;
     if (isSupabaseAdminConfigured()) {
       let effectiveAdvertiserId = advertiser_id;
@@ -91,8 +106,8 @@ export async function POST(request: NextRequest) {
             media_url: media_url || null,
             destination_url,
             cta_text: cta_text || 'Learn More',
-            package_name: package_name || 'Standard Reach',
-            duration_days: 7,
+            package_name: package_name || 'Starter',
+            duration_days: Number(duration_days) || 14,
             budget_amount: Number(budget_amount),
             commission_rate: 30.0,
             distributable_pool: distributablePool,
@@ -123,6 +138,8 @@ export async function POST(request: NextRequest) {
         reference,
         amount: Number(budget_amount),
         virtual_account: virtualAccount,
+        payment_link: checkoutSession.paymentLink,
+        payment_id: checkoutSession.paymentId,
       },
     });
   } catch (error: any) {

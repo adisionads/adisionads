@@ -88,15 +88,22 @@ export interface Community {
   performance_score?: number;
 }
 
+export type BillingModel = 'FIXED' | 'PER_SIGNUP' | 'PER_CUSTOMER';
+
 export interface CampaignPackage {
   id: string;
   name: string;
-  price: number; // in NGN
+  price: number; // in NGN (fixed price or unit price)
   estimated_reach: string;
   community_count: number;
   duration_days: number;
   features: string[];
   is_popular?: boolean;
+  billing_model?: BillingModel;
+  unit_price?: number;
+  default_quantity?: number;
+  outcome_title?: string;
+  outcome_description?: string;
 }
 
 export interface VirtualAccountInfo {
@@ -126,6 +133,9 @@ export interface Campaign {
   payment_status: PaymentStatus;
   payment_reference?: string;
   virtual_account_details?: VirtualAccountInfo;
+  billing_model?: BillingModel;
+  target_quantity?: number;
+  unit_price?: number;
   created_at: string;
   updated_at: string;
   total_clicks?: number;
