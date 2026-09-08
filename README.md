@@ -16,10 +16,10 @@
 **Adision** connects advertisers seeking high-converting, targeted reach with verified owners of WhatsApp Groups, WhatsApp Channels, and digital communities.
 
 ### Key Capabilities:
-- **For Advertisers**: Multi-step campaign builder, real-time live WhatsApp message preview, guaranteed placement escrow, unique link click attribution, and detailed ROI analytics.
-- **For Community Partners**: Monetize WhatsApp audiences, receive broadcast tasks, submit screenshot proof of placement, and withdraw cash to any Nigerian bank account.
-- **For Operators/Admins**: KYC verification of community supply, smart matchmaking distribution, 1-click proof approval with atomic wallet crediting, and financial ledger audits.
-- **PaymentPoint Integration**: Dynamic Dedicated Virtual Bank Account settlement (Wema/Providus bank transfer) & automated webhook reconciliation.
+- **For Advertisers**: Multi-step campaign builder, real-time live WhatsApp message preview, safe payment protection (funds held safely until your ad is posted), unique link click attribution, and detailed outcome analytics.
+- **For Community Partners**: Monetize WhatsApp audiences, receive broadcast tasks, submit screenshot proof of placement, and withdraw earnings directly to any Nigerian bank account.
+- **For Operators/Admins**: Review community submissions, match campaigns to WhatsApp groups, 1-click proof approval with atomic wallet crediting, and financial disbursement audits.
+- **PocketFi & Virtual Account Integration**: Dynamic dedicated Virtual Bank Accounts (Kuda Bank, 9PSB, SafeHaven) & hosted web checkout with automated SHA-512 webhook reconciliation.
 
 ---
 
@@ -28,7 +28,7 @@
 - **Frontend & Full-Stack**: [Next.js 15](https://nextjs.org/) (App Router, React 19, TypeScript)
 - **Styling & UI**: [Tailwind CSS](https://tailwindcss.com/) + [Lucide Icons](https://lucide.dev/)
 - **Database & Auth**: [Supabase](https://supabase.com/) (PostgreSQL with Row Level Security & Atomic Triggers)
-- **Payment Gateway**: [PaymentPoint](https://paymentpoint.co/) (Dedicated Virtual Accounts & Instant Webhooks)
+- **Payment Gateway**: [PocketFi](https://pocketfi.ng/) (Dedicated Virtual Accounts & Instant Webhooks)
 - **Email Notifications**: [Resend](https://resend.com/)
 - **Hosting**: [Vercel](https://vercel.com/) (Zero-cost hobby tier)
 

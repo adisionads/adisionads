@@ -23,7 +23,7 @@
   - 1-click **Copy WhatsApp Numbers** for easy broadcasting.
 - **Database Migrations Prepared:**
   - `002_waitlist_schema.sql` — 100% standalone waitlist migration (runs on any fresh database with zero prerequisites).
-  - `000_FULL_SETUP.sql` — Master idempotent migration combining the full marketplace schema (profiles, communities, campaigns, tracking, double-entry escrow ledger, wallets, payouts) AND the waitlist in a single file.
+  - `000_FULL_SETUP.sql` — Master idempotent migration combining the full marketplace schema (profiles, communities, campaigns, tracking, double-entry payment ledger, wallets, payouts) AND the waitlist in a single file.
 
 ---
 
@@ -116,12 +116,12 @@ When you are ready to connect Google Search Console, it requires zero code edits
 
 You never have to spend real money to test the complete payment system end-to-end. Everything is built with an integrated test simulator:
 
-### 1. How to Test Campaign Checkout (Inbound Escrow)
+### 1. How to Test Campaign Checkout (Inbound Safe Payment)
 1. Go to `/advertiser/campaigns/new`.
-2. Fill out the campaign form (e.g., Campaign Title, Target Category, Ad Copy, Destination Link) and click **"Review & Generate Payment Account"**.
+2. Fill out the campaign form (e.g., Campaign Title, Target Category, Outcome Package, Ad Copy, Destination Link) and click **"Review & Generate Payment Account"**.
 3. A modal opens with dedicated Virtual Account details (Bank Name, Account Number, Reference, Amount).
 4. Click the purple button: **"Simulate Transfer (Test Sandbox Mode)"**.
-5. The system instantly executes the real database procedure `process_campaign_payment`, locking the budget in the escrow ledger (`ESCROW_HOLD`).
+5. The system instantly executes the real database procedure `process_campaign_payment`, locking the budget safely in the financial ledger (`ESCROW_HOLD` status).
 6. The campaign changes to `ACTIVE` and `PAID` and appears on your Advertiser dashboard!
 
 ### 2. How to Test Partner Bank Withdrawals (Outbound Payout)
@@ -138,6 +138,28 @@ You never have to spend real money to test the complete payment system end-to-en
 3. Click the **Copy** button to copy their account number for your banking app.
 4. After transferring the money, click **"Mark Paid"** $\rightarrow$ status changes to `COMPLETED`.
 5. If details are invalid, click **"Reject"** and provide a reason $\rightarrow$ the system automatically refunds the partner's wallet balance and logs a `REFUND` ledger transaction, ensuring no funds are lost.
+
+---
+
+## What's Left & Action Plan for Next Session
+
+### 1. What You Need to Do (As Founder)
+- **Play with the Sandbox Checkout:** Try creating a campaign on the live site (`https://adisionads.vercel.app/advertiser/campaigns/new`) and click the purple **"Simulate Transfer"** button. Notice how instant and error-free it is without spending a dime.
+- **Discuss with Co-Founder (Community Verification):** Decide how you want to verify WhatsApp group admins when they onboard (e.g., asking for a screenshot showing they have the "Group Admin" badge vs platform admin joining the group).
+- **PocketFi Live Account (Only when ready for real cash):**
+  - Create an account at `https://pocketfi.ng/` when you are ready to collect real payments.
+  - Retrieve: `POCKETFI_SECRET_KEY`, `POCKETFI_BUSINESS_ID`, and `POCKETFI_WEBHOOK_SECRET`.
+  - Add them to Vercel Environment Variables (`POCKETFI_ENV=live`). (Until then, sandbox test mode is active and works 100%).
+
+### 2. What Is Left for the Codebase (Next Engineering Sprints)
+1. **Community Partner Onboarding (`/partner/communities`):** Connect the submission form to the Supabase `communities` table so WhatsApp group owners can submit their communities for review.
+2. **Admin KYC Desk (`/admin/communities`):** Display pending community submissions for 1-click Admin Approve / Reject.
+3. **Admin Campaign Matchmaker (`/admin/campaigns`):** Connect active paid campaigns to approved WhatsApp communities so tasks get distributed.
+4. **Placement Proof & Verification (`/partner` & `/admin/proofs`):**
+   - Community partner uploads screenshot proof of their WhatsApp broadcast.
+   - Admin audits the proof and clicks "Approve Proof" $\rightarrow$ triggers atomic wallet payout release to the partner's balance.
+5. **Outcome Conversion Tracking (Corporate & Gold):**
+   - Simple advertiser dashboard button or redirect conversion callback to log confirmed signups (₦350 each) or paying customers (₦750 each).
 
 
 

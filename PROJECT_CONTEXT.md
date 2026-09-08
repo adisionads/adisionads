@@ -36,9 +36,9 @@ A **Pre-Mortem** assumes the product has already launched and failed 12 months f
 | **1** | **Supply-Side Deletion & Laziness (Cheating)** | Group admins post the advert, take a screenshot, and immediately delete it or let members spam over it. | **Mitigations:**<br>1. *Performance Score:* If a group generates 0 clicks consistently, their score drops and they get zero future campaigns.<br>2. *Proof Rules:* Require timestamped proof + post must stay active for required duration (e.g. 24h/48h).<br>3. *Random Admin Spot Checks:* Platform admins join sample groups to verify ad persistence. |
 | **2** | **Phantom / Ghost Audiences (Dead Groups)** | Groups have 1,000 members, but 95% are bots, inactive numbers, or silent lurkers. | **Mitigations:**<br>1. Mandatory verification includes activity signals (recent group message activity, not just member count).<br>2. Tracking clicks via unique links measures *actual engagement*, not vanity follower counts. |
 | **3** | **Chicken-and-Egg Liquidity Problem** | Advertisers don't spend because there aren't enough verified groups; group admins abandon the platform because there aren't enough ad assignments. | **Mitigations:**<br>1. *Pre-seed Supply First:* Onboard and verify 50–100 active niche groups (Tech, Crypto, Campus, VTU) before launching public advertising.<br>2. *Guaranteed Seed Campaigns:* Launch with introductory advertiser packages or partner brand sponsorships. |
-| **4** | **Platform Disintermediation (Two-Way Side-Deals)** | 1. Advertisers find group names and contact admins directly.<br>2. WhatsApp admins click the ad link, find the advertiser's number/IG, and message them directly saying: *"Pay me directly next time for cheaper!"* | **Mitigations:**<br>1. *Blind Marketplace:* Advertisers never see admin phone numbers or group invite links.<br>2. *The Scale & Convenience Defense:* An advertiser uses Adision to reach 20 groups with 1 transfer and 1 report. They do NOT want the headache of chatting with, bargaining with, and chasing 20 random WhatsApp admins for screenshots.<br>3. *The Escrow Defense:* Admins stay on Adision because they get guaranteed escrow payment. In direct deals on WhatsApp, 60% of small clients scam or ghost admins after the ad is posted.<br>4. *Link Cloaking:* Ad copy drives to clean tracking links (`/r/[code]`), disallowing raw personal numbers in ad body copy.<br>5. *Strict Anti-Poaching Rule:* Any admin caught contacting an advertiser for side-deals suffers immediate account banning and forfeiture of pending wallet balance. |
+| **4** | **Platform Disintermediation (Two-Way Side-Deals)** | 1. Advertisers find group names and contact admins directly.<br>2. WhatsApp admins click the ad link, find the advertiser's number/IG, and message them directly saying: *"Pay me directly next time for cheaper!"* | **Mitigations:**<br>1. *Blind Marketplace:* Advertisers never see admin phone numbers or group invite links.<br>2. *The Scale & Convenience Defense:* An advertiser uses Adision to reach 20 groups with 1 transfer and 1 report. They do NOT want the headache of chatting with, bargaining with, and chasing 20 random WhatsApp admins for screenshots.<br>3. *The Safe Payment Defense:* Admins stay on Adision because they get guaranteed payment protection. In direct deals on WhatsApp, 60% of small clients scam or ghost admins after the ad is posted.<br>4. *Link Cloaking:* Ad copy drives to clean tracking links (`/r/[code]`), disallowing raw personal numbers in ad body copy.<br>5. *Strict Anti-Poaching Rule:* Any admin caught contacting an advertiser for side-deals suffers immediate account banning and forfeiture of pending wallet balance. |
 | **5** | **WhatsApp Platform Risk (Policy/Bans)** | WhatsApp introduces friction or limits spam links. | **Mitigations:**<br>1. Clean, human-friendly redirect domains with SSL.<br>2. Strict ad copy standards (no illegal VTU/ponzi/spam schemes).<br>3. Architecture designed from day one to expand to Telegram, Discord, and campus newsletters. |
-| **6** | **Payment & Cash-Flow Friction** | Advertisers abandon checkout due to card failure; partners complain of delayed withdrawals. | **Mitigations:**<br>1. Integrate **PaymentPoint Virtual Accounts (Bank Transfer)** which has >95% success rate in Nigeria.<br>2. Clear automated wallet balance & quick withdrawal processing. |
+| **6** | **Payment & Cash-Flow Friction** | Advertisers abandon checkout due to card failure; partners complain of delayed withdrawals. | **Mitigations:**<br>1. Integrate **PocketFi Virtual Accounts (Bank Transfer)** which has >95% success rate in Nigeria.<br>2. Clear automated wallet balance & quick withdrawal processing. |
 
 ---
 
@@ -163,7 +163,7 @@ erDiagram
   - `003_auth_profiles_trigger.sql` (auth trigger + `public.make_user_admin(email)` helper).
   - HMAC SHA-256 webhook signature verification with timing-safe comparisons in place.
   - Bot and preview-scraper filtering active on `/r/[code]` redirect engine.
-  - Atomic PostgreSQL stored procedures for campaign payment escrow, click incrementing, and balance withdrawals.
+  - Atomic PostgreSQL stored procedures for campaign payment protection, click incrementing, and balance withdrawals.
 - **Enterprise SEO & Search Engine Indexing:**
   - Dynamic `sitemap.xml` (`src/app/sitemap.ts`) prioritizing public marketplace and pricing pages.
   - Dynamic `robots.txt` (`src/app/robots.ts`) allowing public indexing and guarding private portal routes (`/admin`, `/partner`, `/api`).
@@ -181,14 +181,14 @@ erDiagram
 > **MANDATORY POLICY FOR ALL FUTURE DEVELOPMENT & AI ASSISTANCE:**
 > 1. **Zero Fabricated Data or Perks:**
 >    - **NEVER** invent promo percentages, fake credits, or discounts (e.g., do NOT invent "20% bonus ad spend" or "0% commission for 30 days").
->    - **NEVER** invent fake guarantees (e.g., do NOT invent "guaranteed seed campaigns" or "escrow-backed guarantee").
+>    - **NEVER** invent fake guarantees (e.g., do NOT invent "guaranteed seed campaigns" or "fake money guarantees").
 >    - **NEVER** create fake gamification rules (e.g., do NOT claim "inviting a friend jumps you 5 spots" unless backend queue reordering is explicitly implemented and requested).
 > 2. **No Ambiguous Buzzwords or Fabricated Labels:**
 >    - **NEVER** use the word "VIP" anywhere (e.g. no "VIP waitlist", no "VIP perks", no "VIP access"). The user never authorized it. It is strictly **Waitlist** or **Early Access Waitlist**.
->    - Avoid vague jargon like "escrow-backed guarantee" or unverified claims.
+>    - **NEVER** use the word "escrow" on user-facing pages or marketing. Always use plain English: *"Safe payment protection"*, *"Funds held safely until your ad is posted"*, or *"Prepaid balance"*.
 >    - If the user or founder hasn't explicitly told you a perk or policy exists, **DO NOT ADD IT**.
 >    - Speak in plain, honest, and factual language at all times:
->      - *Advertisers:* Launch campaigns across vetted WhatsApp communities with unique click tracking.
+>      - *Advertisers:* Launch campaigns across vetted WhatsApp communities with unique click tracking and safe payment protection.
 >      - *Partners:* Monetize active WhatsApp groups/channels with direct bank payouts upon verified proof.
 > 3. **Authentication & Access Rules:**
 >    - Never allow open unauthenticated browsing into `/admin`, `/advertiser`, or `/partner`.
@@ -251,7 +251,7 @@ When you and your co-founder sit down to align, here are the exact decisions to 
 1. **The 3 Official Outcome Tiers (from `Adision_Pricing_Model.pdf`):**
    - **Starter (Reach & Visibility):** Fixed fee of **₦5,750**. 14-day campaign + 1 bonus day (15 days total) distributed across relevant WhatsApp groups/channels. Campaign tracking and basic reporting.
    - **Corporate (Acquire New Users):** **₦350 / qualified signup**. Advertiser sets target number of signups (e.g. 50 signups × ₦350 = ₦17,500 deposit). Only verified new users count; unused balance remains available.
-   - **Gold Salesman (Acquire Paying Customers):** **₦500 / qualified paying customer**. Advertiser sets target number of paying customers (e.g. 20 customers × ₦500 = ₦10,000 deposit). Counts only after signup + qualifying purchase/deposit. Unused balance is not consumed if target is not reached.
+   - **Gold Salesman (Acquire Paying Customers):** **₦750 / qualified paying customer** (updated from 500 to 750). Advertiser sets target number of paying customers (e.g. 20 customers × ₦750 = ₦15,000 deposit). Counts only after signup + qualifying purchase/deposit. Unused balance is not consumed if target is not reached.
 
 2. **Prepaid Campaign Balance & Consumption:**
    - Advertisers fund the maximum campaign value upfront into their balance.
@@ -268,4 +268,25 @@ When you and your co-founder sit down to align, here are the exact decisions to 
 4. **Community Partner Wallet & Admin Payouts:**
    - Bank withdrawals at `/partner/wallet` with 10-digit account validation.
    - Admin disbursement desk at `/admin/withdrawals` with 1-click copy and auto-refund on rejection.
+   - Complete elimination of the word "escrow" across all user-facing screens in favor of plain English ("Safe payment protection", "held safely until posted").
+
+---
+
+## 9. Next Steps & Roadmap for Next Session
+
+When returning to code in the next session, here is the exact priority list:
+
+1. **Community Partner Onboarding Flow (`/partner/communities`):**
+   - Connect the partner community submission form to Supabase (`public.communities`).
+   - Wire the Admin approval desk (`/admin/communities`) to review and 1-click approve or reject submitted WhatsApp groups.
+2. **Campaign Matching & Distribution (`/admin/campaigns`):**
+   - Admin matches active paid campaigns to approved WhatsApp communities.
+3. **Ad Placement Proof Review (`/partner` & `/admin/proofs`):**
+   - Community partner posts the ad, uploads a screenshot proof.
+   - Admin reviews the screenshot and clicks "Approve Proof" $\rightarrow$ automatically credits the partner's wallet balance.
+4. **Attribution for Signups & Paying Customers (Corporate & Gold):**
+   - Finalize how advertisers report or confirm a qualified signup/customer (e.g., via simple tracking link destination callback or manual 1-click confirmation in the advertiser campaign dashboard).
+5. **Live PocketFi Keys:**
+   - Whenever the founders are ready to accept real money instead of test transfers, add the 3 PocketFi keys (`POCKETFI_SECRET_KEY`, `POCKETFI_BUSINESS_ID`, `POCKETFI_WEBHOOK_SECRET`) to Vercel.
+
 
