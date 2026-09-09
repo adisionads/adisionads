@@ -7,7 +7,6 @@ import {
   Briefcase,
   Copy,
   Download,
-  Filter,
   Globe,
   Mail,
   MessageSquare,
@@ -153,13 +152,10 @@ export default function AdminWaitlistPage() {
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back to Operations Hub
             </Link>
-            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-              <span>Waitlist Operations Desk</span>
-              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-brand-500/15 text-brand-700 dark:text-brand-400 border border-brand-500/30">
-                {entries.length} Total Registered
-              </span>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              Waitlist Operations Desk
             </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
               Separate databases for WhatsApp group owners and business advertisers.
             </p>
           </div>
@@ -190,100 +186,91 @@ export default function AdminWaitlistPage() {
         </div>
 
         {/* Quick KPI Overview */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <Card className="p-4 bg-white dark:bg-slate-900">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Total Waitlist
-            </div>
-            <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          <Card className="p-3 sm:p-4 bg-white dark:bg-slate-900 flex items-center justify-between sm:justify-start gap-2 sm:gap-3">
+            <span className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white">
               {entries.length}
-            </div>
-            <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">All early registrations</div>
+            </span>
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">
+              Total Waitlist
+            </span>
           </Card>
 
-          <Card className="p-4 bg-white dark:bg-slate-900">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
-              <Users className="w-3.5 h-3.5 text-emerald-500" />
-              <span>WhatsApp Communities</span>
-            </div>
-            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+          <Card className="p-3 sm:p-4 bg-white dark:bg-slate-900 flex items-center justify-between sm:justify-start gap-2 sm:gap-3">
+            <span className="text-lg sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">
               {totalPartnerCount}
-            </div>
-            <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Group & channel admins</div>
+            </span>
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1 min-w-0 truncate">
+              <Users className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span className="truncate">Group Owners</span>
+            </span>
           </Card>
 
-          <Card className="p-4 bg-white dark:bg-slate-900">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
-              <Briefcase className="w-3.5 h-3.5 text-blue-500" />
-              <span>Business Advertisers</span>
-            </div>
-            <div className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1">
+          <Card className="p-3 sm:p-4 bg-white dark:bg-slate-900 flex items-center justify-between sm:justify-start gap-2 sm:gap-3">
+            <span className="text-lg sm:text-2xl font-black text-blue-600 dark:text-blue-400">
               {totalAdvertiserCount}
-            </div>
-            <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Ready to advertise</div>
+            </span>
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1 min-w-0 truncate">
+              <Briefcase className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+              <span className="truncate">Advertisers</span>
+            </span>
           </Card>
 
-          <Card className="p-4 bg-white dark:bg-slate-900">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
-              <Globe className="w-3.5 h-3.5 text-amber-500" />
-              <span>Countries</span>
-            </div>
-            <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">
+          <Card className="p-3 sm:p-4 bg-white dark:bg-slate-900 flex items-center justify-between sm:justify-start gap-2 sm:gap-3">
+            <span className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white">
               {uniqueCountries}
-            </div>
-            <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Regional coverage</div>
+            </span>
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1 min-w-0 truncate">
+              <Globe className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span className="truncate">Countries</span>
+            </span>
           </Card>
         </div>
 
         {/* View Switcher & Search Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
           <div className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by name, group, email, phone..."
+              placeholder="Search name, group, email, phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full pl-9 pr-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
-              <Filter className="w-3.5 h-3.5" /> Display View:
-            </span>
-            <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
-              <button
-                onClick={() => setViewMode('BOTH')}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  viewMode === 'BOTH'
-                    ? 'bg-brand-500 text-dark-900 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                Both Lists ({entries.length})
-              </button>
-              <button
-                onClick={() => setViewMode('COMMUNITIES')}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  viewMode === 'COMMUNITIES'
-                    ? 'bg-brand-500 text-dark-900 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                Group Owners ({totalPartnerCount})
-              </button>
-              <button
-                onClick={() => setViewMode('ADVERTISERS')}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  viewMode === 'ADVERTISERS'
-                    ? 'bg-brand-500 text-dark-900 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                Advertisers ({totalAdvertiserCount})
-              </button>
-            </div>
+          <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs w-full sm:w-auto">
+            <button
+              onClick={() => setViewMode('BOTH')}
+              className={`px-3 py-1.5 rounded-lg font-bold text-center transition-all ${
+                viewMode === 'BOTH'
+                  ? 'bg-brand-500 text-dark-900 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Both
+            </button>
+            <button
+              onClick={() => setViewMode('COMMUNITIES')}
+              className={`px-3 py-1.5 rounded-lg font-bold text-center transition-all ${
+                viewMode === 'COMMUNITIES'
+                  ? 'bg-brand-500 text-dark-900 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Group Owners
+            </button>
+            <button
+              onClick={() => setViewMode('ADVERTISERS')}
+              className={`px-3 py-1.5 rounded-lg font-bold text-center transition-all ${
+                viewMode === 'ADVERTISERS'
+                  ? 'bg-brand-500 text-dark-900 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Advertisers
+            </button>
           </div>
         </div>
 
@@ -294,23 +281,15 @@ export default function AdminWaitlistPage() {
           <div className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20 shrink-0">
                   <Users className="w-4 h-4" />
                 </div>
-                <div>
-                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">
-                    WhatsApp Group & Channel Owners
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Community admins who registered to earn by sharing sponsored broadcasts.
-                  </p>
-                </div>
-                <span className="ml-2 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                  {partnerEntries.length} Admins
-                </span>
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">
+                  WhatsApp Group & Channel Owners
+                </h2>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Button
                   onClick={() => copyPhones(partnerEntries, 'PARTNER')}
                   size="sm"
@@ -413,23 +392,15 @@ export default function AdminWaitlistPage() {
           <div className="space-y-3 pt-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20 shrink-0">
                   <Briefcase className="w-4 h-4" />
                 </div>
-                <div>
-                  <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">
-                    Businesses & Advertisers
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Brands and small businesses that registered to sponsor WhatsApp ads.
-                  </p>
-                </div>
-                <span className="ml-2 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800">
-                  {advertiserEntries.length} Businesses
-                </span>
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">
+                  Businesses & Advertisers
+                </h2>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Button
                   onClick={() => copyPhones(advertiserEntries, 'ADVERTISER')}
                   size="sm"
