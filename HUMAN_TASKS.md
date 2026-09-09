@@ -36,11 +36,12 @@ You have **2 places** to view your real registrations:
 
 ---
 
-## 🚀 Next Features to Build (When You Return)
+## 🚀 Features Status & Next Builds
 
-1. **WhatsApp Group Registration Flow (`/partner/communities`):** Form for group admins to submit their WhatsApp invite links and details.
-2. **Admin Group Approval Desk (`/admin/communities`):** 1-click Approve / Reject submitted communities.
-3. **Campaign Matchmaking (`/admin/campaigns`):** Assign paid campaigns to verified WhatsApp groups.
-4. **Proof Review & Payouts (`/admin/proofs`):** Admin reviews screenshot proof $\rightarrow$ clicks approve $\rightarrow$ releases funds to partner's bank wallet.
-5. **Account Rules & Editing:** User Name, Phone Number, and Email are permanently locked/non-editable to prevent fraud. Community links/info are editable anytime in `/partner/communities`.
+- [x] **WhatsApp Group Registration Flow (`/partner/communities`):** Connected to Supabase with clean text inputs and editable WhatsApp invite links.
+- [x] **Admin Group Approval Desk (`/admin/communities`):** 1-click Approve / Reject submitted communities with owner WhatsApp contact link.
+- [x] **Account Rules & Editing:** User Name, Phone Number, and Email are locked/non-editable on profiles. Group links/details are editable anytime.
+- [ ] **Campaign Matchmaking (`/admin/campaigns`):** Assign paid campaigns to verified WhatsApp groups.
+- [ ] **Proof Review & Payouts (`/admin/proofs`):** Admin reviews screenshot proof $\rightarrow$ clicks approve $\rightarrow$ releases funds to partner's bank wallet.
+
 
