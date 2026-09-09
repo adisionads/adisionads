@@ -272,21 +272,38 @@ When you and your co-founder sit down to align, here are the exact decisions to 
 
 ---
 
-## 9. Next Steps & Roadmap for Next Session
+## 9. Design Philosophy, Simplicity & Account Rules
 
-When returning to code in the next session, here is the exact priority list:
+1. **Simplicity First (Mobile-First UX):**
+   - No unnecessary text, no fluff, no jargon (words like "escrow" and "VIP" are permanently banned).
+   - Use plain text fields for niches / target audiences instead of restrictive dropdowns.
+   - Compact layouts on mobile: zero excessive whitespace or giant sidebars that cause thumb-scrolling fatigue.
 
-1. **Community Partner Onboarding Flow (`/partner/communities`):**
-   - Connect the partner community submission form to Supabase (`public.communities`).
-   - Wire the Admin approval desk (`/admin/communities`) to review and 1-click approve or reject submitted WhatsApp groups.
-2. **Campaign Matching & Distribution (`/admin/campaigns`):**
-   - Admin matches active paid campaigns to approved WhatsApp communities.
-3. **Ad Placement Proof Review (`/partner` & `/admin/proofs`):**
-   - Community partner posts the ad, uploads a screenshot proof.
-   - Admin reviews the screenshot and clicks "Approve Proof" $\rightarrow$ automatically credits the partner's wallet balance.
-4. **Attribution for Signups & Paying Customers (Corporate & Gold):**
-   - Finalize how advertisers report or confirm a qualified signup/customer (e.g., via simple tracking link destination callback or manual 1-click confirmation in the advertiser campaign dashboard).
-5. **Live PocketFi Keys:**
-   - Whenever the founders are ready to accept real money instead of test transfers, add the 3 PocketFi keys (`POCKETFI_SECRET_KEY`, `POCKETFI_BUSINESS_ID`, `POCKETFI_WEBHOOK_SECRET`) to Vercel.
+2. **Profile Identity Lock Policy:**
+   - A user's account identity (**Full Name**, **WhatsApp Phone Number**, **Email Address**) is permanently locked and non-editable once registered to prevent fraud and account impersonation.
+   - Community details (WhatsApp invite link, member count, and topic) can be added, updated, or edited at any time in `/partner/communities`.
+
+---
+
+## 10. Engineering Feature Status & Active Roadmap
+
+### Completed & Live in Production:
+- [x] **Waitlist Two-Role Split & Admin Desk:** Dedicated registration for Group Owners vs Advertisers with 1-click WhatsApp copy and CSV export.
+- [x] **Live WhatsApp Community Registration (`/partner/communities`):** Connected to Supabase `communities` table with simple text fields, group/channel toggle, and optional invite link.
+- [x] **Live Community Editing (`/api/partner/communities/[id]`):** Group admins can update their WhatsApp link, member count, and topic anytime.
+- [x] **1-Click Admin Community Approval Desk (`/admin/communities`):** Live queue with 1-click Approve / Reject, direct invite link tester, and owner WhatsApp chat links.
+- [x] **PocketFi Payment Gateway Integration:** Dedicated virtual bank accounts and SHA-512 webhook handler (`/api/webhooks/pocketfi`).
+- [x] **Navbar & Homepage Streamline:** Renamed "Marketplace" to "Home", removed cluttered Audience Niches grid, tightened mobile flow.
+
+### Next Engineering Builds:
+1. **Campaign Matchmaking (`/admin/campaigns`):**
+   - Admin tool to assign active paid campaigns to verified WhatsApp communities based on niche and reach.
+   - Generates unique tracking links (`/r/[code]`) for each assigned group.
+2. **Ad Placement Proof Review & Automated Payouts (`/admin/proofs`):**
+   - Community admin broadcasts ad and uploads a screenshot.
+   - Admin reviews screenshot proof $\rightarrow$ 1-click "Approve Proof" automatically releases funds from escrow to the partner's wallet for bank withdrawal.
+3. **Outcome Attribution Confirmation:**
+   - 1-click qualified signup / customer confirmation in advertiser campaign dashboard.
+
 
 

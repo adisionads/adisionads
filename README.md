@@ -75,13 +75,13 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 │   │   │   ├── partner/         # Community registry, task inbox & wallet
 │   │   │   └── admin/           # KYC review, matchmaking, proof approval & payouts
 │   │   ├── r/[code]/            # High-speed privacy-safe click redirect engine
-│   │   └── api/webhooks/        # PaymentPoint webhook receiver
+│   │   └── api/webhooks/        # PocketFi payment webhook receiver
 │   ├── components/
 │   │   ├── ui/                  # Buttons, Cards, Modals, Inputs, Badges
 │   │   ├── shared/              # Navbar, Footer, StatsCard, StatusBadge
 │   │   └── previews/            # Live interactive WhatsApp chat mockup
 │   ├── lib/
-│   │   ├── paymentpoint/        # PaymentPoint API client
+│   │   ├── pocketfi/            # PocketFi API client
 │   │   ├── store/               # In-memory mock data & reactive state store
 │   │   ├── supabase/            # Supabase PostgreSQL client & types
 │   │   └── utils.ts             # Currency, tracking code, and formatting helpers
