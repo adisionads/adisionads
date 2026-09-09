@@ -42,3 +42,5 @@ You have **2 places** to view your real registrations:
 2. **Admin Group Approval Desk (`/admin/communities`):** 1-click Approve / Reject submitted communities.
 3. **Campaign Matchmaking (`/admin/campaigns`):** Assign paid campaigns to verified WhatsApp groups.
 4. **Proof Review & Payouts (`/admin/proofs`):** Admin reviews screenshot proof $\rightarrow$ clicks approve $\rightarrow$ releases funds to partner's bank wallet.
+5. **Account Rules & Editing:** User Name, Phone Number, and Email are permanently locked/non-editable to prevent fraud. Community links/info are editable anytime in `/partner/communities`.
+

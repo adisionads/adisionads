@@ -350,7 +350,7 @@ export default function AdminWaitlistPage() {
                     <thead className="bg-emerald-50/50 dark:bg-emerald-950/20 text-slate-600 dark:text-slate-300 uppercase font-bold border-b border-slate-200 dark:border-slate-800">
                       <tr>
                         <th className="px-5 py-3.5"># Pos</th>
-                        <th className="px-5 py-3.5">WhatsApp Group / Channel Name</th>
+                        <th className="px-5 py-3.5">Community Niche & Type</th>
                         <th className="px-5 py-3.5">Admin Name</th>
                         <th className="px-5 py-3.5">WhatsApp Contact</th>
                         <th className="px-5 py-3.5">Member Count / Range</th>
@@ -366,7 +366,7 @@ export default function AdminWaitlistPage() {
                             #{e.position}
                           </td>
                           <td className="px-5 py-3.5 font-bold text-slate-900 dark:text-white text-sm">
-                            {e.company_or_community_name || 'Unnamed Community'}
+                            {e.company_or_community_name || 'General Community'}
                           </td>
                           <td className="px-5 py-3.5 font-medium text-slate-800 dark:text-slate-200">
                             {e.full_name}
