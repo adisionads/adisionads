@@ -72,13 +72,19 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnaXZ6cXlxY3JocWFmY3hidmZkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4ODM3MjQzNCwiZXhwIjoyMTAzOTQ4NDM0fQ.D9kiv4z8Z9Y4723JTt-yRkVs7cTRTejQjPwkvSz-FcU
 
 # POCKETFI (Payment Gateway: Dedicated Virtual Accounts & Checkout Links)
-POCKETFI_SECRET_KEY=your_secret_token
-POCKETFI_BUSINESS_ID=your_business_id
-POCKETFI_WEBHOOK_SECRET=your_webhook_secret
-POCKETFI_ENV=sandbox
+POCKETFI_SECRET_KEY=4daa62c1ef37467f2bcf9592f36f07f86918113ea864efc038bd5fac96ab7afb
+POCKETFI_PUBLIC_KEY=47370|O9Xefnl1rNsF7tCiOzl0lN0FfLGJR0mQHfipO4Gm6a801d8c
+POCKETFI_BUSINESS_ID=30833
+POCKETFI_ENV=live
 
 CLICK_HASH_SALT=adision_prod_hash_salt_9283748291
 ```
+
+> [!IMPORTANT]
+> **PocketFi Compliance / KYC Note:**  
+> When logged into PocketFi, the KYC status currently says:  
+> *"Submission Rejected. Kindly submit a clearer video verification for business approval. Please correct the information and resubmit."*  
+> When you have a moment, visit `https://pocketfi.ng/compliance` and re-record a clearer selfie video verification to complete full business KYC.
 
 ---
 

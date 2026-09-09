@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useApp } from '@/lib/store/app-context';
 import {
   ArrowRight,
+  Briefcase,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
@@ -13,6 +14,7 @@ import {
   HelpCircle,
   ShieldCheck,
   Sparkles,
+  Users,
   Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -89,7 +91,7 @@ export default function HomePage() {
                 }`}
               >
                 <Zap className="w-4 h-4" />
-                <span>Advertise with ADISION</span>
+                <span>Advertise My Business</span>
               </button>
 
               <button
@@ -101,18 +103,13 @@ export default function HomePage() {
                 }`}
               >
                 <DollarSign className="w-4 h-4" />
-                <span>Earn with Your Community</span>
+                <span>I Own a WhatsApp Group</span>
               </button>
             </div>
           </div>
 
           {/* Hero Content */}
           <div className="max-w-4xl mx-auto text-center space-y-8">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/20 text-brand-700 dark:text-brand-400 text-xs font-bold tracking-wide">
-              <ShieldCheck className="w-4 h-4 text-brand-600 dark:text-brand-400" />
-              <span>Adision — Performance Community Ad Marketplace</span>
-            </div>
-
             {activePersona === 'advertiser' ? (
               <>
                 <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
@@ -123,12 +120,12 @@ export default function HomePage() {
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
                   <Link
-                    href="/waitlist"
+                    href="/waitlist?role=advertiser"
                     className="w-full sm:w-auto"
                   >
                     <Button size="lg" variant="primary" className="w-full font-bold text-base shadow-lg shadow-brand-500/20 gap-2">
                       <Sparkles className="w-4 h-4" />
-                      <span>Join Early Access Waitlist</span>
+                      <span>Register to Advertise</span>
                       <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
@@ -152,12 +149,12 @@ export default function HomePage() {
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
                   <Link
-                    href="/waitlist"
+                    href="/waitlist?role=community"
                     className="w-full sm:w-auto"
                   >
                     <Button size="lg" variant="primary" className="w-full font-bold text-base shadow-lg shadow-brand-500/20 gap-2">
                       <Sparkles className="w-4 h-4" />
-                      <span>Join Partner Waitlist</span>
+                      <span>Register Your WhatsApp Group</span>
                       <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
@@ -172,37 +169,6 @@ export default function HomePage() {
                 </div>
               </>
             )}
-
-            {/* Genuine Value Proposition Pillars */}
-            <div className="pt-10 border-t border-slate-200 dark:border-slate-800/80 grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
-              <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-sm flex items-start gap-3">
-                <div className="p-2 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 shrink-0">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-white">Verified Admins</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Every group is checked by hand for real members and active chats</div>
-                </div>
-              </div>
-              <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-sm flex items-start gap-3">
-                <div className="p-2 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 shrink-0">
-                  <CheckCircle2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-white">Safe Payment Protection</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Admins only get paid after they prove your ad was posted</div>
-                </div>
-              </div>
-              <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-sm flex items-start gap-3">
-                <div className="p-2 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 shrink-0">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-white">Real Click Tracking</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">See actual visits from real people — no bots, no duplicate clicks</div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -476,15 +442,16 @@ export default function HomePage() {
             Join the waitlist to be notified first when we open campaigns and community onboarding in your category.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-            <Link href="/waitlist">
-              <Button size="lg" variant="primary" className="w-full sm:w-auto font-bold text-base gap-2">
-                <Sparkles className="w-4 h-4" />
-                <span>Join the Early Access Waitlist</span>
+            <Link href="/waitlist?role=community">
+              <Button size="lg" variant="primary" className="w-full sm:w-auto font-bold text-base gap-2 shadow-lg shadow-brand-500/25">
+                <Users className="w-4 h-4" />
+                <span>Register Your WhatsApp Group</span>
               </Button>
             </Link>
-            <Link href="/pricing">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto font-bold text-base">
-                <span>View Launch Packages</span>
+            <Link href="/waitlist?role=advertiser">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto font-bold text-base gap-2">
+                <Briefcase className="w-4 h-4" />
+                <span>Register to Advertise</span>
               </Button>
             </Link>
           </div>
