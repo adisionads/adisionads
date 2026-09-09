@@ -155,14 +155,14 @@ export default function HomePage() {
                       <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
-                  <Link
-                    href="/pricing"
+                  <a
+                    href="#how-it-works"
                     className="w-full sm:w-auto"
                   >
                     <Button size="lg" variant="outline" className="w-full text-base font-semibold">
-                      <span>Explore Pricing & Packages</span>
+                      <span>How Community Payouts Work</span>
                     </Button>
-                  </Link>
+                  </a>
                 </div>
               </>
             )}
@@ -170,7 +170,89 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. FEATURED PRICING TIERS */}
+      {/* 2. HOW IT WORKS (3 SIMPLE STEPS) */}
+      <section id="how-it-works" className="py-20 bg-white dark:bg-dark-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 mb-2">
+              Simple & Transparent
+            </h2>
+            <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              {activePersona === 'advertiser'
+                ? 'How Advertising Works in 3 Easy Steps'
+                : 'How Community Owners Earn in 3 Easy Steps'}
+            </h3>
+          </div>
+
+          {activePersona === 'advertiser' ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card className="p-8 relative group hover:border-brand-500/50 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xl flex items-center justify-center mb-6">
+                  1
+                </div>
+                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Create Your Ad</h4>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                  Write your message, add an optional image, and choose your target audience (such as Students, Tech, Business, or Fashion).
+                </p>
+              </Card>
+
+              <Card className="p-8 relative group hover:border-brand-500/50 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xl flex items-center justify-center mb-6">
+                  2
+                </div>
+                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Pay via Bank Transfer</h4>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                  Make a quick transfer to your unique virtual bank account. Adision holds your money safely until the ad is confirmed live.
+                </p>
+              </Card>
+
+              <Card className="p-8 relative group hover:border-brand-500/50 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xl flex items-center justify-center mb-6">
+                  3
+                </div>
+                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Watch Live Results</h4>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                  See real-time clicks as members visit your link, view screenshot proofs showing your ad inside each group, and track results.
+                </p>
+              </Card>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card className="p-8 relative group hover:border-brand-500/50 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xl flex items-center justify-center mb-6">
+                  1
+                </div>
+                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Register Your Group</h4>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                  Submit your WhatsApp Group or Channel with a quick screenshot of your member info. We verify active engagement within hours.
+                </p>
+              </Card>
+
+              <Card className="p-8 relative group hover:border-brand-500/50 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xl flex items-center justify-center mb-6">
+                  2
+                </div>
+                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Receive & Post Ads</h4>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                  Accept matched ad tasks in your dashboard, post the message with your tracking link into your group, and keep it active.
+                </p>
+              </Card>
+
+              <Card className="p-8 relative group hover:border-brand-500/50 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xl flex items-center justify-center mb-6">
+                  3
+                </div>
+                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Upload Proof & Get Paid</h4>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                  Upload a screenshot showing the post in your group. Once verified, funds land in your wallet for 1-click withdrawal to any Nigerian bank.
+                </p>
+              </Card>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 3. FEATURED PRICING TIERS */}
       <section className="py-20 bg-white dark:bg-dark-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
