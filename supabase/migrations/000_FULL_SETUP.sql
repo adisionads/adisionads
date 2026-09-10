@@ -531,3 +531,81 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- ATOMIC STORED PROCEDURE: INCREMENT TRACKING LINK CLICKS
+CREATE OR REPLACE FUNCTION public.increment_tracking_link_clicks(
+    t_code TEXT,
+    is_unique_click BOOLEAN DEFAULT FALSE
+)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.tracking_links
+    SET total_clicks = total_clicks + 1,
+        unique_clicks = CASE WHEN is_unique_click THEN unique_clicks + 1 ELSE unique_clicks END
+    WHERE LOWER(tracking_code) = LOWER(t_code);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ATOMIC STORED PROCEDURE: REQUEST PARTNER WITHDRAWAL
+CREATE OR REPLACE FUNCTION public.request_partner_withdrawal(
+    p_user_id UUID,
+    p_amount NUMERIC(14, 2),
+    p_bank_name TEXT,
+    p_account_number TEXT,
+    p_account_name TEXT
+)
+RETURNS JSONB AS $$
+DECLARE
+    v_wallet RECORD;
+    v_new_available NUMERIC(14, 2);
+    v_withdrawal_id UUID;
+BEGIN
+    SELECT * INTO v_wallet
+    FROM public.wallets
+    WHERE user_id = p_user_id
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Wallet not found for this user.';
+    END IF;
+
+    IF v_wallet.available_balance < p_amount THEN
+        RAISE EXCEPTION 'Insufficient available balance. Requested: %, Available: %', p_amount, v_wallet.available_balance;
+    END IF;
+
+    v_new_available := v_wallet.available_balance - p_amount;
+
+    UPDATE public.wallets
+    SET available_balance = v_new_available,
+        pending_balance = v_wallet.pending_balance + p_amount,
+        updated_at = NOW()
+    WHERE id = v_wallet.id;
+
+    INSERT INTO public.withdrawal_requests (
+        wallet_id, user_id, amount, bank_name, account_number, account_name, status
+    ) VALUES (
+        v_wallet.id, p_user_id, p_amount, p_bank_name, p_account_number, p_account_name, 'REQUESTED'
+    ) RETURNING id INTO v_withdrawal_id;
+
+    INSERT INTO public.ledger_transactions (
+        wallet_id, user_id, transaction_type, amount, direction, balance_after, reference_id, reference_type, description
+    ) VALUES (
+        v_wallet.id,
+        p_user_id,
+        'WITHDRAWAL',
+        p_amount,
+        'DEBIT',
+        v_new_available,
+        v_withdrawal_id,
+        'WITHDRAWAL_REQUEST',
+        format('Bank transfer withdrawal requested to %s (%s)', p_bank_name, p_account_number)
+    );
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'withdrawal_id', v_withdrawal_id,
+        'new_available_balance', v_new_available
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+

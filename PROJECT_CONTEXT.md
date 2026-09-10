@@ -294,16 +294,16 @@ When you and your co-founder sit down to align, here are the exact decisions to 
 - [x] **1-Click Admin Community Approval Desk (`/admin/communities`):** Live queue with 1-click Approve / Reject, direct invite link tester, and owner WhatsApp chat links.
 - [x] **PocketFi Payment Gateway Integration:** Dedicated virtual bank accounts and SHA-512 webhook handler (`/api/webhooks/pocketfi`).
 - [x] **Navbar & Homepage Streamline:** Renamed "Marketplace" to "Home", removed cluttered Audience Niches grid, tightened mobile flow.
+- [x] **Campaign Matchmaking & Distribution (`/admin/campaigns`):** Admin tool to assign active paid campaigns to verified WhatsApp communities based on niche/reach with automated unique tracking link provisioning (`/r/[code]`).
+- [x] **Ad Placement Proof Review & Automated Wallet Payouts (`/admin/proofs` & `/partner/assignments`):** Full lifecycle from partner accepting assignment, broadcasting with unique link, uploading proof screenshot, to 1-click admin approval triggering atomic wallet payouts (`approve_proof_and_credit_partner`).
+- [x] **Advertiser Campaign Detail & Attribution Telemetry (`/advertiser/campaigns/[id]`):** Real-time clicks, unique visitors, CTR, assigned WhatsApp communities, and verified placement proof galleries with outcome tracking.
 
 ### Next Engineering Builds:
-1. **Campaign Matchmaking (`/admin/campaigns`):**
-   - Admin tool to assign active paid campaigns to verified WhatsApp communities based on niche and reach.
-   - Generates unique tracking links (`/r/[code]`) for each assigned group.
-2. **Ad Placement Proof Review & Automated Payouts (`/admin/proofs`):**
-   - Community admin broadcasts ad and uploads a screenshot.
-   - Admin reviews screenshot proof $\rightarrow$ 1-click "Approve Proof" automatically releases funds from escrow to the partner's wallet for bank withdrawal.
-3. **Outcome Attribution Confirmation:**
-   - 1-click qualified signup / customer confirmation in advertiser campaign dashboard.
+1. **Outcome Attribution Confirmation:**
+   - 1-click qualified signup / customer confirmation in advertiser campaign dashboard for performance tiers (Corporate & Gold Salesman).
+2. **Automated WhatsApp Notification Bot:**
+   - Webhook alerting partners on WhatsApp when a new ad task matching their community is assigned.
+
 
 
 
