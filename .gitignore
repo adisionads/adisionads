@@ -25,6 +25,8 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+HUMAN_TASKS.md
+
 
 # vercel
 .vercel
