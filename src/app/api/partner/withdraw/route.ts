@@ -60,7 +60,32 @@ export async function POST(request: NextRequest) {
     }
 
     if (isSupabaseAdminConfigured()) {
-      // 1. Fetch user's wallet
+      // 1. First attempt atomic PostgreSQL Stored Procedure (with ACID FOR UPDATE row lock)
+      const { data: rpcResult, error: rpcError } = await supabaseAdmin.rpc('request_partner_withdrawal', {
+        p_user_id: user_id,
+        p_amount: numAmount,
+        p_bank_name: bank_name.trim(),
+        p_account_number: account_number.trim(),
+        p_account_name: account_name.trim(),
+      });
+
+      if (!rpcError && rpcResult?.success) {
+        return NextResponse.json({
+          success: true,
+          message: 'Withdrawal request submitted successfully! Funds will be disbursed within 24 hours.',
+          data: { id: rpcResult.withdrawal_id },
+          new_balance: rpcResult.new_available_balance,
+        });
+      }
+
+      if (rpcError && rpcError.message.includes('Insufficient available balance')) {
+        return NextResponse.json(
+          { success: false, error: 'Insufficient available balance for this withdrawal.' },
+          { status: 400 }
+        );
+      }
+
+      // 2. Fallback if stored procedure not yet executed in remote SQL editor
       const { data: wallet, error: walletError } = await supabaseAdmin
         .from('wallets')
         .select('*')
@@ -87,7 +112,7 @@ export async function POST(request: NextRequest) {
       const reference = `wd_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
       const newAvailable = Number(wallet.available_balance) - numAmount;
 
-      // 2. Update wallet balance
+      // Update wallet balance
       const { error: updateError } = await supabaseAdmin
         .from('wallets')
         .update({
@@ -103,7 +128,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // 3. Create withdrawal request
+      // Create withdrawal request
       const { data: withdrawal, error: insertError } = await supabaseAdmin
         .from('withdrawal_requests')
         .insert({
@@ -127,7 +152,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // 4. Log double-entry ledger entry
+      // Log double-entry ledger entry
       await supabaseAdmin
         .from('ledger_transactions')
         .insert({

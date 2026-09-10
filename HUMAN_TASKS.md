@@ -12,14 +12,15 @@ Here are the only tasks that require you (the founder) to complete personally:
 ---
 
 ### 2. Add PocketFi Live Keys to Vercel
-In your **Vercel Dashboard** $\rightarrow$ **Settings** $\rightarrow$ **Environment Variables**, add these 4 variables:
+In your **Vercel Dashboard** $\rightarrow$ **Settings** $\rightarrow$ **Environment Variables**, copy the 4 variables directly from your local `.env.local` file (lines 16–19):
 
 ```env
-POCKETFI_SECRET_KEY=4daa62c1ef37467f2bcf9592f36f07f86918113ea864efc038bd5fac96ab7afb
+POCKETFI_SECRET_KEY=<Copy from your .env.local line 16>
 POCKETFI_PUBLIC_KEY=47370|O9Xefnl1rNsF7tCiOzl0lN0FfLGJR0mQHfipO4Gm6a801d8c
 POCKETFI_BUSINESS_ID=30833
 POCKETFI_ENV=live
 ```
+
 
 ---
 
