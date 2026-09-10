@@ -24,6 +24,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-context';
+import { authFetch } from '@/lib/auth/auth-fetch';
 
 export default function NewCampaignPage() {
   const router = useRouter();
@@ -96,7 +97,7 @@ export default function NewCampaignPage() {
     setIsGeneratingCheckout(true);
 
     try {
-      const res = await fetch('/api/campaigns/create-checkout', {
+      const res = await authFetch('/api/campaigns/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -137,7 +138,7 @@ export default function NewCampaignPage() {
     setIsSimulatingPayment(true);
 
     try {
-      const res = await fetch('/api/campaigns/simulate-payment', {
+      const res = await authFetch('/api/campaigns/simulate-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

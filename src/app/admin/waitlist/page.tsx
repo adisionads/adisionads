@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { authFetch } from '@/lib/auth/auth-fetch';
 import {
   ArrowLeft,
   Briefcase,
@@ -45,7 +46,7 @@ export default function AdminWaitlistPage() {
   const fetchWaitlist = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/waitlist');
+      const res = await authFetch('/api/admin/waitlist');
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         setEntries(data.data);

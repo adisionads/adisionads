@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase/admin';
+import { checkRateLimit } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -29,6 +30,15 @@ function generateReferralCode(): string {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: Max 5 waitlist submissions per IP per minute
+    const rateCheck = checkRateLimit(request, 5, 60 * 1000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again in a moment.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const {
       full_name,

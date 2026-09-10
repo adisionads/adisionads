@@ -89,8 +89,11 @@ export class PaymentPointClient {
    */
   verifyWebhookSignature(payload: string, signature: string, secret?: string): boolean {
     const webhookSecret = secret || process.env.PAYMENTPOINT_WEBHOOK_SECRET;
-    // In local development or testing without a secret configured:
     if (!webhookSecret) {
+      if (process.env.NODE_ENV === 'production') {
+        console.error('[PaymentPoint] CRITICAL SECURITY ALERT: PAYMENTPOINT_WEBHOOK_SECRET is missing in production! Rejecting incoming webhook.');
+        return false;
+      }
       console.warn('[PaymentPoint] No PAYMENTPOINT_WEBHOOK_SECRET configured; skipping signature verification in dev mode.');
       return true;
     }

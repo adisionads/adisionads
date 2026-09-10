@@ -9,6 +9,16 @@ export const runtime = 'nodejs';
 const BOT_USER_AGENT_REGEX =
   /(WhatsApp|facebookexternalhit|Facebot|Twitterbot|TelegramBot|Slackbot|LinkedInBot|Discordbot|Googlebot|bingbot|Baiduspider|YandexBot|DuckDuckBot|curl|Wget|python|axios|Go-http-client|bot|spider|crawler)/i;
 
+function safeDestinationUrl(urlStr: string): URL {
+  try {
+    const parsed = new URL(urlStr);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed;
+    }
+  } catch {}
+  return new URL('https://adision.co?src=invalid_target');
+}
+
 /**
  * High-Speed Privacy-Preserving Click Tracking & Attribution Engine
  * Endpoint: GET /r/[code]
@@ -59,7 +69,7 @@ export async function GET(
   // If this is an automated link-preview scraper (e.g. WhatsApp generating preview card in chat),
   // redirect immediately WITHOUT recording a human click.
   if (isBot) {
-    return NextResponse.redirect(new URL(destinationUrl), {
+    return NextResponse.redirect(safeDestinationUrl(destinationUrl), {
       status: 302,
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -130,7 +140,7 @@ export async function GET(
   }
 
   // 5. Immediate HTTP 302 Redirection
-  return NextResponse.redirect(new URL(destinationUrl), {
+  return NextResponse.redirect(safeDestinationUrl(destinationUrl), {
     status: 302,
     headers: {
       'Cache-Control': 'no-cache, no-store, must-revalidate',

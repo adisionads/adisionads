@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { authFetch } from '@/lib/auth/auth-fetch';
 import { formatNumber } from '@/lib/utils';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/Button';
@@ -48,7 +49,7 @@ export default function AdminCommunitiesPage() {
   const fetchCommunities = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/communities');
+      const res = await authFetch('/api/admin/communities');
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         setCommunities(data.data);
@@ -67,7 +68,7 @@ export default function AdminCommunitiesPage() {
   const handleUpdateStatus = async (id: string, newStatus: 'VERIFIED' | 'REJECTED', reason?: string) => {
     setActionLoadingId(id);
     try {
-      const res = await fetch('/api/admin/communities', {
+      const res = await authFetch('/api/admin/communities', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

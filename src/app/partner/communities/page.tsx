@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/auth-context';
+import { authFetch } from '@/lib/auth/auth-fetch';
 import { formatNumber } from '@/lib/utils';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/Button';
@@ -60,8 +61,7 @@ export default function PartnerCommunitiesPage() {
   const fetchCommunities = async () => {
     setLoading(true);
     try {
-      const url = user?.id ? `/api/partner/communities?user_id=${user.id}` : '/api/partner/communities';
-      const res = await fetch(url);
+      const res = await authFetch('/api/partner/communities');
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         setCommunities(data.data);
@@ -88,11 +88,10 @@ export default function PartnerCommunitiesPage() {
     setErrorMessage(null);
 
     try {
-      const res = await fetch('/api/partner/communities', {
+      const res = await authFetch('/api/partner/communities', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          owner_id: user?.id || '00000000-0000-0000-0000-000000000000',
           name: addName.trim(),
           platform: addPlatform,
           niche: addNiche.trim(),
@@ -133,7 +132,7 @@ export default function PartnerCommunitiesPage() {
 
     setIsSavingEdit(true);
     try {
-      const res = await fetch(`/api/partner/communities/${editingCommunity.id}`, {
+      const res = await authFetch(`/api/partner/communities/${editingCommunity.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

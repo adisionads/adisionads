@@ -188,7 +188,11 @@ export class PocketFiClient {
   verifyWebhookSignature(rawPayload: string, signature: string, secret?: string): boolean {
     const key = secret || this.webhookSecret;
     if (!key) {
-      console.warn('[PocketFi] No POCKETFI_WEBHOOK_SECRET configured; skipping signature check in test mode.');
+      if (process.env.NODE_ENV === 'production') {
+        console.error('[PocketFi] CRITICAL SECURITY ALERT: POCKETFI_WEBHOOK_SECRET is missing in production! Rejecting incoming webhook.');
+        return false;
+      }
+      console.warn('[PocketFi] No POCKETFI_WEBHOOK_SECRET configured; skipping signature check in dev mode.');
       return true;
     }
 

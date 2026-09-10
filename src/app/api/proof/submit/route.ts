@@ -1,23 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase/admin';
+import { requireUser } from '@/lib/auth/server-auth';
 
 export const runtime = 'nodejs';
 
 /**
  * Proof of Placement Submission Handler
  * Endpoint: POST /api/proof/submit
+ * Security: Requires authenticated user session (COMMUNITY_PARTNER or ADMIN)
  */
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireUser(request);
+    if (!auth.authorized) {
+      return auth.errorResponse!;
+    }
+
     const body = await request.json();
     const {
       assignment_id,
       community_id,
-      submitted_by,
       proof_image_url,
       placement_timestamp,
       notes,
     } = body;
+    const effectiveSubmittedBy = auth.user!.id;
 
     if (!assignment_id || !proof_image_url) {
       return NextResponse.json(
@@ -33,7 +40,7 @@ export async function POST(request: NextRequest) {
         .insert({
           assignment_id,
           community_id,
-          submitted_by,
+          submitted_by: effectiveSubmittedBy,
           proof_image_url,
           placement_timestamp: placement_timestamp || new Date().toISOString(),
           notes: notes || null,

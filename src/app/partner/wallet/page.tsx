@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/lib/store/app-context';
 import { useAuth } from '@/lib/auth/auth-context';
+import { authFetch } from '@/lib/auth/auth-fetch';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import { NIGERIAN_BANKS } from '@/lib/constants';
 import { formatCurrency, formatDate } from '@/lib/utils';
@@ -143,14 +144,12 @@ export default function PartnerWalletPage() {
     }
 
     setIsSubmitting(true);
-    const userId = user?.id || 'demo_partner';
 
     try {
-      const res = await fetch('/api/partner/withdraw', {
+      const res = await authFetch('/api/partner/withdraw', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: userId,
           amount: withdrawAmount,
           bank_name: selectedBank,
           account_number: cleanAccount,

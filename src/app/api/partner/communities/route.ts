@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase/admin';
+import { requireUser } from '@/lib/auth/server-auth';
 
 export const runtime = 'nodejs';
 
@@ -36,8 +37,10 @@ function mapNicheToCategory(niche: string): string {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('user_id');
+    const auth = await requireUser(request);
+    if (!auth.authorized) {
+      return auth.errorResponse!;
+    }
 
     if (!isSupabaseAdminConfigured()) {
       return NextResponse.json({ success: true, data: [] });
@@ -48,8 +51,15 @@ export async function GET(request: NextRequest) {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (userId) {
-      query = query.eq('owner_id', userId);
+    // Non-admins can ONLY view their own communities
+    if (auth.user!.role !== 'ADMIN') {
+      query = query.eq('owner_id', auth.user!.id);
+    } else {
+      const { searchParams } = new URL(request.url);
+      const userId = searchParams.get('user_id');
+      if (userId) {
+        query = query.eq('owner_id', userId);
+      }
     }
 
     const { data, error } = await query;
@@ -68,9 +78,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireUser(request);
+    if (!auth.authorized) {
+      return auth.errorResponse!;
+    }
+
     const body = await request.json();
     const {
-      owner_id,
       name,
       platform = 'WHATSAPP_GROUP',
       niche = '',
@@ -81,12 +95,8 @@ export async function POST(request: NextRequest) {
       verification_image_url,
     } = body;
 
-    if (!owner_id) {
-      return NextResponse.json(
-        { success: false, error: 'User must be authenticated to add a community' },
-        { status: 400 }
-      );
-    }
+    // Securely tie community to the verified session owner ID
+    const effectiveOwnerId = auth.user!.id;
 
     if (!name || name.trim().length < 2) {
       return NextResponse.json(
@@ -106,7 +116,7 @@ export async function POST(request: NextRequest) {
         success: true,
         data: {
           id: `comm_${Date.now()}`,
-          owner_id,
+          owner_id: effectiveOwnerId,
           name: name.trim(),
           platform,
           category: resolvedCategory,
@@ -122,7 +132,7 @@ export async function POST(request: NextRequest) {
     const { data: community, error } = await supabaseAdmin
       .from('communities')
       .insert({
-        owner_id,
+        owner_id: effectiveOwnerId,
         name: name.trim(),
         platform,
         category: resolvedCategory,

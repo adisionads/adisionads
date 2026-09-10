@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase/admin';
+import { requireUser } from '@/lib/auth/server-auth';
+import { checkRateLimit } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -8,21 +10,32 @@ export const runtime = 'nodejs';
  * Endpoint: POST /api/partner/withdraw
  *
  * Security:
+ * - Session-verified user authentication (prevents IDOR wallet theft)
+ * - Rate limited to prevent rapid retry floods
  * - Validates 10-digit NUBAN account format
  * - Strictly verifies that requested amount does not exceed available balance
  * - Deducts available balance atomically and records double-entry ledger entry
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { user_id, amount, bank_name, account_number, account_name, bank_code } = body;
+    const auth = await requireUser(request);
+    if (!auth.authorized) {
+      return auth.errorResponse!;
+    }
 
-    if (!user_id) {
+    // Rate limit: Max 5 withdrawal requests per IP per minute
+    const rateCheck = checkRateLimit(request, 5, 60 * 1000);
+    if (!rateCheck.allowed) {
       return NextResponse.json(
-        { success: false, error: 'User ID is required to process withdrawal' },
-        { status: 400 }
+        { success: false, error: 'Too many requests. Please wait a moment before submitting another withdrawal.' },
+        { status: 429 }
       );
     }
+
+    const body = await request.json();
+    const { amount, bank_name, account_number, account_name, bank_code } = body;
+    // Strictly bind withdrawal to the authenticated user ID
+    const user_id = auth.user!.id;
 
     const numAmount = Number(amount);
     if (!numAmount || numAmount < 1000) {

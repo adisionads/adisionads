@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/auth-context';
+import { authFetch } from '@/lib/auth/auth-fetch';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { StatsCard } from '@/components/shared/StatsCard';
@@ -52,7 +53,7 @@ export default function AdminWithdrawalsPage() {
   const fetchWithdrawals = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/withdrawals');
+      const res = await authFetch('/api/admin/withdrawals');
       const data = await res.json();
       if (data.success && data.withdrawals) {
         setWithdrawals(data.withdrawals);
@@ -75,13 +76,12 @@ export default function AdminWithdrawalsPage() {
 
     setActionLoading(id);
     try {
-      const res = await fetch('/api/admin/withdrawals', {
+      const res = await authFetch('/api/admin/withdrawals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           withdrawal_id: id,
           action: 'APPROVE',
-          admin_id: user?.id,
           notes: 'Bank transfer confirmed by admin',
         }),
       });
@@ -106,13 +106,12 @@ export default function AdminWithdrawalsPage() {
 
     setActionLoading(id);
     try {
-      const res = await fetch('/api/admin/withdrawals', {
+      const res = await authFetch('/api/admin/withdrawals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           withdrawal_id: id,
           action: 'REJECT',
-          admin_id: user?.id,
           notes: reason,
         }),
       });

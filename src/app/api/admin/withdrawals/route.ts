@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase/admin';
+import { requireAdmin } from '@/lib/auth/server-auth';
 
 export const runtime = 'nodejs';
 
@@ -10,6 +11,11 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireAdmin(request);
+    if (!auth.authorized) {
+      return auth.errorResponse!;
+    }
+
     if (!isSupabaseAdminConfigured()) {
       return NextResponse.json({ success: true, withdrawals: [] });
     }
@@ -38,7 +44,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { withdrawal_id, action, notes, admin_id } = await request.json();
+    const auth = await requireAdmin(request);
+    if (!auth.authorized) {
+      return auth.errorResponse!;
+    }
+
+    const { withdrawal_id, action, notes } = await request.json();
+    const admin_id = auth.user!.id;
 
     if (!withdrawal_id || !action) {
       return NextResponse.json(

@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase/admin';
+import { requireAdmin } from '@/lib/auth/server-auth';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireAdmin(request);
+    if (!auth.authorized) {
+      return auth.errorResponse!;
+    }
+
     if (!isSupabaseAdminConfigured()) {
       return NextResponse.json({ success: true, data: [] });
     }
@@ -46,6 +52,11 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const auth = await requireAdmin(request);
+    if (!auth.authorized) {
+      return auth.errorResponse!;
+    }
+
     const body = await request.json();
     const { id, status, rejection_reason } = body;
 
