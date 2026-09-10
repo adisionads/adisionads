@@ -28,7 +28,7 @@ export async function POST(
     }
 
     const userId = auth.user!.id;
-    const isAdmin = auth.role === 'ADMIN';
+    const isAdmin = auth.user?.role === 'ADMIN';
 
     if (isSupabaseAdminConfigured()) {
       // 1. Fetch assignment and joined community to verify ownership

@@ -29,7 +29,7 @@ export async function GET(
     }
 
     const userId = auth.user!.id;
-    const isAdmin = auth.role === 'ADMIN';
+    const isAdmin = auth.user?.role === 'ADMIN';
 
     if (isSupabaseAdminConfigured()) {
       // 1. Fetch Campaign
