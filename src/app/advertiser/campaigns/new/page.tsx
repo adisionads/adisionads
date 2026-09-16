@@ -18,9 +18,9 @@ import {
   Copy,
   CreditCard,
   ExternalLink,
+  FileText,
   Megaphone,
   ShieldCheck,
-  Sparkles,
   Zap,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -75,7 +75,7 @@ export default function NewCampaignPage() {
       ? targetQuantity * 350
       : selectedPackage.billing_model === 'PER_CUSTOMER'
       ? targetQuantity * 750
-      : 5750;
+      : 7000;
 
   const handleSelectPackage = (pkgId: string) => {
     setSelectedPackageId(pkgId);
@@ -269,7 +269,7 @@ export default function NewCampaignPage() {
             <Card className="p-6 sm:p-8 space-y-6 border-slate-800">
               <CardHeader className="p-0 mb-4">
                 <div className="inline-flex items-center gap-2 text-brand-400 text-xs font-bold uppercase tracking-wider mb-1">
-                  <Sparkles className="w-4 h-4" />
+                  <FileText className="w-4 h-4" />
                   <span>Step 2: WhatsApp Broadcast Creative</span>
                 </div>
                 <CardTitle>Compose Your WhatsApp Message</CardTitle>
@@ -354,7 +354,7 @@ export default function NewCampaignPage() {
                               ? '₦350'
                               : pkg.billing_model === 'PER_CUSTOMER'
                               ? '₦750'
-                              : '₦5,750'}
+                              : '₦7,000'}
                           </span>
                           <span className="text-[11px] text-slate-400 block">
                             {pkg.billing_model === 'PER_SIGNUP'
@@ -611,7 +611,7 @@ export default function NewCampaignPage() {
                   isLoading={isSimulatingPayment}
                   className="w-full font-bold shadow-lg shadow-brand-500/20 gap-2"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <CheckCircle2 className="w-4 h-4" />
                   <span>Simulate Transfer (Test Sandbox Mode)</span>
                 </Button>
 

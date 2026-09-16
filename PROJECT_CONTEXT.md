@@ -249,9 +249,9 @@ When you and your co-founder sit down to align, here are the exact decisions to 
 ### C. Completed Sprint: Outcome-Based Pricing Model & PocketFi Integration
 
 1. **The 3 Official Outcome Tiers (from `Adision_Pricing_Model.pdf`):**
-   - **Starter (Reach & Visibility):** Fixed fee of **₦5,750**. 14-day campaign + 1 bonus day (15 days total) distributed across relevant WhatsApp groups/channels. Campaign tracking and basic reporting.
+   - **Starter (Reach & Visibility):** Fixed fee of **₦7,000**. 14-day campaign + 1 bonus day (15 days total) distributed across relevant WhatsApp groups/channels. Campaign tracking and basic reporting.
    - **Corporate (Acquire New Users):** **₦350 / qualified signup**. Advertiser sets target number of signups (e.g. 50 signups × ₦350 = ₦17,500 deposit). Only verified new users count; unused balance remains available.
-   - **Gold Salesman (Acquire Paying Customers):** **₦750 / qualified paying customer** (updated from 500 to 750). Advertiser sets target number of paying customers (e.g. 20 customers × ₦750 = ₦15,000 deposit). Counts only after signup + qualifying purchase/deposit. Unused balance is not consumed if target is not reached.
+   - **Gold Salesman (Acquire Paying Customers):** **₦750 / qualified paying customer**. Advertiser sets target number of paying customers (e.g. 20 customers × ₦750 = ₦15,000 deposit). Counts only after signup + qualifying purchase/deposit. Unused balance is not consumed if target is not reached. Platform commission is **45%** (55% distributable partner pool).
 
 2. **Prepaid Campaign Balance & Consumption:**
    - Advertisers fund the maximum campaign value upfront into their balance.

@@ -27,10 +27,10 @@ export default function PricingPage() {
 
   // Active plan calculation
   const calculateTotalFunding = () => {
-    if (selectedPlanId === 'pkg_starter') return 5750;
+    if (selectedPlanId === 'pkg_starter') return 7000;
     if (selectedPlanId === 'pkg_corporate') return corporateSignups * 350;
     if (selectedPlanId === 'pkg_gold_salesman') return goldCustomers * 750;
-    return 5750;
+    return 7000;
   };
 
   const totalCalculated = calculateTotalFunding();
@@ -102,7 +102,7 @@ export default function PricingPage() {
 
                 <div className="my-6">
                   <div className="text-4xl font-extrabold text-white">
-                    ₦5,750
+                    ₦7,000
                   </div>
                   <span className="text-xs text-slate-400 block mt-1">
                     Fixed campaign fee • 14 days + 1 bonus day
@@ -135,7 +135,7 @@ export default function PricingPage() {
 
               <Link href="/waitlist" className="w-full">
                 <Button variant="outline" className="w-full font-bold text-sm">
-                  Start With Reach (₦5,750)
+                  Start With Reach (₦7,000)
                 </Button>
               </Link>
             </Card>
@@ -304,7 +304,7 @@ export default function PricingPage() {
               {selectedPlanId === 'pkg_starter' && (
                 <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2 text-xs text-slate-300">
                   <div className="font-bold text-white text-sm">Fixed Campaign Reach</div>
-                  <p>Fixed fee of ₦5,750 gives you 14 days + 1 bonus day (15 days total) distributed across relevant WhatsApp groups and channels.</p>
+                  <p>Fixed fee of ₦7,000 gives you 14 days + 1 bonus day (15 days total) distributed across relevant WhatsApp groups and channels.</p>
                 </div>
               )}
 
@@ -377,7 +377,7 @@ export default function PricingPage() {
                   <span className="text-xs font-medium text-slate-300">Rate / Unit</span>
                   <span className="text-sm font-bold text-slate-300">
                     {selectedPlanId === 'pkg_starter'
-                      ? 'Fixed ₦5,750'
+                      ? 'Fixed ₦7,000'
                       : selectedPlanId === 'pkg_corporate'
                       ? '₦350 / signup'
                       : '₦750 / customer'}

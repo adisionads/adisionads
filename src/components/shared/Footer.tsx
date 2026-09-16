@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Sparkles } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -21,10 +20,9 @@ export function Footer() {
             <p className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed max-w-sm">
               Adision is the premier performance-driven marketplace connecting businesses with verified WhatsApp Groups, Channels, and digital communities.
             </p>
-            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-700 dark:text-brand-400 text-xs font-semibold max-w-sm">
-              <ShieldCheck className="w-4 h-4 shrink-0 text-brand-600 dark:text-brand-400" />
-              <span>Verified Community Advertising Network</span>
-            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Escrow-backed distribution network with verified screenshot proof and real-time click attribution.
+            </p>
           </div>
 
           {/* Advertisers */}
@@ -47,9 +45,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/waitlist" className="text-brand-600 dark:text-brand-400 font-bold flex items-center gap-1 hover:underline">
-                  <Sparkles className="w-3 h-3" />
-                  <span>Early Access Waitlist</span>
+                <Link href="/waitlist" className="text-brand-600 dark:text-brand-400 font-medium hover:underline">
+                  Early Access Waitlist
                 </Link>
               </li>
             </ul>

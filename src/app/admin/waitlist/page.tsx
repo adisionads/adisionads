@@ -13,7 +13,6 @@ import {
   MessageSquare,
   RefreshCw,
   Search,
-  Sparkles,
   Users,
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';

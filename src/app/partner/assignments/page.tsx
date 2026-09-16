@@ -19,7 +19,6 @@ import {
   ExternalLink,
   Layers,
   RefreshCw,
-  Sparkles,
   Upload,
   AlertCircle,
 } from 'lucide-react';

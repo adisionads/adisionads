@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS public.campaigns (
     package_name TEXT NOT NULL,
     duration_days INTEGER NOT NULL DEFAULT 7,
     budget_amount NUMERIC(14, 2) NOT NULL,
-    commission_rate NUMERIC(5, 2) NOT NULL DEFAULT 30.00,
+    commission_rate NUMERIC(5, 2) NOT NULL DEFAULT 45.00,
     distributable_pool NUMERIC(14, 2) NOT NULL,
     status campaign_status NOT NULL DEFAULT 'DRAFT',
     payment_status payment_status NOT NULL DEFAULT 'PENDING',

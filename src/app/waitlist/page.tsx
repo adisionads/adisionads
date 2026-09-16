@@ -12,7 +12,8 @@ import {
   Copy,
   MessageSquare,
   Radio,
-  Sparkles,
+  ShieldCheck,
+  Loader2,
   Users,
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
@@ -169,7 +170,7 @@ function WaitlistContent() {
         {/* Clean, Compact Header */}
         <div className="text-center space-y-2.5">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-brand-500/30 bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-400 text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-brand-500" />
+            <ShieldCheck className="w-3.5 h-3.5 text-brand-500" />
             <span>Early Access Waitlist</span>
           </div>
 
@@ -662,7 +663,7 @@ export default function WaitlistPage() {
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-dark-900">
           <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
-            <Sparkles className="w-4 h-4 text-brand-500 animate-spin" />
+            <Loader2 className="w-4 h-4 text-brand-500 animate-spin" />
             <span>Loading waitlist...</span>
           </div>
         </div>

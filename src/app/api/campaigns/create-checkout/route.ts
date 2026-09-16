@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
       redirectUrl: 'https://adisionads.vercel.app/advertiser',
     });
 
-    const distributablePool = Number(budget_amount) * 0.7; // 70% to community partners, 30% platform margin
+    const distributablePool = Number(budget_amount) * 0.55; // 55% to community partners, 45% platform margin
 
     // 4. Persist Campaign to Supabase if configured
     let campaignId = `camp_${Date.now()}`;
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
           package_name: package_name || 'Starter',
           duration_days: Number(duration_days) || 14,
           budget_amount: Number(budget_amount),
-          commission_rate: 30.0,
+          commission_rate: 45.0,
           distributable_pool: distributablePool,
           status: 'DRAFT',
           payment_status: 'PENDING',

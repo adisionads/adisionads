@@ -3,21 +3,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/lib/store/app-context';
-import {
-  ArrowRight,
-  Briefcase,
-  CheckCircle2,
-  ChevronDown,
-  DollarSign,
-  HelpCircle,
-  Sparkles,
-  Users,
-  Zap,
-} from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { CAMPAIGN_PACKAGES } from '@/lib/constants';
 import { formatCurrency } from '@/lib/utils';
+import { WhatsAppMockup } from '@/components/previews/WhatsAppMockup';
 
 const FAQ_ITEMS = [
   {
@@ -65,202 +56,212 @@ export default function HomePage() {
   const { setCurrentRole } = useApp();
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-dark-900 transition-colors">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-dark-900 transition-colors">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
-      {/* 1. HERO SECTION WITH DUAL PERSONA SWITCHER */}
-      <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 border-b border-slate-200 dark:border-slate-800/80 bg-gradient-to-b from-slate-100/80 via-white to-slate-50 dark:from-dark-900 dark:via-dark-900 dark:to-[#070b12]">
-        {/* Background glow flares */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-brand-500/10 blur-[130px] rounded-full pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Persona Switcher Pill */}
-          <div className="flex justify-center mb-8">
-            <div className="inline-flex p-1.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 backdrop-blur-md shadow-lg">
+      {/* 1. HERO SECTION */}
+      <section className="relative pt-12 pb-16 lg:pt-20 lg:pb-24 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-dark-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Persona Segmented Switcher */}
+          <div className="flex justify-center mb-10">
+            <div className="inline-flex p-1 rounded-xl bg-slate-200/70 dark:bg-slate-800/80 border border-slate-300/70 dark:border-slate-700/60">
               <button
                 onClick={() => setActivePersona('advertiser')}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
+                className={`px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                   activePersona === 'advertiser'
-                    ? 'bg-brand-500 text-dark-900 shadow-md shadow-brand-500/30'
+                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                <Zap className="w-4 h-4" />
-                <span>Advertise My Business</span>
+                For Advertisers
               </button>
-
               <button
                 onClick={() => setActivePersona('partner')}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
+                className={`px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                   activePersona === 'partner'
-                    ? 'bg-brand-500 text-dark-900 shadow-md shadow-brand-500/30'
+                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                <DollarSign className="w-4 h-4" />
-                <span>I Own a WhatsApp Group</span>
+                For Community Admins
               </button>
             </div>
           </div>
 
-          {/* Hero Content */}
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            {activePersona === 'advertiser' ? (
-              <>
-                <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
-                  Reach Real Customers in <span className="text-brand-600 dark:text-brand-400">Verified WhatsApp Communities</span>.
-                </h1>
-                <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
-                  Stop direct-messaging random group admins or worrying about scams. Run targeted ads across verified WhatsApp groups and channels, and track real visits with genuine link clicks.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-                  <Link
-                    href="/waitlist?role=advertiser"
-                    className="w-full sm:w-auto"
-                  >
-                    <Button size="lg" variant="primary" className="w-full font-bold text-base shadow-lg shadow-brand-500/20 gap-2">
-                      <Sparkles className="w-4 h-4" />
-                      <span>Register to Advertise</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                  <Link
-                    href="/pricing"
-                    className="w-full sm:w-auto"
-                  >
-                    <Button size="lg" variant="outline" className="w-full text-base font-semibold">
-                      <span>Explore Pricing & Packages</span>
-                    </Button>
-                  </Link>
+          {/* Dual Column Layout with Real Product Mockup */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            {/* Left Content */}
+            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+              {activePersona === 'advertiser' ? (
+                <>
+                  <div className="inline-block text-xs font-semibold tracking-wider uppercase text-brand-700 dark:text-brand-400">
+                    Targeted Community Ads
+                  </div>
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
+                    Direct WhatsApp distribution. Verified with real click attribution.
+                  </h1>
+                  <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl mx-auto lg:mx-0">
+                    Stop direct-messaging random group admins or worrying about payment fraud. Broadcast sponsored updates across verified WhatsApp groups and channels, with timestamped screenshot proof and genuine link clicks.
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
+                    <Link href="/waitlist?role=advertiser" className="w-full sm:w-auto">
+                      <Button size="lg" variant="primary" className="w-full font-semibold text-sm px-6">
+                        Start Advertising
+                      </Button>
+                    </Link>
+                    <Link href="/pricing" className="w-full sm:w-auto">
+                      <Button size="lg" variant="outline" className="w-full text-sm font-medium px-6">
+                        View Pricing & Packages
+                      </Button>
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="inline-block text-xs font-semibold tracking-wider uppercase text-brand-700 dark:text-brand-400">
+                    Community Monetization
+                  </div>
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
+                    Turn your WhatsApp audience into predictable income.
+                  </h1>
+                  <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl mx-auto lg:mx-0">
+                    Receive verified sponsored broadcast tasks in your dashboard, post them into your WhatsApp community, upload a screenshot proof, and withdraw your earnings directly to your Nigerian bank.
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
+                    <Link href="/waitlist?role=community" className="w-full sm:w-auto">
+                      <Button size="lg" variant="primary" className="w-full font-semibold text-sm px-6">
+                        Register Your Community
+                      </Button>
+                    </Link>
+                    <a href="#how-it-works" className="w-full sm:w-auto">
+                      <Button size="lg" variant="outline" className="w-full text-sm font-medium px-6">
+                        How Payouts Work
+                      </Button>
+                    </a>
+                  </div>
+                </>
+              )}
+
+              {/* Restrained Trust Points */}
+              <div className="pt-6 border-t border-slate-200 dark:border-slate-800 grid grid-cols-3 gap-4 text-left">
+                <div>
+                  <div className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">100% Escrow</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Funds held until proof verified</div>
                 </div>
-              </>
-            ) : (
-              <>
-                <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
-                  Monetize Your WhatsApp Audience with <span className="text-brand-600 dark:text-brand-400">Direct Bank Payouts</span>.
-                </h1>
-                <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
-                  Turn your active WhatsApp audience into regular income. Receive paid ad jobs, post them in your community, upload a screenshot proof, and withdraw your cash straight to your Nigerian bank.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-                  <Link
-                    href="/waitlist?role=community"
-                    className="w-full sm:w-auto"
-                  >
-                    <Button size="lg" variant="primary" className="w-full font-bold text-base shadow-lg shadow-brand-500/20 gap-2">
-                      <Sparkles className="w-4 h-4" />
-                      <span>Register Your WhatsApp Group</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                  <a
-                    href="#how-it-works"
-                    className="w-full sm:w-auto"
-                  >
-                    <Button size="lg" variant="outline" className="w-full text-base font-semibold">
-                      <span>How Community Payouts Work</span>
-                    </Button>
-                  </a>
+                <div>
+                  <div className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Real Attribution</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Live click & visit metrics</div>
                 </div>
-              </>
-            )}
+                <div>
+                  <div className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Direct Payouts</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">1-click to any Nigerian bank</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Visual: Actual Product WhatsApp Mockup */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="w-full max-w-sm">
+                <WhatsAppMockup
+                  communityName={activePersona === 'advertiser' ? 'Lagos Tech & Founders Hub' : 'UNILAG Campus Updates'}
+                  category={activePersona === 'advertiser' ? 'TECHNOLOGY_STARTUPS' : 'STUDENTS_CAMPUS'}
+                  adCopy={
+                    activePersona === 'advertiser'
+                      ? 'Looking for vetted engineering talent or early user traction?\n\nCheck out the new developer hub and hire in 48 hours:'
+                      : 'Flash Update: Student developer fellowship registrations are now open for all departments.\n\nReserve your slot here:'
+                  }
+                  destinationUrl="https://adision.co/r/live_preview"
+                  ctaText="Explore Details"
+                  trackingCode="live_track_204"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 2. HOW IT WORKS (3 SIMPLE STEPS) */}
-      <section id="how-it-works" className="py-20 bg-white dark:bg-dark-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
+      {/* 2. HOW IT WORKS (EDITORIAL STEPPER) */}
+      <section id="how-it-works" className="py-16 sm:py-20 bg-white dark:bg-dark-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 mb-2">
-              Simple & Transparent
+          <div className="max-w-3xl mb-14">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-brand-700 dark:text-brand-400 mb-2">
+              Workflow
             </h2>
             <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {activePersona === 'advertiser'
-                ? 'How Advertising Works in 3 Easy Steps'
-                : 'How Community Owners Earn in 3 Easy Steps'}
+                ? 'How advertising on Adision works'
+                : 'How community admins earn on Adision'}
             </h3>
           </div>
 
           {activePersona === 'advertiser' ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="p-8 relative group hover:border-brand-500/50 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xl flex items-center justify-center mb-6">
-                  1
-                </div>
-                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Create Your Ad</h4>
+              <div className="border-t-2 border-slate-200 dark:border-slate-800 pt-6 space-y-3">
+                <div className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">01</div>
+                <h4 className="text-lg font-bold text-slate-900 dark:text-white">Create & Target</h4>
                 <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                  Write your message, add an optional image, and choose your target audience (such as Students, Tech, Business, or Fashion).
+                  Draft your message, add creative media, and choose your target niche (Students, Tech, Business, Fashion, or Crypto).
                 </p>
-              </Card>
+              </div>
 
-              <Card className="p-8 relative group hover:border-brand-500/50 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xl flex items-center justify-center mb-6">
-                  2
-                </div>
-                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Pay via Bank Transfer</h4>
+              <div className="border-t-2 border-brand-500 pt-6 space-y-3">
+                <div className="text-xs font-mono font-bold text-brand-600 dark:text-brand-400">02</div>
+                <h4 className="text-lg font-bold text-slate-900 dark:text-white">Escrow-Backed Funding</h4>
                 <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                  Make a quick transfer to your unique virtual bank account. Adision holds your money safely until the ad is confirmed live.
+                  Fund via direct bank transfer. Your money is secured in escrow and only released to community admins once verified.
                 </p>
-              </Card>
+              </div>
 
-              <Card className="p-8 relative group hover:border-brand-500/50 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xl flex items-center justify-center mb-6">
-                  3
-                </div>
-                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Watch Live Results</h4>
+              <div className="border-t-2 border-slate-200 dark:border-slate-800 pt-6 space-y-3">
+                <div className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">03</div>
+                <h4 className="text-lg font-bold text-slate-900 dark:text-white">Proof & Attribution</h4>
                 <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                  See real-time clicks as members visit your link, view screenshot proofs showing your ad inside each group, and track results.
+                  Inspect timestamped screenshot proof showing your ad inside groups and track genuine link visits on your live dashboard.
                 </p>
-              </Card>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="p-8 relative group hover:border-brand-500/50 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xl flex items-center justify-center mb-6">
-                  1
-                </div>
-                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Register Your Group</h4>
+              <div className="border-t-2 border-slate-200 dark:border-slate-800 pt-6 space-y-3">
+                <div className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">01</div>
+                <h4 className="text-lg font-bold text-slate-900 dark:text-white">Submit Community</h4>
                 <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                  Submit your WhatsApp Group or Channel with a quick screenshot of your member info. We verify active engagement within hours.
+                  Submit your WhatsApp Group or Channel with basic member info. Our team verifies genuine engagement.
                 </p>
-              </Card>
+              </div>
 
-              <Card className="p-8 relative group hover:border-brand-500/50 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xl flex items-center justify-center mb-6">
-                  2
-                </div>
-                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Receive & Post Ads</h4>
+              <div className="border-t-2 border-brand-500 pt-6 space-y-3">
+                <div className="text-xs font-mono font-bold text-brand-600 dark:text-brand-400">02</div>
+                <h4 className="text-lg font-bold text-slate-900 dark:text-white">Accept & Broadcast</h4>
                 <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                  Accept matched ad tasks in your dashboard, post the message with your tracking link into your group, and keep it active.
+                  Review matching ad tasks in your dashboard. Accept tasks and broadcast the copy with your assigned tracking link.
                 </p>
-              </Card>
+              </div>
 
-              <Card className="p-8 relative group hover:border-brand-500/50 transition-all">
-                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-600 dark:text-brand-400 font-extrabold text-xl flex items-center justify-center mb-6">
-                  3
-                </div>
-                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Upload Proof & Get Paid</h4>
+              <div className="border-t-2 border-slate-200 dark:border-slate-800 pt-6 space-y-3">
+                <div className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">03</div>
+                <h4 className="text-lg font-bold text-slate-900 dark:text-white">Upload Proof & Withdraw</h4>
                 <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                  Upload a screenshot showing the post in your group. Once verified, funds land in your wallet for 1-click withdrawal to any Nigerian bank.
+                  Upload a screenshot proof of the post. Once verified, funds land in your wallet for immediate withdrawal to any bank.
                 </p>
-              </Card>
+              </div>
             </div>
           )}
         </div>
       </section>
 
       {/* 3. FEATURED PRICING TIERS */}
-      <section className="py-20 bg-white dark:bg-dark-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
+      <section className="py-16 sm:py-20 bg-slate-50/50 dark:bg-dark-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 mb-2">
-              Transparent Pricing
+          <div className="max-w-3xl mb-14">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-brand-700 dark:text-brand-400 mb-2">
+              Pricing & Packages
             </h2>
             <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Simple Packages. Verified Distribution.
+              Transparent packages. Clear deliverables.
             </h3>
           </div>
 
@@ -270,27 +271,27 @@ export default function HomePage() {
                 key={pkg.id}
                 className={`p-8 relative flex flex-col justify-between ${
                   pkg.is_popular
-                    ? 'border-brand-500/50 bg-gradient-to-b from-brand-50 via-white to-white dark:from-brand-500/10 dark:via-slate-900/90 dark:to-slate-900 shadow-xl'
-                    : 'border-slate-200 dark:border-slate-800'
+                    ? 'border-brand-500 bg-white dark:bg-slate-900 shadow-lg'
+                    : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60'
                 }`}
               >
                 {pkg.is_popular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-brand-500 text-dark-900 text-xs font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-lg">
-                    Most Popular
+                  <div className="absolute -top-3 left-6 bg-brand-500 text-dark-900 text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
+                    Recommended
                   </div>
                 )}
 
                 <div>
-                  <div className="text-[11px] font-bold text-brand-600 dark:text-brand-400 mb-1">
+                  <div className="text-xs font-semibold text-brand-600 dark:text-brand-400 mb-1">
                     {pkg.outcome_title || 'Outcome-Based'}
                   </div>
                   <h4 className="text-xl font-bold text-slate-900 dark:text-white">{pkg.name}</h4>
                   <div className="mt-3 mb-6">
-                    <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">
+                    <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
                       {pkg.billing_model === 'PER_SIGNUP'
                         ? '₦350'
                         : pkg.billing_model === 'PER_CUSTOMER'
-                        ? '₦500'
+                        ? '₦750'
                         : formatCurrency(pkg.price)}
                     </span>
                     <span className="text-xs text-slate-500 dark:text-slate-400 block mt-1">
@@ -302,28 +303,25 @@ export default function HomePage() {
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 mb-6 text-xs text-slate-700 dark:text-slate-300 font-semibold flex items-center justify-between">
-                    <span>Goal:</span>
+                  <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/60 mb-6 text-xs text-slate-700 dark:text-slate-300 font-medium flex items-center justify-between">
+                    <span>Outcome Goal:</span>
                     <span className="text-brand-600 dark:text-brand-400 font-bold">{pkg.outcome_description}</span>
                   </div>
 
-                  <ul className="space-y-3 text-xs text-slate-600 dark:text-slate-300 mb-8">
+                  <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300 mb-8">
                     {pkg.features.map((feat, i) => (
                       <li key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-brand-500 shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400 shrink-0" />
                         <span>{feat}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <Link
-                  href="/waitlist"
-                  className="w-full"
-                >
+                <Link href="/waitlist" className="w-full">
                   <Button
                     variant={pkg.is_popular ? 'primary' : 'outline'}
-                    className="w-full font-bold"
+                    className="w-full font-semibold text-xs"
                   >
                     Select {pkg.name}
                   </Button>
@@ -334,45 +332,41 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. FREQUENTLY ASKED QUESTIONS (ZERO AMBIGUITY) */}
-      <section className="py-20 bg-white dark:bg-dark-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
+      {/* 4. FREQUENTLY ASKED QUESTIONS */}
+      <section className="py-16 sm:py-20 bg-white dark:bg-dark-900 border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 text-brand-700 dark:text-brand-400 text-xs font-bold uppercase tracking-wider mb-3">
-              <HelpCircle className="w-3.5 h-3.5" />
-              <span>Got Questions?</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Frequently Asked Questions
+          <div className="mb-12">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-brand-700 dark:text-brand-400 mb-2">
+              Questions & Answers
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">
-              Everything you need to know about how advertising, verification, and payouts work on Adision.
-            </p>
+            <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Frequently Asked Questions
+            </h3>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {FAQ_ITEMS.map((faq, index) => {
               const isOpen = openFaq === index;
               return (
                 <div
                   key={index}
-                  className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 overflow-hidden transition-colors"
+                  className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 overflow-hidden transition-colors"
                 >
                   <button
                     onClick={() => setOpenFaq(isOpen ? null : index)}
-                    className="w-full px-6 py-5 flex items-center justify-between text-left gap-4 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 transition-colors"
+                    className="w-full px-5 py-4 flex items-center justify-between text-left gap-4 hover:bg-slate-100/50 dark:hover:bg-slate-800/40 transition-colors"
                   >
-                    <span className="text-base font-bold text-slate-900 dark:text-white">
+                    <span className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
                       {faq.q}
                     </span>
                     <ChevronDown
-                      className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200 ${
+                      className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${
                         isOpen ? 'rotate-180 text-brand-500' : ''
                       }`}
                     />
                   </button>
                   {isOpen && (
-                    <div className="px-6 pb-5 pt-1 text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-200/50 dark:border-slate-800/50">
+                    <div className="px-5 pb-5 pt-1 text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-200/50 dark:border-slate-800/50">
                       {faq.a}
                     </div>
                   )}
@@ -383,30 +377,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. CALL TO ACTION BANNER */}
-      <section className="py-20 bg-gradient-to-r from-brand-900/20 via-white dark:via-dark-900 to-brand-900/10 border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/15 text-brand-700 dark:text-brand-400 text-xs font-bold">
-            <Sparkles className="w-4 h-4" />
-            <span>Ready to reach the right communities?</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-            Reserve Your Early Access Spot Today.
+      {/* 5. CALL TO ACTION */}
+      <section className="py-16 sm:py-20 bg-slate-50 dark:bg-dark-900 border-b border-slate-200 dark:border-slate-800">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Ready to advertise or monetize your community?
           </h2>
-          <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
-            Join the waitlist to be notified first when we open campaigns and community onboarding in your category.
+          <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base max-w-xl mx-auto">
+            Join vetted businesses and WhatsApp community admins across Nigeria on Adision.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-            <Link href="/waitlist?role=community">
-              <Button size="lg" variant="primary" className="w-full sm:w-auto font-bold text-base gap-2 shadow-lg shadow-brand-500/25">
-                <Users className="w-4 h-4" />
-                <span>Register Your WhatsApp Group</span>
+          <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+            <Link href="/waitlist?role=advertiser">
+              <Button size="lg" variant="primary" className="w-full sm:w-auto font-semibold text-sm px-6">
+                Start Advertising
               </Button>
             </Link>
-            <Link href="/waitlist?role=advertiser">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto font-bold text-base gap-2">
-                <Briefcase className="w-4 h-4" />
-                <span>Register to Advertise</span>
+            <Link href="/waitlist?role=community">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto font-semibold text-sm px-6">
+                Register WhatsApp Group
               </Button>
             </Link>
           </div>

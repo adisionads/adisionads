@@ -18,7 +18,7 @@ import {
   PlusCircle,
   RefreshCw,
   Share2,
-  Sparkles,
+  Link2,
   Users,
   ExternalLink,
 } from 'lucide-react';
@@ -352,7 +352,7 @@ export default function AdminCampaignsPage() {
 
           <div className="p-4 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-xs space-y-1 text-slate-300">
             <span className="font-bold text-white flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+              <Link2 className="w-3.5 h-3.5 text-brand-400" />
               Automated Link Provisioning:
             </span>
             <p>

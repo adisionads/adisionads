@@ -16,7 +16,7 @@ import {
   EyeOff,
   Lock,
   Mail,
-  Sparkles,
+  ShieldCheck,
   User as UserIcon,
   Users,
 } from 'lucide-react';
@@ -319,7 +319,7 @@ function SignUpForm() {
             href="/waitlist"
             className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
           >
-            <Sparkles className="w-3.5 h-3.5 text-brand-500" />
+            <ShieldCheck className="w-3.5 h-3.5 text-brand-500" />
             <span>Prefer to join the early access waitlist? Click here</span>
           </Link>
         </div>

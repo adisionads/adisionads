@@ -6,7 +6,7 @@ export const CAMPAIGN_PACKAGES: CampaignPackage[] = [
     name: 'Starter',
     outcome_title: 'I want reach.',
     outcome_description: 'Reach & visibility',
-    price: 5750,
+    price: 7000,
     billing_model: 'FIXED',
     duration_days: 14,
     estimated_reach: 'Targeted WhatsApp Reach',
@@ -103,7 +103,7 @@ export const COMMUNITY_CATEGORIES_LIST: { id: CommunityCategory; label: string; 
     id: 'FASHION_LIFESTYLE',
     label: 'Fashion & Lifestyle',
     description: 'Clothing vendors, beauty, skincare, thrift enthusiasts, lifestyle.',
-    icon: 'Sparkles',
+    icon: 'ShoppingBag',
   },
   {
     id: 'SPORTS',

@@ -16,9 +16,9 @@ import {
   Megaphone,
   Shield,
   ShieldCheck,
-  Sparkles,
   TrendingUp,
   Upload,
+  UserCheck,
   Users,
 } from 'lucide-react';
 
@@ -61,7 +61,7 @@ export default function AdminControlCenter() {
           <div className="flex items-center gap-3">
             <Link href="/admin/waitlist">
               <Button size="md" variant="outline" className="font-bold gap-2 text-brand-600 dark:text-brand-400 border-brand-500/30">
-                <Sparkles className="w-4 h-4 text-brand-500" />
+                <UserCheck className="w-4 h-4 text-brand-500" />
                 <span>Waitlist</span>
               </Button>
             </Link>
@@ -86,7 +86,7 @@ export default function AdminControlCenter() {
           <StatsCard
             title="Platform Commission"
             value={formatCurrency(totalCommissionRevenue)}
-            description="30% platform margin retained"
+            description="45% platform margin retained"
             icon={DollarSign}
           />
           <StatsCard
@@ -110,7 +110,7 @@ export default function AdminControlCenter() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="p-2.5 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20">
-                  <Sparkles className="w-5 h-5" />
+                  <UserCheck className="w-5 h-5" />
                 </div>
                 <span className="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded">
                   Pre-Launch

@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck } from 'lucide-react';
 
 function LoginForm() {
   const router = useRouter();
@@ -154,7 +154,7 @@ function LoginForm() {
             href="/waitlist"
             className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400"
           >
-            <Sparkles className="w-3.5 h-3.5 text-brand-500" />
+            <ShieldCheck className="w-3.5 h-3.5 text-brand-500" />
             <span>Not ready? Join the Early Access Waitlist</span>
           </Link>
         </div>
