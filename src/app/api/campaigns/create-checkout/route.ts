@@ -76,14 +76,14 @@ export async function POST(request: NextRequest) {
       bank: 'kuda',
     });
 
-    // 3. Also generate PocketFi checkout payment link (card, transfer, USSD)
+    const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://adisionads.vercel.app';
     const checkoutSession = await pocketFi.createCheckoutSession({
       amount: Number(budget_amount),
       email: advertiser_email,
       name: advertiser_name || 'Adision Advertiser',
       phone: phone_number,
       reference,
-      redirectUrl: 'https://adisionads.vercel.app/advertiser',
+      redirectUrl: `${appBaseUrl}/advertiser/campaigns`,
     });
 
     const distributablePool = Number(budget_amount) * 0.55; // 55% to community partners, 45% platform margin

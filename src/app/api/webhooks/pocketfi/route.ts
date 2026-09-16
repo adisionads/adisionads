@@ -19,13 +19,18 @@ export async function POST(request: NextRequest) {
     const signature =
       request.headers.get('x-pocketfi-signature') ||
       request.headers.get('pocketfi-signature') ||
+      request.headers.get('x-signature') ||
+      request.headers.get('signature') ||
       '';
 
     // 1. Verify Webhook Signature Authenticity
     const isValid = pocketFi.verifyWebhookSignature(rawBody, signature);
     if (!isValid) {
-      console.warn('[PocketFi Webhook] Rejected: Invalid SHA-512 HMAC signature.');
-      return NextResponse.json({ status: false, message: 'Invalid webhook signature' }, { status: 401 });
+      console.warn('[PocketFi Webhook] Rejected: Invalid or missing SHA-512 HMAC signature.');
+      return NextResponse.json(
+        { status: false, message: 'Invalid or missing webhook signature' },
+        { status: 401 }
+      );
     }
 
     let payload: any;
@@ -35,16 +40,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: false, message: 'Invalid JSON payload' }, { status: 400 });
     }
 
-    const reference = payload.reference || payload.data?.reference;
-    const amount = Number(payload.amount || payload.data?.amount);
-    const status = payload.status || payload.data?.status;
+    // Extract reference across possible PocketFi payload formats
+    const reference =
+      payload.reference ||
+      payload.data?.reference ||
+      payload.payment_reference ||
+      payload.data?.payment_reference;
 
-    // Acknowledge non-success events without error
-    if (status !== 'success' && status !== 'successful') {
-      return NextResponse.json({ status: true, message: 'Non-success event acknowledged' });
+    // Extract amount
+    const amount = Number(
+      payload.amount ||
+      payload.data?.amount ||
+      payload.total_amount ||
+      0
+    );
+
+    // Extract status/event
+    const rawStatus = (
+      payload.status ||
+      payload.data?.status ||
+      payload.event ||
+      ''
+    ).toLowerCase();
+
+    const isSuccess =
+      rawStatus === 'success' ||
+      rawStatus === 'successful' ||
+      rawStatus.includes('success') ||
+      rawStatus.includes('credit') ||
+      rawStatus.includes('paid');
+
+    // Acknowledge non-success events without error to prevent continuous retries
+    if (!isSuccess) {
+      console.log(`[PocketFi Webhook] Non-success event received (${rawStatus}). Acknowledged.`);
+      return NextResponse.json({ status: true, message: `Event acknowledged (${rawStatus})` });
     }
 
     if (!reference || !amount) {
+      console.warn('[PocketFi Webhook] Missing reference or amount:', { reference, amount, payload });
       return NextResponse.json(
         { status: false, message: 'Missing reference or amount in webhook payload' },
         { status: 400 }
