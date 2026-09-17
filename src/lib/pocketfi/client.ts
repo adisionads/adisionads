@@ -35,6 +35,7 @@ export interface PocketFiPayoutParams {
 }
 
 export class PocketFiClient {
+  private apiToken: string;
   private secretKey: string;
   private businessId: string;
   private webhookSecret: string;
@@ -42,17 +43,20 @@ export class PocketFiClient {
   private baseUrl: string;
 
   constructor() {
+    // PocketFi Personal Access Token (Format: "<id>|<hash>")
+    this.apiToken =
+      process.env.POCKETFI_API_TOKEN ||
+      process.env.POCKETFI_PUBLIC_KEY ||
+      process.env.POCKETFI_SECRET_KEY ||
+      '';
+
     this.secretKey = process.env.POCKETFI_SECRET_KEY || '';
     this.businessId = process.env.POCKETFI_BUSINESS_ID || '';
     this.webhookSecret = process.env.POCKETFI_WEBHOOK_SECRET || process.env.POCKETFI_SECRET_KEY || '';
 
-    // If POCKETFI_ENV is explicitly set to 'live', always use production URL
-    const envMode = (process.env.POCKETFI_ENV || '').trim().toLowerCase();
-    this.isTestMode = envMode === 'sandbox' || envMode === 'test';
-
-    this.baseUrl = this.isTestMode
-      ? 'https://api.pocketfi.ng/api/test'
-      : 'https://api.pocketfi.ng/api/v1';
+    // PocketFi production API endpoint
+    this.baseUrl = 'https://api.pocketfi.ng/api/v1';
+    this.isTestMode = !this.apiToken || !this.businessId;
   }
 
   /**
@@ -67,11 +71,11 @@ export class PocketFiClient {
 
   /**
    * Create an online checkout payment link
-   * Endpoint: POST /checkout/request
+   * Endpoint: POST /api/v1/checkout/request
    * Supports Card, Bank Transfer, and USSD
    */
   async createCheckoutSession(params: CreatePocketFiCheckoutParams): Promise<PocketFiCheckoutResponse> {
-    if (!this.secretKey || !this.businessId) {
+    if (!this.apiToken || !this.businessId) {
       console.warn('[PocketFi] Live API credentials not set. Returning simulated test checkout.');
       return {
         success: true,
@@ -88,7 +92,7 @@ export class PocketFiClient {
       const response = await fetch(`${this.baseUrl}/checkout/request`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${this.secretKey}`,
+          Authorization: `Bearer ${this.apiToken}`,
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
@@ -126,14 +130,14 @@ export class PocketFiClient {
   }
 
   /**
-   * Create a dedicated dynamic virtual bank account for bank transfer
-   * Endpoint: POST /virtual-accounts/create
+   * Create a dedicated dynamic virtual bank account for instant bank transfer
+   * Endpoint: POST /api/v1/virtual-accounts/create
    */
   async createVirtualAccount(params: CreatePocketFiVirtualAccountParams): Promise<VirtualAccountInfo> {
     const { firstName, lastName } = this.splitName(params.name);
     const phoneVal = params.phone || '08000000000';
 
-    if (!this.secretKey || !this.businessId) {
+    if (!this.apiToken || !this.businessId) {
       console.warn('[PocketFi] Live API credentials not set. Returning simulated dynamic virtual account.');
       const testAccount = '99' + Math.floor(10000000 + Math.random() * 90000000);
       return {
@@ -150,7 +154,7 @@ export class PocketFiClient {
       const response = await fetch(`${this.baseUrl}/virtual-accounts/create`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${this.secretKey}`,
+          Authorization: `Bearer ${this.apiToken}`,
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
@@ -170,25 +174,45 @@ export class PocketFiClient {
       });
 
       const data = await response.json();
-      if (!response.ok || data.status === 'error') {
+      if (!response.ok || (data.status !== true && data.status !== 'success')) {
         throw new Error(data.message || 'Failed to generate PocketFi virtual account');
       }
 
+      // PocketFi returns accounts inside data.banks array: [{ bankName, accountNumber, reference, totalPaymentAmount }]
+      const firstBank = Array.isArray(data.banks) ? data.banks[0] : null;
       const accountData = data.data || data;
+
+      const accountNumber =
+        firstBank?.accountNumber ||
+        accountData.account_number ||
+        accountData.accountNumber ||
+        '';
+
+      const rawBankName =
+        firstBank?.bankName ||
+        accountData.bank_name ||
+        accountData.bank ||
+        'Kuda Microfinance Bank';
+
+      // Clean display name (e.g. "KudaDymanic" -> "Kuda Microfinance Bank")
+      const cleanBankName = rawBankName.toLowerCase().includes('kuda')
+        ? 'Kuda Microfinance Bank'
+        : rawBankName;
+
       return {
-        bank_name: accountData.bank_name || accountData.bank || 'Kuda Bank / PocketFi',
-        account_number: accountData.account_number || accountData.accountNumber,
-        account_name: accountData.account_name || accountData.accountName || `ADISION / ${firstName.toUpperCase()}`,
-        expiry_time: accountData.expiry_date || accountData.expiry_time || new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+        bank_name: cleanBankName,
+        account_number: accountNumber,
+        account_name: `ADISION / ${firstName.toUpperCase()} ${lastName.toUpperCase()}`,
+        expiry_time: firstBank?.expiryDate || accountData.expiry_date || new Date(Date.now() + 60 * 60 * 1000).toISOString(),
         amount: params.amount,
-        reference: params.reference,
+        reference: firstBank?.reference || params.reference,
       };
     } catch (error) {
       console.error('[PocketFi Virtual Account Error]:', error);
       // Resilient fallback for testing
       const testAccount = '99' + Math.floor(10000000 + Math.random() * 90000000);
       return {
-        bank_name: 'Kuda Bank / PocketFi',
+        bank_name: 'Kuda Microfinance Bank / PocketFi',
         account_number: testAccount,
         account_name: `ADISION / ${firstName.toUpperCase()} ${lastName.slice(0, 1).toUpperCase()}`,
         expiry_time: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
@@ -200,8 +224,8 @@ export class PocketFiClient {
 
   /**
    * Server-Side Payment Status Confirmation
-   * Endpoint: POST /checkout/confirm
-   * PocketFi explicitly warns to verify payments server-side rather than relying only on redirects
+   * Endpoint: POST /api/v1/checkout/confirm
+   * PocketFi explicitly recommends verifying all checkout returns on the server
    */
   async confirmCheckout(paymentId: string): Promise<{
     success: boolean;
@@ -211,7 +235,7 @@ export class PocketFiClient {
     account?: string;
     message?: string;
   }> {
-    if (!this.secretKey) {
+    if (!this.apiToken) {
       return { success: true, status: 'success', message: 'Simulated confirmation in test mode' };
     }
 
@@ -219,7 +243,7 @@ export class PocketFiClient {
       const response = await fetch(`${this.baseUrl}/checkout/confirm`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${this.secretKey}`,
+          Authorization: `Bearer ${this.apiToken}`,
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
@@ -250,20 +274,20 @@ export class PocketFiClient {
 
   /**
    * Fetch List of Supported Banks for Payouts
-   * Endpoint: GET /payout/bank-list
+   * Endpoint: GET /api/v1/payout/bank-list
    */
-  async getSupportedBanks(): Promise<Array<{ name: string; code: string }>> {
-    if (!this.secretKey) {
+  async getSupportedBanks(): Promise<Array<{ id: number; name: string; code: string }>> {
+    if (!this.apiToken) {
       return [
-        { name: 'Access Bank', code: '044' },
-        { name: 'First Bank of Nigeria', code: '011' },
-        { name: 'Guaranty Trust Bank (GTBank)', code: '058' },
-        { name: 'United Bank for Africa (UBA)', code: '033' },
-        { name: 'Zenith Bank', code: '057' },
-        { name: 'Kuda Microfinance Bank', code: '50211' },
-        { name: 'OPay Digital Services', code: '999992' },
-        { name: 'Palmpay', code: '999991' },
-        { name: 'Moniepoint MFB', code: '50515' },
+        { id: 1, name: 'Access Bank', code: '044' },
+        { id: 2, name: 'First Bank of Nigeria', code: '011' },
+        { id: 3, name: 'Guaranty Trust Bank (GTBank)', code: '058' },
+        { id: 4, name: 'United Bank for Africa (UBA)', code: '033' },
+        { id: 5, name: 'Zenith Bank', code: '057' },
+        { id: 6, name: 'Kuda Microfinance Bank', code: '090267' },
+        { id: 7, name: 'OPay Digital Services', code: '999992' },
+        { id: 8, name: 'Palmpay', code: '999991' },
+        { id: 9, name: 'Moniepoint MFB', code: '50515' },
       ];
     }
 
@@ -271,12 +295,13 @@ export class PocketFiClient {
       const response = await fetch(`${this.baseUrl}/payout/bank-list`, {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${this.secretKey}`,
+          Authorization: `Bearer ${this.apiToken}`,
           Accept: 'application/json',
         },
       });
 
       const data = await response.json();
+      if (Array.isArray(data.banks)) return data.banks;
       if (Array.isArray(data)) return data;
       if (Array.isArray(data.data)) return data.data;
       return [];
@@ -288,7 +313,7 @@ export class PocketFiClient {
 
   /**
    * Disburse Payout Transfer to Community Partner Bank Account
-   * Endpoint: POST /payout/send
+   * Endpoint: POST /api/v1/payout/send
    */
   async sendPayout(params: PocketFiPayoutParams): Promise<{
     success: boolean;
@@ -296,7 +321,7 @@ export class PocketFiClient {
     reference?: string;
     data?: any;
   }> {
-    if (!this.secretKey) {
+    if (!this.apiToken) {
       return {
         success: true,
         message: 'Simulated payout transfer (Test Mode)',
@@ -308,7 +333,7 @@ export class PocketFiClient {
       const response = await fetch(`${this.baseUrl}/payout/send`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${this.secretKey}`,
+          Authorization: `Bearer ${this.apiToken}`,
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
