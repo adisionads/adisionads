@@ -7,13 +7,13 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/pricing', '/waitlist'],
-        disallow: ['/admin/', '/advertiser/', '/partner/', '/api/', '/login', '/signup', '/r/'],
+        allow: ['/', '/pricing', '/signup', '/waitlist'],
+        disallow: ['/admin/', '/advertiser/', '/partner/', '/api/', '/r/'],
       },
       {
         userAgent: 'Googlebot',
-        allow: ['/', '/pricing', '/waitlist'],
-        disallow: ['/admin/', '/advertiser/', '/partner/', '/api/', '/login', '/signup', '/r/'],
+        allow: ['/', '/pricing', '/signup', '/waitlist'],
+        disallow: ['/admin/', '/advertiser/', '/partner/', '/api/', '/r/'],
       },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,
