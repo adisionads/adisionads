@@ -22,10 +22,18 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://adision.xyz';
+const rawUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://adision.xyz';
+const siteUrl = rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : `https://${rawUrl}`;
+
+let metadataBaseUrl: URL;
+try {
+  metadataBaseUrl = new URL(siteUrl);
+} catch {
+  metadataBaseUrl = new URL('https://adision.xyz');
+}
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: metadataBaseUrl,
   title: {
     default: 'Adision | Performance Community Advertising Marketplace',
     template: '%s | Adision',
