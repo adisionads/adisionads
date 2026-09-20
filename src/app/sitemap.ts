@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://adisionads.vercel.app';
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://adision.xyz';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       bank: 'kuda',
     });
 
-    const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://adisionads.vercel.app';
+    const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://adision.xyz';
     const checkoutSession = await pocketFi.createCheckoutSession({
       amount: Number(budget_amount),
       email: advertiser_email,

@@ -80,7 +80,7 @@ export class PocketFiClient {
       return {
         success: true,
         paymentId: `PFI_SIM_${Date.now()}`,
-        paymentLink: `https://adisionads.vercel.app/advertiser/campaigns/new?simulated_ref=${params.reference}`,
+        paymentLink: `https://adision.xyz/advertiser/campaigns/new?simulated_ref=${params.reference}`,
         message: 'Simulated checkout session (Test Mode)',
       };
     }
@@ -105,7 +105,7 @@ export class PocketFiClient {
           last_name: lastName,
           phone: phoneVal,
           phone_number: phoneVal,
-          redirect_link: params.redirectUrl || 'https://adisionads.vercel.app/advertiser',
+          redirect_link: params.redirectUrl || 'https://adision.xyz/advertiser',
           reference: params.reference,
         }),
       });

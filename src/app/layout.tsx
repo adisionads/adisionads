@@ -22,7 +22,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://adisionads.vercel.app';
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://adision.xyz';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
