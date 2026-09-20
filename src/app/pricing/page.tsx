@@ -133,7 +133,7 @@ export default function PricingPage() {
                 </ul>
               </div>
 
-              <Link href="/waitlist" className="w-full">
+              <Link href="/signup?role=advertiser&plan=starter" className="w-full">
                 <Button variant="outline" className="w-full font-bold text-sm">
                   Start With Reach (₦7,000)
                 </Button>
@@ -188,7 +188,7 @@ export default function PricingPage() {
                 </ul>
               </div>
 
-              <Link href="/waitlist" className="w-full">
+              <Link href="/signup?role=advertiser&plan=corporate" className="w-full">
                 <Button variant="primary" className="w-full font-bold text-sm">
                   Acquire Users (₦350/Signup)
                 </Button>
@@ -239,7 +239,7 @@ export default function PricingPage() {
                 </ul>
               </div>
 
-              <Link href="/waitlist" className="w-full">
+              <Link href="/signup?role=advertiser&plan=gold" className="w-full">
                 <Button variant="outline" className="w-full font-bold text-sm border-amber-500/40 text-amber-400 hover:bg-amber-500/10">
                   Acquire Customers (₦750/Customer)
                 </Button>
@@ -396,7 +396,7 @@ export default function PricingPage() {
                 💡 <strong>Prepaid Guarantee:</strong> Any unused balance is never lost. If your campaign does not reach the target, remaining funds remain in your balance.
               </div>
 
-              <Link href="/waitlist" className="block pt-1">
+              <Link href="/signup?role=advertiser" className="block pt-1">
                 <Button size="md" variant="primary" className="w-full font-bold">
                   <span>Get Started With This Plan</span>
                   <ArrowRight className="w-4 h-4 ml-1.5" />

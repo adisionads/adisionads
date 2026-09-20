@@ -23,6 +23,18 @@ export function Footer() {
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
               Escrow-backed distribution network with verified screenshot proof and real-time click attribution.
             </p>
+
+            {/* Owned by Rektina Badge */}
+            <div className="pt-2 flex items-center gap-2.5">
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Designed & Owned by</span>
+              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-black border border-slate-800 shadow-sm">
+                <img
+                  src="/brand/rektina-logo.jpg"
+                  alt="Rektina"
+                  className="h-4 w-auto object-contain"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Advertisers */}
@@ -45,8 +57,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/waitlist" className="text-brand-600 dark:text-brand-400 font-medium hover:underline">
-                  Early Access Waitlist
+                <Link href="/signup?role=advertiser" className="text-brand-600 dark:text-brand-400 font-medium hover:underline">
+                  Start Advertising
                 </Link>
               </li>
             </ul>
@@ -72,8 +84,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/waitlist" className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
-                  Early Partner Onboarding
+                <Link href="/signup?role=community" className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                  Partner Registration
                 </Link>
               </li>
             </ul>
@@ -103,10 +115,10 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} Adision. All rights reserved. Reach the right communities.</p>
+          <p>© {new Date().getFullYear()} Adision. Designed & owned by <strong className="text-slate-700 dark:text-slate-300">Rektina</strong>. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <Link href="/waitlist" className="text-brand-600 dark:text-brand-400 font-semibold hover:underline">
-              Join Early Access Waitlist
+            <Link href="/signup" className="text-brand-600 dark:text-brand-400 font-semibold hover:underline">
+              Create Free Account
             </Link>
             <span>•</span>
             <span>Safe Payments Guaranteed</span>

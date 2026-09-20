@@ -28,8 +28,8 @@ const FAQ_ITEMS = [
     a: 'Never. You maintain 100% ownership and control of your community. Adision never asks for group ownership. You simply receive sponsored broadcast tasks in your Adision dashboard that you choose to accept and post.',
   },
   {
-    q: 'What is the Early Access Waitlist?',
-    a: 'We are onboarding vetted communities and advertisers in curated batches to ensure high audience quality. Joining the waitlist reserves your priority spot and notifies you as soon as campaigns launch in your niche.',
+    q: 'How quickly can my ad campaign start?',
+    a: 'Immediately. Once you choose a campaign package and fund your balance, your broadcast task is instantly dispatched to matching verified community admins who post your ad with timestamped screenshot proof.',
   },
   {
     q: 'Can I advertise with a small budget?',
@@ -107,7 +107,7 @@ export default function HomePage() {
                     Stop direct-messaging random group admins or worrying about payment fraud. Broadcast sponsored updates across verified WhatsApp groups and channels, with timestamped screenshot proof and genuine link clicks.
                   </p>
                   <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
-                    <Link href="/waitlist?role=advertiser" className="w-full sm:w-auto">
+                    <Link href="/signup?role=advertiser" className="w-full sm:w-auto">
                       <Button size="lg" variant="primary" className="w-full font-semibold text-sm px-6">
                         Start Advertising
                       </Button>
@@ -131,7 +131,7 @@ export default function HomePage() {
                     Receive verified sponsored broadcast tasks in your dashboard, post them into your WhatsApp community, upload a screenshot proof, and withdraw your earnings directly to your Nigerian bank.
                   </p>
                   <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
-                    <Link href="/waitlist?role=community" className="w-full sm:w-auto">
+                    <Link href="/signup?role=community" className="w-full sm:w-auto">
                       <Button size="lg" variant="primary" className="w-full font-semibold text-sm px-6">
                         Register Your Community
                       </Button>
@@ -318,7 +318,7 @@ export default function HomePage() {
                   </ul>
                 </div>
 
-                <Link href="/waitlist" className="w-full">
+                <Link href="/pricing" className="w-full">
                   <Button
                     variant={pkg.is_popular ? 'primary' : 'outline'}
                     className="w-full font-semibold text-xs"
@@ -387,12 +387,12 @@ export default function HomePage() {
             Join vetted businesses and WhatsApp community admins across Nigeria on Adision.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
-            <Link href="/waitlist?role=advertiser">
+            <Link href="/signup?role=advertiser">
               <Button size="lg" variant="primary" className="w-full sm:w-auto font-semibold text-sm px-6">
                 Start Advertising
               </Button>
             </Link>
-            <Link href="/waitlist?role=community">
+            <Link href="/signup?role=community">
               <Button size="lg" variant="outline" className="w-full sm:w-auto font-semibold text-sm px-6">
                 Register WhatsApp Group
               </Button>

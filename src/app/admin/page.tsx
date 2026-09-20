@@ -58,7 +58,13 @@ export default function AdminControlCenter() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/admin/users">
+              <Button size="md" variant="outline" className="font-bold gap-2 text-slate-700 dark:text-slate-300">
+                <Users className="w-4 h-4 text-brand-500" />
+                <span>Advertisers & Partners</span>
+              </Button>
+            </Link>
             <Link href="/admin/waitlist">
               <Button size="md" variant="outline" className="font-bold gap-2 text-brand-600 dark:text-brand-400 border-brand-500/30">
                 <UserCheck className="w-4 h-4 text-brand-500" />

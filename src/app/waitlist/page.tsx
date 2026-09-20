@@ -167,15 +167,38 @@ function WaitlistContent() {
   return (
     <div className="py-8 sm:py-14 min-h-screen bg-slate-50 dark:bg-dark-900 transition-colors">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-6 sm:space-y-8">
+        {/* Live Launch Announcement Banner */}
+        <div className="p-5 rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-emerald-600 text-white shadow-xl shadow-brand-500/20 text-center space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-[11px] font-black uppercase tracking-wider">
+            <span>🚀 We Are Officially Live!</span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-black">Early Access is Now Open to Everyone</h2>
+          <p className="text-xs sm:text-sm text-white/90 max-w-lg mx-auto">
+            Adision is live across Nigeria. You can create an account right now to launch ad campaigns or earn from your WhatsApp group.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1">
+            <Link href="/signup?role=advertiser">
+              <Button size="sm" className="bg-white text-slate-900 hover:bg-slate-100 font-bold text-xs px-5 shadow-md">
+                Start Advertising
+              </Button>
+            </Link>
+            <Link href="/signup?role=community">
+              <Button size="sm" variant="outline" className="border-white/60 text-white hover:bg-white/10 font-bold text-xs px-5">
+                Monetize WhatsApp Group
+              </Button>
+            </Link>
+          </div>
+        </div>
+
         {/* Clean, Compact Header */}
         <div className="text-center space-y-2.5">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-brand-500/30 bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-400 text-xs font-bold uppercase tracking-wider">
             <ShieldCheck className="w-3.5 h-3.5 text-brand-500" />
-            <span>Early Access Waitlist</span>
+            <span>Priority Newsletter & Updates</span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-            Join Adision Early Access
+            Join the Adision Network
           </h1>
 
           <p className="max-w-md mx-auto text-xs sm:text-sm text-slate-600 dark:text-slate-400">

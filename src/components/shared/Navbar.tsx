@@ -91,16 +91,12 @@ export function Navbar() {
               Packages & Pricing
             </Link>
 
-            <Link
-              href="/waitlist"
-              className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-colors ${
-                pathname === '/waitlist'
-                  ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-slate-800/60 font-semibold'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40'
-              }`}
+            <a
+              href="/#how-it-works"
+              className="px-3.5 py-2 rounded-xl text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40"
             >
-              Waitlist
-            </Link>
+              How It Works
+            </a>
 
             {isAuthenticated && (
               <Link
@@ -267,13 +263,13 @@ export function Navbar() {
             >
               Packages & Pricing
             </Link>
-            <Link
-              href="/waitlist"
+            <a
+              href="/#how-it-works"
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-xl text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 font-bold"
+              className="block px-3 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
-              Waitlist
-            </Link>
+              How It Works
+            </a>
 
             {isAuthenticated ? (
               <Link
