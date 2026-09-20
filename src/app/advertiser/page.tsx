@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useApp } from '@/lib/store/app-context';
 import { useAuth } from '@/lib/auth/auth-context';
+import { authFetch } from '@/lib/auth/auth-fetch';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import { Campaign } from '@/types';
 import { formatCategoryName, formatCurrency, formatNumber } from '@/lib/utils';
@@ -13,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import {
   ArrowRight,
+  CheckCircle2,
   Eye,
   Megaphone,
   MousePointerClick,
@@ -20,14 +23,21 @@ import {
   TrendingUp,
   Users,
   RefreshCw,
+  X,
 } from 'lucide-react';
 
-export default function AdvertiserDashboard() {
+function AdvertiserDashboardContent() {
+  const searchParams = useSearchParams();
+  const paymentId = searchParams.get('payment_id');
+  const paymentRef = searchParams.get('ref');
+  const paymentStatus = searchParams.get('payment_status');
+
   const { campaigns: contextCampaigns } = useApp();
   const { user } = useAuth();
 
   const [campaigns, setCampaigns] = useState<Campaign[]>(contextCampaigns);
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentBanner, setPaymentBanner] = useState<string | null>(null);
 
   const fetchCampaigns = useCallback(async () => {
     if (!user?.id || !isSupabaseConfigured()) {
@@ -46,7 +56,6 @@ export default function AdvertiserDashboard() {
       if (data && !error && data.length > 0) {
         setCampaigns(data as Campaign[]);
       } else {
-        // If DB has no campaigns for this user yet, fallback to context campaigns
         setCampaigns(contextCampaigns);
       }
     } catch (err) {
@@ -60,6 +69,35 @@ export default function AdvertiserDashboard() {
     fetchCampaigns();
   }, [fetchCampaigns]);
 
+  // Automatically verify payment when returning from PocketFi checkout redirect
+  useEffect(() => {
+    if (paymentId || paymentRef || paymentStatus === 'success') {
+      const verifyReturn = async () => {
+        try {
+          const res = await authFetch('/api/campaigns/confirm-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paymentId: paymentId || undefined,
+              reference: paymentRef || undefined,
+            }),
+          });
+          const data = await res.json();
+          if (data.status === 'PAID' || data.success) {
+            setPaymentBanner('🎉 Payment confirmed by PocketFi! Your campaign deposit is secured and your campaign is now active.');
+            fetchCampaigns();
+          } else {
+            setPaymentBanner('Return from payment received. If you just completed the payment, it will be automatically confirmed within a minute.');
+          }
+        } catch {
+          setPaymentBanner('Return from payment received. Checking status in the background.');
+        }
+      };
+
+      verifyReturn();
+    }
+  }, [paymentId, paymentRef, paymentStatus, fetchCampaigns]);
+
   const totalClicks = campaigns.reduce((sum, c) => sum + (c.total_clicks || 0), 0);
   const totalUniqueClicks = campaigns.reduce((sum, c) => sum + (c.unique_clicks || 0), 0);
   const totalSpent = campaigns.reduce((sum, c) => sum + c.budget_amount, 0);
@@ -68,6 +106,22 @@ export default function AdvertiserDashboard() {
   return (
     <div className="py-8 sm:py-12 bg-dark-900 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        {/* Payment Confirmation Banner */}
+        {paymentBanner && (
+          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center justify-between gap-3 animate-in fade-in">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+              <span className="text-xs sm:text-sm font-semibold">{paymentBanner}</span>
+            </div>
+            <button
+              onClick={() => setPaymentBanner(null)}
+              className="p-1 rounded-lg text-emerald-400/70 hover:text-emerald-300 hover:bg-emerald-500/20 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Header with Action */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -226,5 +280,13 @@ export default function AdvertiserDashboard() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function AdvertiserDashboard() {
+  return (
+    <Suspense fallback={<div className="py-12 text-center text-slate-400 text-xs">Loading dashboard...</div>}>
+      <AdvertiserDashboardContent />
+    </Suspense>
   );
 }

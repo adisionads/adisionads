@@ -25,6 +25,8 @@ interface AuthContextType {
   ) => Promise<{ error: string | null; requiresEmailConfirmation?: boolean }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: string | null }>;
+  updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -273,6 +275,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const resetPassword = async (email: string): Promise<{ error: string | null }> => {
+    if (!isSupabaseConfigured()) {
+      return { error: null };
+    }
+    try {
+      const appBase =
+        typeof window !== 'undefined'
+          ? window.location.origin
+          : process.env.NEXT_PUBLIC_APP_URL || 'https://adision.xyz';
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+        redirectTo: `${appBase}/reset-password`,
+      });
+      if (error) return { error: error.message };
+      return { error: null };
+    } catch (err: any) {
+      return { error: err.message || 'Failed to send password reset email.' };
+    }
+  };
+
+  const updatePassword = async (newPassword: string): Promise<{ error: string | null }> => {
+    if (!isSupabaseConfigured()) {
+      return { error: null };
+    }
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+      if (error) return { error: error.message };
+      return { error: null };
+    } catch (err: any) {
+      return { error: err.message || 'Failed to update password.' };
+    }
+  };
+
   const role = profile?.role || (user?.user_metadata?.role as UserRole) || null;
   const isAuthenticated = !!user;
 
@@ -288,6 +324,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signUp,
         signOut,
         refreshProfile,
+        resetPassword,
+        updatePassword,
       }}
     >
       {children}

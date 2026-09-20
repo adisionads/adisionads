@@ -125,6 +125,14 @@ export default function NewCampaignPage() {
       }
 
       setCheckoutData(result.data);
+
+      // 1. Direct gateway redirect: If PocketFi provided a payment link, send advertiser straight to PocketFi hosted checkout
+      if (result.data?.payment_link && typeof window !== 'undefined') {
+        window.location.href = result.data.payment_link;
+        return;
+      }
+
+      // Fallback: If gateway redirect link is not available, show dedicated bank transfer modal
       setShowPaymentModal(true);
     } catch (err: any) {
       alert(err.message || 'Failed to initiate checkout. Please try again.');
@@ -133,34 +141,40 @@ export default function NewCampaignPage() {
     }
   };
 
-  const handleSimulatePayment = async () => {
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verifyNotice, setVerifyNotice] = useState<string | null>(null);
+
+  const handleCheckPaymentStatus = async () => {
     if (!checkoutData) return;
-    setIsSimulatingPayment(true);
+    setIsVerifying(true);
+    setVerifyNotice(null);
 
     try {
-      const res = await authFetch('/api/campaigns/simulate-payment', {
+      const res = await authFetch('/api/campaigns/confirm-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           reference: checkoutData.reference,
-          amount: checkoutData.amount,
+          paymentId: (checkoutData as any).payment_id,
         }),
       });
 
       const result = await res.json();
-      if (!res.ok || !result.success) {
-        throw new Error(result.error || 'Payment simulation failed');
+      if (result.status === 'PAID' || result.success) {
+        setPaymentSuccess(true);
+        setTimeout(() => {
+          setShowPaymentModal(false);
+          router.push('/advertiser');
+        }, 2000);
+      } else {
+        setVerifyNotice(
+          'Payment not yet detected by PocketFi. If you just completed the transfer, please allow 1-2 minutes for bank settlement, then click check status again.'
+        );
       }
-
-      setPaymentSuccess(true);
-      setTimeout(() => {
-        setShowPaymentModal(false);
-        router.push('/advertiser');
-      }, 2000);
     } catch (err: any) {
-      alert(err.message || 'Simulation error');
+      setVerifyNotice('Unable to verify right now. PocketFi will automatically activate your campaign via webhook upon settlement.');
     } finally {
-      setIsSimulatingPayment(false);
+      setIsVerifying(false);
     }
   };
 
@@ -582,41 +596,46 @@ export default function NewCampaignPage() {
                 </div>
               )}
 
-              {/* Online Checkout Link (if available) */}
+              {/* Primary Action: Go to PocketFi Hosted Checkout */}
               {checkoutData?.payment_link && (
                 <a
                   href={checkoutData.payment_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="block"
                 >
                   <Button
                     type="button"
-                    size="md"
-                    variant="outline"
-                    className="w-full text-xs font-bold gap-2 text-brand-400 border-brand-500/30 hover:bg-brand-500/10"
+                    size="lg"
+                    variant="primary"
+                    className="w-full font-bold shadow-lg shadow-brand-500/20 gap-2 py-3.5"
                   >
-                    <span>Pay with Debit Card / Web Checkout</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Pay with PocketFi (Card / Transfer / USSD)</span>
+                    <ExternalLink className="w-4 h-4" />
                   </Button>
                 </a>
               )}
 
-              {/* Sandbox Test Simulator & Transfer Actions */}
-              <div className="space-y-3 pt-2">
+              {/* Status Verification for Direct Bank Transfer */}
+              <div className="space-y-3 pt-1">
+                {verifyNotice && (
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs leading-relaxed">
+                    {verifyNotice}
+                  </div>
+                )}
+
                 <Button
+                  type="button"
                   size="md"
-                  variant="primary"
-                  onClick={handleSimulatePayment}
-                  isLoading={isSimulatingPayment}
-                  className="w-full font-bold shadow-lg shadow-brand-500/20 gap-2"
+                  variant="outline"
+                  onClick={handleCheckPaymentStatus}
+                  isLoading={isVerifying}
+                  className="w-full font-bold gap-2 text-slate-200 border-slate-700 hover:bg-slate-800"
                 >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Simulate Transfer (Test Sandbox Mode)</span>
+                  <CheckCircle2 className="w-4 h-4 text-brand-400" />
+                  <span>I Transferred to Dedicated Account — Check Status</span>
                 </Button>
 
                 <p className="text-[11px] text-center text-slate-400 leading-relaxed">
-                  💡 <strong>Test Mode:</strong> Click the button above to test paying for this campaign safely without spending real money.
+                  🔒 Secured by <strong>PocketFi</strong>. Your funds are held in safe escrow until your campaign broadcast is verified.
                 </p>
               </div>
             </>

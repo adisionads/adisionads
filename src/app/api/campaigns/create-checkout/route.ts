@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       name: advertiser_name || 'Adision Advertiser',
       phone: phone_number,
       reference,
-      redirectUrl: `${appBaseUrl}/advertiser/campaigns`,
+      redirectUrl: `${appBaseUrl}/advertiser?ref=${encodeURIComponent(reference)}&payment_status=success`,
     });
 
     const distributablePool = Number(budget_amount) * 0.55; // 55% to community partners, 45% platform margin
@@ -112,7 +112,11 @@ export async function POST(request: NextRequest) {
           status: 'DRAFT',
           payment_status: 'PENDING',
           payment_reference: reference,
-          virtual_account_details: virtualAccount,
+          virtual_account_details: {
+            ...virtualAccount,
+            payment_id: checkoutSession.paymentId,
+            payment_link: checkoutSession.paymentLink,
+          },
         })
         .select('id')
         .single();

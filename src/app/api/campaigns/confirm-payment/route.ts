@@ -31,22 +31,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. If paymentId is present, verify directly against PocketFi API
+    let effectiveReference = reference;
     let isConfirmed = false;
     let verifiedAmount: number | undefined;
 
     if (paymentId) {
       const confirmResult = await pocketFi.confirmCheckout(paymentId);
-      if (confirmResult.success) {
+      if (confirmResult.success && confirmResult.status === 'success') {
         isConfirmed = true;
         verifiedAmount = confirmResult.amount;
+        if (!effectiveReference && confirmResult.reference) {
+          effectiveReference = confirmResult.reference;
+        }
       }
     }
 
-    // 2. If verified and Supabase is configured, process the payment atomically
-    if (isConfirmed && reference && isSupabaseAdminConfigured()) {
+    // 2. If reference is not provided, look it up in Supabase using paymentId
+    if (isSupabaseAdminConfigured() && !effectiveReference && paymentId) {
+      const { data: matchedCamp } = await supabaseAdmin
+        .from('campaigns')
+        .select('payment_reference')
+        .contains('virtual_account_details', { payment_id: paymentId })
+        .maybeSingle();
+
+      if (matchedCamp?.payment_reference) {
+        effectiveReference = matchedCamp.payment_reference;
+      }
+    }
+
+    // 3. If verified and Supabase is configured, process the payment atomically
+    if (isConfirmed && effectiveReference && isSupabaseAdminConfigured()) {
       const { data, error } = await supabaseAdmin.rpc('process_campaign_payment', {
-        p_payment_reference: reference,
+        p_payment_reference: effectiveReference,
         p_amount: verifiedAmount || 0,
       });
 
@@ -66,13 +82,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 3. If checking existing campaign status in database
-    if (reference && isSupabaseAdminConfigured()) {
+    // 4. If checking existing campaign status in database
+    if (effectiveReference && isSupabaseAdminConfigured()) {
       const { data: campaign } = await supabaseAdmin
         .from('campaigns')
         .select('id, status, payment_status, budget_amount')
-        .eq('payment_reference', reference)
-        .single();
+        .eq('payment_reference', effectiveReference)
+        .maybeSingle();
 
       if (campaign && campaign.payment_status === 'PAID') {
         return NextResponse.json({
