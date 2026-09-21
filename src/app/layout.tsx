@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/lib/theme/theme-context';
 import { Navbar } from '@/components/shared/Navbar';
 import { Footer } from '@/components/shared/Footer';
 import { PWAInstallBanner } from '@/components/shared/PWAInstallBanner';
+import { WhatsAppSupportButton } from '@/components/shared/WhatsAppSupportButton';
 
 const fontSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -243,6 +244,7 @@ export default function RootLayout({
               <main className="flex-1 w-full max-w-full overflow-x-hidden">{children}</main>
               <Footer />
               <PWAInstallBanner />
+              <WhatsAppSupportButton />
             </AppProvider>
           </AuthProvider>
         </ThemeProvider>
