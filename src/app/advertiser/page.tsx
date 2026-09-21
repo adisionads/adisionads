@@ -23,6 +23,7 @@ import {
   TrendingUp,
   Users,
   RefreshCw,
+  Wallet as WalletIcon,
   X,
 } from 'lucide-react';
 
@@ -36,6 +37,7 @@ function AdvertiserDashboardContent() {
   const { user } = useAuth();
 
   const [campaigns, setCampaigns] = useState<Campaign[]>(contextCampaigns);
+  const [walletBalance, setWalletBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [paymentBanner, setPaymentBanner] = useState<string | null>(null);
 
@@ -57,6 +59,17 @@ function AdvertiserDashboardContent() {
         setCampaigns(data as Campaign[]);
       } else {
         setCampaigns(contextCampaigns);
+      }
+
+      // Fetch advertiser wallet balance
+      const { data: walletData } = await supabase
+        .from('wallets')
+        .select('available_balance, lifetime_spent')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (walletData) {
+        setWalletBalance(Number(walletData.available_balance || 0));
       }
     } catch (err) {
       console.warn('[AdvertiserDashboard] Error loading live campaigns:', err);
@@ -132,6 +145,12 @@ function AdvertiserDashboardContent() {
           </div>
 
           <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+              <WalletIcon className="w-4 h-4 text-brand-400" />
+              <span className="text-slate-400">Wallet:</span>
+              <span className="font-extrabold text-white">{formatCurrency(walletBalance)}</span>
+            </div>
+
             <Button
               size="sm"
               variant="outline"
@@ -153,13 +172,19 @@ function AdvertiserDashboardContent() {
         </div>
 
         {/* Top KPIs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+          <StatsCard
+            title="Wallet Balance"
+            value={formatCurrency(walletBalance)}
+            description="Available to fund ad campaigns"
+            icon={WalletIcon}
+            highlight
+          />
           <StatsCard
             title="Total Link Clicks"
             value={formatNumber(totalClicks)}
             description={totalClicks > 0 ? `${formatNumber(totalUniqueClicks)} unique visitors` : 'Ready to track'}
             icon={MousePointerClick}
-            highlight
           />
           <StatsCard
             title="Active Campaigns"

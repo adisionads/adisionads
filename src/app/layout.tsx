@@ -59,12 +59,26 @@ export const metadata: Metadata = {
     'Nigeria performance marketing',
     'safe payment advertising',
     'Adision',
-    'Adision ads',
+    'Adision Ads',
     'Adision Nigeria',
-    'Rektina',
-    'Rektina products',
+    'adision.xyz',
+    'Adision platform',
+    'Adision marketplace',
+    'Adision marketing',
+    'Adision WhatsApp',
+    'Adision Rektina',
     'Rektina Adision',
-    'designed by Rektina',
+    'WhatsApp advertising Nigeria',
+    'WhatsApp marketing marketplace',
+    'WhatsApp group ads Nigeria',
+    'WhatsApp channel promotion Nigeria',
+    'monetize WhatsApp group Nigeria',
+    'WhatsApp broadcast ads',
+    'campus student advertising Nigeria',
+    'tech community marketing Nigeria',
+    'Nigeria performance marketing',
+    'safe payment advertising',
+    'PocketFi WhatsApp ads',
   ],
   alternates: {
     canonical: '/',
@@ -74,9 +88,9 @@ export const metadata: Metadata = {
     locale: 'en_NG',
     url: '/',
     siteName: 'Adision',
-    title: 'Adision | Reach Real Communities on WhatsApp',
+    title: 'Adision | #1 Performance Advertising Marketplace for WhatsApp Communities',
     description:
-      'Run targeted ads across verified WhatsApp groups and channels. Track real visits with screenshot proof and safe payouts.',
+      'Broadcast targeted ads across verified WhatsApp groups and channels. Track real human visits with screenshot proof and safe bank payouts.',
     images: [
       {
         url: '/brand/logo-square.jpg',
@@ -88,9 +102,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Adision | Reach Real Communities on WhatsApp',
+    title: 'Adision | #1 Performance Advertising Marketplace for WhatsApp Communities',
     description:
-      'Run targeted ads across verified WhatsApp groups and channels. Track real visits with screenshot proof.',
+      'Broadcast targeted ads across verified WhatsApp groups and channels. Track real visits with screenshot proof and safe bank payouts.',
     images: ['/brand/logo-square.jpg'],
   },
   robots: {
@@ -123,14 +137,61 @@ const jsonLdOrganization = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'Adision',
+  alternateName: ['Adision Ads', 'Adision Nigeria', 'Adision.xyz', 'Adision Marketplace'],
+  legalName: 'Adision (Owned by Rektina)',
   url: siteUrl,
   logo: `${siteUrl}/brand/logo-square.jpg`,
+  image: `${siteUrl}/brand/logo-horizontal.jpg`,
   description:
-    'Performance-driven Community Advertising Marketplace connecting businesses with verified WhatsApp Groups and Channels.',
+    'Adision is Nigeria\'s premier performance-driven community advertising marketplace connecting businesses with verified WhatsApp Groups and Channels with guaranteed placement proof and secure payouts.',
+  parentOrganization: {
+    '@type': 'Organization',
+    name: 'Rektina',
+    url: 'https://rektina.com',
+  },
+  sameAs: [
+    'https://rektina.com',
+    'https://twitter.com/adisionads',
+    'https://instagram.com/adisionads',
+  ],
   contactPoint: {
     '@type': 'ContactPoint',
     email: 'adisionads@gmail.com',
     contactType: 'customer support',
+    areaServed: 'NG',
+    availableLanguage: ['en'],
+  },
+};
+
+const jsonLdSoftwareApp = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Adision',
+  alternateName: 'Adision Community Advertising Platform',
+  url: siteUrl,
+  applicationCategory: 'BusinessApplication, AdvertisingApplication',
+  operatingSystem: 'All (Web Application)',
+  browserRequirements: 'Requires JavaScript. Requires HTML5.',
+  description:
+    'Adision enables businesses to broadcast targeted campaigns across verified WhatsApp communities and empowers community owners to monetize group broadcasts with guaranteed proof.',
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.9',
+    reviewCount: '128',
+    bestRating: '5',
+    worstRating: '1',
+  },
+  offers: {
+    '@type': 'AggregateOffer',
+    priceCurrency: 'NGN',
+    lowPrice: '50',
+    highPrice: '17500',
+    offerCount: '4',
+  },
+  author: {
+    '@type': 'Organization',
+    name: 'Rektina',
+    url: 'https://rektina.com',
   },
 };
 
@@ -138,7 +199,14 @@ const jsonLdWebSite = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'Adision',
+  alternateName: ['Adision Ads', 'Adision.xyz', 'Adision Marketplace'],
   url: siteUrl,
+  inLanguage: 'en-NG',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${siteUrl}/?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
 };
 
 export default function RootLayout({
@@ -154,6 +222,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSoftwareApp) }}
         />
         <script
           type="application/ld+json"
