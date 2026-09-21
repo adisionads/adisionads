@@ -1,119 +1,128 @@
-# Adision — Master Project & System Context
+# ADISION PROJECT & PAYMENT CONTEXT (MASTER REFERENCE)
 
-> **Official Positioning:** Performance-driven Community Advertising Marketplace  
-> **Launch Distribution Channel:** WhatsApp Groups & Channels  
-> **Tagline:** *"Reach the right communities"*  
-> **Brand Identity:** Designed & Owned by **Rektina** (`rektina.com`)  
-> **Live Production Domain:** `https://adision.xyz` (Vercel)  
-> **Document Version:** 1.1.0 (Live Launch Edition)
+> **For Any AI Assistant Reading This:**  
+> This file contains the complete, unabridged technical and business context for **Adision** (`adision.xyz`). Read this file at the start of any conversation to immediately understand the entire system state, payment architecture, bug history, and pending tasks.
 
 ---
 
-## 1. Executive Summary & Core Value Proposition
+## 1. Project Overview & Business Model
+* **Product Name:** Adision (Owned by Rektina)
+* **Domain:** [adision.xyz](https://adision.xyz)
+* **What it is:** Nigeria's #1 performance advertising marketplace connecting businesses with verified WhatsApp Groups and WhatsApp Channels.
+* **Two Core User Types:**
+  1. **Advertisers:** Fund their wallet or pay for campaign packages to broadcast flyers/ad copy across targeted Nigerian WhatsApp communities with tracked link clicks and screenshot proof.
+  2. **Community Partners (WhatsApp Group Admins):** Register their groups, get verified by admins, accept broadcast tasks, post the ad in their groups, upload timestamped screenshot proof, and withdraw earnings to any Nigerian bank.
+* **Staff Admins:** Verify groups, assign campaigns, approve screenshot proof, and approve partner bank withdrawals.
 
-**Adision** connects businesses and advertisers seeking targeted reach with verified owners of digital communities (starting with WhatsApp Groups & Channels in Nigeria).
+---
 
-### The Two-Sided Marketplace
+## 2. Tech Stack & Infrastructure
+* **Framework:** Next.js 15.5+ (App Router), React 19, TypeScript
+* **Styling:** Tailwind CSS (Dark/Light mode support)
+* **Database & Auth:** Supabase (PostgreSQL with Row Level Security and service role admin)
+* **Hosting:** Vercel (`adision.xyz`)
+* **Payment Gateway:** **PocketFi** (`api.pocketfi.ng/api/v1`) — Nigerian fintech gateway supporting Debit Card, Direct Bank Transfer, and USSD.
+
+---
+
+## 3. PocketFi Payment Architecture & Credentials
+
+### Environment Variables (`.env.local` & Vercel Production)
+```env
+NEXT_PUBLIC_APP_URL=https://adision.xyz
+POCKETFI_PUBLIC_KEY=47370|O9Xefnl1rNsF7tCiOzl0lN0FfLGJR0mQHfipO4Gm6a801d8c
+POCKETFI_SECRET_KEY=4daa62c1ef37467f2bcf9592f36f07f86918113ea864efc038bd5fac96ab7afb
+POCKETFI_BUSINESS_ID=30833
+POCKETFI_ENV=live
 ```
-┌─────────────────────────────────────────┐          ┌─────────────────────────────────────────┐
-│           DEMAND (Advertisers)          │          │       SUPPLY (Community Partners)       │
-├─────────────────────────────────────────┤          ├─────────────────────────────────────────┤
-│ • Small businesses, startups, creators  │          │ • WhatsApp Group & Channel Admins       │
-│ • Frustration: manual DMing, scam risk, │  ──────> │ • Frustration: large audience but zero │
-│   zero click analytics, no placement    │  ADISION │   organized/predictable monetization    │
-│   verification.                         │  <────── │ • Value: steady ad jobs, auto tracking, │
-│ • Value: 1-click campaign, verified     │          │   guaranteed payouts to bank wallet.    │
-│   reach, unique click tracking reports. │          │                                         │
-└─────────────────────────────────────────┘          └─────────────────────────────────────────┘
-```
+> **CRITICAL TOKEN DETAIL:**  
+> PocketFi uses Laravel Sanctum tokens in the format `<id>|<hash>` (e.g. `47370|...`). The client in `src/lib/pocketfi/client.ts` automatically detects the token containing `|` to use as the `Authorization: Bearer <token>` header. Passing the 64-character hex secret key will result in `{"message": "Unauthenticated."}`.
+
+### Payment Endpoints
+1. **Initialize Wallet Funding:** `POST /api/wallet/fund`
+   - Accepts `{ amount: number }` (min. ₦10).
+   - Generates unique reference `wlt_<timestamp>_<random>`.
+   - Calls PocketFi `POST /api/v1/checkout/request`.
+   - **Records a `PENDING` deposit in `ledger_transactions`** with the PocketFi `payment_id` (e.g. `PFI|6011030885`).
+   - Returns `{ checkoutUrl, payment_id, reference, amount }` and redirects user to PocketFi.
+2. **Auto-Sync / Reconcile:** `POST /api/wallet/sync` & `GET /api/wallet/sync`
+   - Automatically executed on Advertiser Dashboard mount/refresh.
+   - Finds all `PENDING` deposits for the user in `ledger_transactions`.
+   - Calls PocketFi `POST /api/v1/checkout/confirm` with `{ payment_id }`.
+   - If PocketFi returns `success` / `completed`:
+     - Updates user's `wallets.available_balance` atomically.
+     - Updates `ledger_transactions.status = 'COMPLETED'`.
+     - Returns updated balance.
+3. **Manual Check Status:** `POST /api/wallet/confirm-funding`
+   - For modal dialog "I Have Completed Transfer — Check Status" button.
+   - Reconciles payment and marks pending transaction completed.
+4. **Universal Campaign Confirmation:** `POST /api/campaigns/confirm-payment`
+   - Universal return endpoint for PocketFi redirect (`?payment_id=PFI|...`).
+   - Checks if `payment_id` belongs to a campaign; if not, automatically credits the user's wallet instead of throwing "Campaign not found".
+5. **PocketFi Server Webhook:** `POST /api/webhooks/pocketfi`
+   - Cryptographically verified with SHA-512 HMAC signature using `POCKETFI_SECRET_KEY`.
+   - If `reference` starts with `wlt_`: marks `PENDING` deposit `COMPLETED` and updates wallet.
+   - If campaign: executes PostgreSQL RPC `process_campaign_payment` to activate campaign and fund escrow.
 
 ---
 
-## 2. Infrastructure & Hosting Architecture
+## 4. History of Past Bugs & How They Were Resolved
 
-- **Hosting Platform:** **Vercel** (`https://adision.xyz`)
-- **Framework:** **Next.js 15.5.25** (App Router, Node.js runtime)
-- **Database & Auth:** **Supabase** (PostgreSQL 15, Supabase Auth, Row Level Security, RPC functions)
-- **Payment Gateway:** **PocketFi** (`pocketfi.ng`) — Live collections via hosted checkout and dynamic virtual accounts.
-- **Styling & Design System:** Tailwind CSS, Lucide Icons, Plus Jakarta Sans typography.
-- **Brand Identity:** Powered and designed by **Rektina**. Logo stored at `/brand/rektina-logo.jpg`.
+### Bug 1: PocketFi Strips Custom URL Parameters
+* **Problem:** PocketFi discards custom query parameters on redirect (e.g. `ref=wlt_...` or `type=deposit`). PocketFi ONLY appends `?payment_id=PFI|...` to the redirect link.
+* **Fix:** All return handlers now take `paymentId` and dynamically check whether it belongs to a campaign or a wallet deposit in the database.
 
----
+### Bug 2: Delay When Returning Manually From Bank Transfer
+* **Problem:** When paying by bank transfer in a bank app, users often close the browser and open `adision.xyz` manually without URL parameters.
+* **Fix:** We implemented `/api/wallet/sync`. Every time the user opens or refreshes the dashboard, Adision queries PocketFi for any pending deposits and auto-credits the balance.
 
-## 3. Core Operational Flows
+### Bug 3: The Idempotency Bug (Found & Fixed)
+* **Problem:** In `/api/wallet/confirm-funding` and `/api/webhooks/pocketfi`, the code checked:
+  `select('id').eq('reference_type', 'POCKETFI_DEPOSIT').ilike('description', %paymentKey%).maybeSingle()`
+  WITHOUT checking `.eq('status', 'COMPLETED')`.
+  Because `/api/wallet/fund` had already created a `PENDING` row, this query matched the `PENDING` row, thought the deposit was already finished, and exited without updating the wallet!
+* **Fix:** Updated the check to `.eq('status', 'COMPLETED')`. If a `PENDING` row exists, it updates that pending row to `COMPLETED` and adds the funds to `wallets.available_balance`.
 
-### A. Advertiser Campaign & Checkout Flow (PocketFi)
-1. Advertiser logs in and navigates to `/advertiser/campaigns/new`.
-2. Fills campaign details (Title, Category, WhatsApp Ad Copy, Banner URL, Destination Link, CTA).
-3. Selects an outcome-based package (Starter fixed ₦7,000, Corporate ₦350/signup, or Gold Salesman ₦750/customer).
-4. Clicks **"Proceed to Payment"**:
-   - The server initiates a checkout session with PocketFi (`POST /api/v1/checkout/request`).
-   - The user is **immediately redirected to PocketFi's official hosted checkout page** (`https://pocketfi.ng/checkout/PFI|...`).
-   - On PocketFi, the advertiser pays via **Debit Card**, **Direct Bank Transfer** (SafeHaven/Kuda with countdown timer), or **USSD**.
-5. Once paid, PocketFi redirects back to `https://adision.xyz/advertiser?ref=...&payment_id=...`.
-6. The dashboard automatically confirms the payment server-to-server (`/api/campaigns/confirm-payment`) and updates the campaign to `ACTIVE` and `PAID`.
-7. Real-time background webhook confirmation is also handled at `/api/webhooks/pocketfi` with cryptographic SHA-512 HMAC verification.
+### Bug 4: React Hydration Error #418
+* **Problem:** `WhatsAppMockup.tsx` called `new Date().toLocaleTimeString()` in the render body. The server (UTC) and client (WAT GMT+1) rendered different text, throwing React error 418.
+* **Fix:** Replaced with static `'09:41'` (standard smartphone mockup time). Also added `isMounted` guard to `Navbar.tsx` and timezone consistency to `formatDate`.
 
-### B. Authentication & Password Recovery Flow
-- **Registration:** [`/signup`](/signup) supports multi-role onboarding (`advertiser` vs `community`).
-- **Login:** [`/login`](/login) routes users directly to their respective portals (`/admin`, `/advertiser`, or `/partner`).
-- **Password Reset:**
-  - Users click **"Forgot password?"** on `/login`.
-  - Enter email on [`/forgot-password`](/forgot-password).
-  - Supabase Auth sends an email with a recovery link.
-  - Users set a new password on [`/reset-password`](/reset-password) via `supabase.auth.updateUser`.
-- **Waitlist Migration:** Waitlist submissions did not collect passwords. Waitlist users simply visit `/signup` to set their password and begin using the platform.
-
-### C. Community Partner Verification & Payout Flow
-1. Group/Channel owners register at `/signup?role=community`.
-2. Submit their community at `/partner/communities` (Group/Channel name, category, member count, invite link).
-3. Admins review and approve at `/admin/communities`.
-4. Once campaigns are active, admins assign ads at `/admin/campaigns`, auto-generating unique tracked links (`/r/[code]`).
-5. Partners broadcast the message, copy their tracked link, and submit screenshot proof at `/partner/assignments`.
-6. Admins verify proof at `/admin/proofs`, triggering atomic wallet payouts (`approve_proof_and_credit_partner`).
-7. Partners request bank withdrawals to any Nigerian bank at `/partner/wallet`.
+### Bug 5: Mobile Horizontal Overflow
+* **Problem:** Wide 6-column tables and default viewports allowed side-scrolling on phones.
+* **Fix:** 
+  - Added `overflow-x: hidden; max-width: 100vw; width: 100%;` in `globals.css` and `layout.tsx`.
+  - Added responsive mobile cards (`block md:hidden`) on both Advertiser and Partner dashboards so tables are replaced with native mobile cards on phones.
 
 ---
 
-## 4. Admin Portals & Tools
-
-- **Main Admin Dashboard:** `/admin`
-- **Live User Directory:** `/admin/users` — Directory of all registered live advertisers and community partners with 1-click WhatsApp messaging and CSV export.
-- **Waitlist Database:** `/admin/waitlist` — Original pre-launch waitlist leads with 1-click phone copying and CSV export.
-- **Community Approval Queue:** `/admin/communities`
-- **Campaign Matchmaking & Assignments:** `/admin/campaigns`
-- **Placement Proof Review:** `/admin/proofs`
-- **Partner Withdrawal Desk:** `/admin/withdrawals`
-
----
-
-## 5. Security & Cybersecurity Architecture
-
-1. **Row Level Security (RLS):** Enabled on all 11 PostgreSQL tables in Supabase.
-2. **Double-Entry Escrow Ledger:** Immutable financial records in `ledger_transactions` with ACID transaction guarantees.
-3. **Bot & Click Fraud Protection:** SHA-256 IP/User-Agent hashing and rate limiting on redirect links (`/r/[code]`).
-4. **Webhook Cryptography:** SHA-512 HMAC signature verification on all incoming PocketFi events.
-5. **No Fake Simulation in Production:** Strict `NODE_ENV === 'production'` security guard ensures no unauthorized balance manipulation.
+## 5. Current Live Account State (Founder Test Account)
+* **Email:** `marvellousadepoju79@gmail.com`
+* **User ID:** `baaed9cc-6661-4f44-b9b0-a0d0eb31179b`
+* **Role:** `ADVERTISER`
+* **Wallet ID:** `a171eef9-85e5-4d64-9118-58f2fab62479`
+* **Wallet Balance:** ₦76.00
+* **Campaigns in DB:**
+  - `dc8eeecd-134d-4bf0-b1cd-0781559d428b`: Title "test" (Budget: ₦50, Status: ACTIVE, Payment: PAID)
+  - `19e13ec4-436d-45dd-a595-750aa351f857`: Title "oijggh" (Budget: ₦11, Status: ACTIVE, Payment: PAID)
 
 ---
 
-## 6. SEO & Discoverability
-
-- **Canonical URL:** `https://adision.xyz`
-- **Sitemap:** `https://adision.xyz/sitemap.xml`
-- **Robots Policy:** `https://adision.xyz/robots.txt`
-- **Metadata:** OpenGraph, Twitter Cards, Plus Jakarta Sans font optimization, Rektina author attribution.
-- **Search Console:** Configured for rapid 24-48h indexing by Googlebot.
+## 6. Campaign Packages State
+1. **Founder Test (₦11):** Temporary test package for founder testing (`pkg_test_11`).
+2. **Starter (₦7,000):** Fixed 14-day + 1 bonus day broadcast package for WhatsApp reach.
+3. **Corporate (₦350/signup):** Performance package with user-defined target signups.
+4. **Gold Salesman (₦750/paying customer):** Performance package with user-defined customer target.
+> *Note:* The Founder Test package can be removed from `src/lib/constants.ts` once testing is finished.
 
 ---
 
-## 7. Current Project Status & Completed Milestones
-
-- [x] Production domain `adision.xyz` active with HTTPS on Vercel.
-- [x] Full removal of Cloudflare artifacts and clean package dependencies.
-- [x] Live PocketFi hosted checkout integration with automated return settlement.
-- [x] Forgot Password and Reset Password flows active.
-- [x] Rektina brand ownership badges and official logo added.
-- [x] Separate `/admin/users` directory for live registered platform users.
-- [x] Pre-launch waitlist converted to live launch gateway.
-- [x] 0 build or TypeScript compilation errors across all 44 routes.
+## 7. Immediate Next Steps For Tomorrow
+1. **Automated End-to-End Test:**
+   - Log in as advertiser.
+   - Click "Fund Wallet" $\rightarrow$ select ₦10 or ₦11 $\rightarrow$ pay via PocketFi.
+   - Verify that the wallet balance updates automatically on screen without ANY manual database updates or terminal scripts.
+2. **PocketFi Webhook Verification:**
+   - In PocketFi Dashboard $\rightarrow$ Settings $\rightarrow$ Webhooks, verify URL is `https://adision.xyz/api/webhooks/pocketfi`.
+3. **Launch Ops:**
+   - Submit `sitemap.xml` in Google Search Console.
+   - Broadcast to waitlist users from `adision.xyz/admin/waitlist`.
