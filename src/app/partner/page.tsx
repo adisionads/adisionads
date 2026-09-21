@@ -136,49 +136,91 @@ export default function PartnerDashboard() {
               </Link>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm min-w-[640px]">
-                <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
-                  <tr>
-                    <th className="px-6 py-4">Community Name</th>
-                    <th className="px-6 py-4">Category</th>
-                    <th className="px-6 py-4">Member Count</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4">Score</th>
-                    <th className="px-6 py-4 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/80">
-                  {communities.map((comm) => (
-                    <tr key={comm.id} className="hover:bg-slate-800/30 transition-colors">
-                      <td className="px-6 py-4 font-bold text-white">
-                        {comm.name}
-                        <div className="text-[11px] text-slate-500 font-normal">{comm.platform.replace('_', ' ')}</div>
-                      </td>
-                      <td className="px-6 py-4 text-brand-400 font-medium text-xs">
-                        {formatCategoryName(comm.category)}
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-white">
-                        {formatNumber(comm.member_count)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <StatusBadge status={comm.status} />
-                      </td>
-                      <td className="px-6 py-4 font-bold text-emerald-400">
-                        {comm.performance_score ? `${comm.performance_score}/100` : 'Pending'}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <Link href="/partner/assignments">
-                          <Button size="sm" variant="outline" className="text-xs">
-                            View Jobs
-                          </Button>
-                        </Link>
-                      </td>
+            <>
+              {/* Mobile Community Cards */}
+              <div className="block md:hidden divide-y divide-slate-800/80">
+                {communities.map((comm) => (
+                  <div key={comm.id} className="p-4 space-y-3 hover:bg-slate-800/30 transition-colors">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold text-white text-sm truncate">{comm.name}</div>
+                        <div className="text-xs text-brand-400 font-medium">
+                          {formatCategoryName(comm.category)}
+                        </div>
+                      </div>
+                      <StatusBadge status={comm.status} />
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs py-1.5 px-3 rounded-xl bg-slate-950/60 border border-slate-800/60">
+                      <div>
+                        <span className="text-slate-400">Members: </span>
+                        <span className="font-bold text-white">{formatNumber(comm.member_count)}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400">Score: </span>
+                        <span className="font-bold text-emerald-400">
+                          {comm.performance_score ? `${comm.performance_score}/100` : 'Pending'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-[11px] text-slate-500">{comm.platform.replace('_', ' ')}</span>
+                      <Link href="/partner/assignments">
+                        <Button size="sm" variant="outline" className="text-xs h-7 px-3">
+                          View Jobs
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-sm min-w-[640px]">
+                  <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
+                    <tr>
+                      <th className="px-6 py-4">Community Name</th>
+                      <th className="px-6 py-4">Category</th>
+                      <th className="px-6 py-4">Member Count</th>
+                      <th className="px-6 py-4">Status</th>
+                      <th className="px-6 py-4">Score</th>
+                      <th className="px-6 py-4 text-right">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/80">
+                    {communities.map((comm) => (
+                      <tr key={comm.id} className="hover:bg-slate-800/30 transition-colors">
+                        <td className="px-6 py-4 font-bold text-white">
+                          {comm.name}
+                          <div className="text-[11px] text-slate-500 font-normal">{comm.platform.replace('_', ' ')}</div>
+                        </td>
+                        <td className="px-6 py-4 text-brand-400 font-medium text-xs">
+                          {formatCategoryName(comm.category)}
+                        </td>
+                        <td className="px-6 py-4 font-semibold text-white">
+                          {formatNumber(comm.member_count)}
+                        </td>
+                        <td className="px-6 py-4">
+                          <StatusBadge status={comm.status} />
+                        </td>
+                        <td className="px-6 py-4 font-bold text-emerald-400">
+                          {comm.performance_score ? `${comm.performance_score}/100` : 'Pending'}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <Link href="/partner/assignments">
+                            <Button size="sm" variant="outline" className="text-xs">
+                              View Jobs
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </Card>
       </div>

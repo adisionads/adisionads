@@ -41,20 +41,6 @@ function AdvertiserDashboardContent() {
   const paymentStatus = searchParams.get('payment_status');
   const walletFundedParam = searchParams.get('wallet_funded');
 
-  // Robust multi-format parameter extraction (handles any query string formatting)
-  let resolvedPaymentId = rawPaymentId;
-  let resolvedPaymentRef = rawPaymentRef;
-  if (typeof window !== 'undefined') {
-    if (!resolvedPaymentId) {
-      const match = window.location.href.match(/[?&]payment_id=([^&#]+)/);
-      if (match) resolvedPaymentId = decodeURIComponent(match[1]);
-    }
-    if (!resolvedPaymentRef) {
-      const match = window.location.href.match(/[?&]ref=([^&#]+)/);
-      if (match) resolvedPaymentRef = decodeURIComponent(match[1]);
-    }
-  }
-
   const { campaigns: contextCampaigns } = useApp();
   const { user } = useAuth();
 
@@ -131,9 +117,19 @@ function AdvertiserDashboardContent() {
 
   // Handle return from PocketFi (both Campaign payments and Wallet deposits)
   useEffect(() => {
-    // Check localStorage for any pending payment initiated from this browser
+    let resolvedPaymentId = rawPaymentId;
+    let resolvedPaymentRef = rawPaymentRef;
     let storedPaymentId: string | null = null;
+
     if (typeof window !== 'undefined') {
+      if (!resolvedPaymentId) {
+        const match = window.location.href.match(/[?&]payment_id=([^&#]+)/);
+        if (match) resolvedPaymentId = decodeURIComponent(match[1]);
+      }
+      if (!resolvedPaymentRef) {
+        const match = window.location.href.match(/[?&]ref=([^&#]+)/);
+        if (match) resolvedPaymentRef = decodeURIComponent(match[1]);
+      }
       storedPaymentId = localStorage.getItem('adision_pending_pfi_payment');
     }
 
@@ -174,7 +170,7 @@ function AdvertiserDashboardContent() {
 
       verifyReturn();
     }
-  }, [resolvedPaymentId, resolvedPaymentRef, paymentStatus, walletFundedParam, fetchCampaigns, fundAmount]);
+  }, [rawPaymentId, rawPaymentRef, paymentStatus, walletFundedParam, fetchCampaigns, fundAmount]);
 
   // Manually check status of any pending campaign
   const handleCheckCampaignPayment = async (camp: Campaign) => {
@@ -321,17 +317,17 @@ function AdvertiserDashboardContent() {
         {/* Header with Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">Advertiser Dashboard</h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Advertiser Dashboard</h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-1">
               Track your campaigns, link clicks, and wallet balance in real time.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
             {/* Wallet Display & Fund Button */}
-            <div className="flex items-center gap-2 p-1.5 pl-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs">
-              <WalletIcon className="w-4 h-4 text-brand-400 shrink-0" />
-              <div className="flex items-center gap-1.5 mr-1">
+            <div className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 p-1.5 pl-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs">
+              <div className="flex items-center gap-1.5">
+                <WalletIcon className="w-4 h-4 text-brand-400 shrink-0" />
                 <span className="text-slate-400">Balance:</span>
                 <span className="font-black text-white text-sm">{formatCurrency(walletBalance)}</span>
               </div>
@@ -342,30 +338,32 @@ function AdvertiserDashboardContent() {
                   setWalletCheckoutData(null);
                   setIsFundModalOpen(true);
                 }}
-                className="h-8 px-3 font-bold text-xs bg-emerald-500 hover:bg-emerald-400 text-dark-950 shadow-md shadow-emerald-500/20 gap-1"
+                className="h-8 px-3 font-bold text-xs bg-emerald-500 hover:bg-emerald-400 text-dark-950 shadow-md shadow-emerald-500/20 gap-1 shrink-0"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
                 <span>Fund Wallet</span>
               </Button>
             </div>
 
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={fetchCampaigns}
-              disabled={isLoading}
-              className="h-9 text-xs text-slate-400 hover:text-white gap-1.5 border-slate-800"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-              <span>Refresh</span>
-            </Button>
-
-            <Link href="/advertiser/campaigns/new">
-              <Button size="md" variant="primary" className="h-9 font-bold shadow-lg shadow-brand-500/20 gap-1.5">
-                <PlusCircle className="w-4 h-4" />
-                <span>New Campaign</span>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={fetchCampaigns}
+                disabled={isLoading}
+                className="flex-1 sm:flex-initial h-9 text-xs text-slate-400 hover:text-white gap-1.5 border-slate-800"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                <span>Refresh</span>
               </Button>
-            </Link>
+
+              <Link href="/advertiser/campaigns/new" className="flex-1 sm:flex-initial">
+                <Button size="md" variant="primary" className="w-full h-9 font-bold shadow-lg shadow-brand-500/20 gap-1.5">
+                  <PlusCircle className="w-4 h-4" />
+                  <span>New Campaign</span>
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -444,111 +442,205 @@ function AdvertiserDashboardContent() {
               </Link>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm min-w-[700px]">
-                <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
-                  <tr>
-                    <th className="px-6 py-4">Campaign Name & Target</th>
-                    <th className="px-6 py-4">Package & Budget</th>
-                    <th className="px-6 py-4">Campaign Status</th>
-                    <th className="px-6 py-4">Payment Status</th>
-                    <th className="px-6 py-4">Clicks (Unique)</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/80">
-                  {campaigns.map((camp) => {
-                    const isPending = camp.payment_status !== 'PAID';
-                    const paymentLink = (camp.virtual_account_details as any)?.payment_link;
+            <>
+              {/* Mobile Campaign Cards (Shown only on phones/small screens) */}
+              <div className="block md:hidden divide-y divide-slate-800/80">
+                {campaigns.map((camp) => {
+                  const isPending = camp.payment_status !== 'PAID';
+                  const paymentLink = (camp.virtual_account_details as any)?.payment_link;
 
-                    return (
-                      <tr key={camp.id} className="hover:bg-slate-800/30 transition-colors">
-                        <td className="px-6 py-4">
-                          <div className="font-bold text-white">{camp.title}</div>
-                          <div className="text-xs text-brand-400 font-medium mt-0.5">
+                  return (
+                    <div key={camp.id} className="p-4 space-y-3 hover:bg-slate-800/30 transition-colors">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold text-white text-sm truncate">{camp.title}</div>
+                          <div className="text-xs text-brand-400 font-medium">
                             {formatCategoryName(camp.category)}
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="font-semibold text-white">{formatCurrency(camp.budget_amount)}</div>
-                          <div className="text-xs text-slate-400">{camp.package_name} ({camp.duration_days}d)</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <StatusBadge status={camp.status} />
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="space-y-1">
-                            <span
-                              className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${
-                                !isPending
-                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                  : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                              }`}
+                        </div>
+                        <StatusBadge status={camp.status} />
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs py-1.5 px-3 rounded-xl bg-slate-950/60 border border-slate-800/60">
+                        <div>
+                          <span className="text-slate-400">Budget: </span>
+                          <span className="font-bold text-white">{formatCurrency(camp.budget_amount)}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Clicks: </span>
+                          <span className="font-bold text-white">{camp.total_clicks || 0}</span>
+                          <span className="text-slate-500 text-[10px]"> ({camp.unique_clicks || 0} unique)</span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                        <div>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${
+                              !isPending
+                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                            }`}
+                          >
+                            {!isPending ? 'PAID' : 'PENDING'}
+                          </span>
+                          {isPending && paymentLink && (
+                            <a
+                              href={paymentLink}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="block text-[11px] text-brand-400 hover:underline font-semibold mt-1"
                             >
-                              {!isPending ? 'PAID (HELD SAFELY)' : 'PAYMENT PENDING'}
-                            </span>
+                              Pay ₦{camp.budget_amount} →
+                            </a>
+                          )}
+                        </div>
 
-                            {isPending && paymentLink && (
-                              <a
-                                href={paymentLink}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="block text-[11px] text-brand-400 hover:underline font-semibold"
-                              >
-                                Pay ₦{camp.budget_amount} on PocketFi →
-                              </a>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="font-bold text-white">
-                            {camp.total_clicks || 0}{' '}
-                            <span className="text-xs text-slate-400 font-normal">
-                              ({camp.unique_clicks || 0} unique)
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            {isPending && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleCheckCampaignPayment(camp)}
-                                disabled={verifyingCampaignId === camp.id}
-                                className="gap-1 text-xs border-amber-500/40 text-amber-300 hover:bg-amber-500/10 h-8"
-                                title="Check if PocketFi payment has cleared"
-                              >
-                                <RefreshCw className={`w-3 h-3 ${verifyingCampaignId === camp.id ? 'animate-spin' : ''}`} />
-                                <span>Check Status</span>
-                              </Button>
-                            )}
-
-                            <Link href={`/advertiser/campaigns/${camp.id}`}>
-                              <Button size="sm" variant="outline" className="gap-1 text-xs h-8 border-slate-700">
-                                <Eye className="w-3.5 h-3.5" />
-                                <span className="hidden sm:inline">Analytics</span>
-                              </Button>
-                            </Link>
-
+                        <div className="flex items-center gap-1.5 ml-auto">
+                          {isPending && (
                             <Button
                               size="sm"
-                              variant="ghost"
-                              onClick={() => handleDeleteCampaign(camp.id, camp.title)}
-                              disabled={deletingCampaignId === camp.id}
-                              className="h-8 px-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
-                              title="Delete Campaign"
+                              variant="outline"
+                              onClick={() => handleCheckCampaignPayment(camp)}
+                              disabled={verifyingCampaignId === camp.id}
+                              className="gap-1 text-[11px] border-amber-500/40 text-amber-300 hover:bg-amber-500/10 h-7 px-2"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <RefreshCw className={`w-3 h-3 ${verifyingCampaignId === camp.id ? 'animate-spin' : ''}`} />
+                              <span>Status</span>
                             </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          )}
+
+                          <Link href={`/advertiser/campaigns/${camp.id}`}>
+                            <Button size="sm" variant="outline" className="gap-1 text-[11px] h-7 px-2 border-slate-700">
+                              <Eye className="w-3 h-3" />
+                              <span>Analytics</span>
+                            </Button>
+                          </Link>
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteCampaign(camp.id, camp.title)}
+                            disabled={deletingCampaignId === camp.id}
+                            className="h-7 px-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
+                            title="Delete Campaign"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Campaign Table (Shown only on tablets/desktop) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-sm min-w-[700px]">
+                  <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
+                    <tr>
+                      <th className="px-6 py-4">Campaign Name & Target</th>
+                      <th className="px-6 py-4">Package & Budget</th>
+                      <th className="px-6 py-4">Campaign Status</th>
+                      <th className="px-6 py-4">Payment Status</th>
+                      <th className="px-6 py-4">Clicks (Unique)</th>
+                      <th className="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/80">
+                    {campaigns.map((camp) => {
+                      const isPending = camp.payment_status !== 'PAID';
+                      const paymentLink = (camp.virtual_account_details as any)?.payment_link;
+
+                      return (
+                        <tr key={camp.id} className="hover:bg-slate-800/30 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="font-bold text-white">{camp.title}</div>
+                            <div className="text-xs text-brand-400 font-medium mt-0.5">
+                              {formatCategoryName(camp.category)}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="font-semibold text-white">{formatCurrency(camp.budget_amount)}</div>
+                            <div className="text-xs text-slate-400">{camp.package_name} ({camp.duration_days}d)</div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <StatusBadge status={camp.status} />
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="space-y-1">
+                              <span
+                                className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${
+                                  !isPending
+                                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                    : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                }`}
+                              >
+                                {!isPending ? 'PAID (HELD SAFELY)' : 'PAYMENT PENDING'}
+                              </span>
+
+                              {isPending && paymentLink && (
+                                <a
+                                  href={paymentLink}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="block text-[11px] text-brand-400 hover:underline font-semibold"
+                                >
+                                  Pay ₦{camp.budget_amount} on PocketFi →
+                                </a>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="font-bold text-white">
+                              {camp.total_clicks || 0}{' '}
+                              <span className="text-xs text-slate-400 font-normal">
+                                ({camp.unique_clicks || 0} unique)
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              {isPending && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleCheckCampaignPayment(camp)}
+                                  disabled={verifyingCampaignId === camp.id}
+                                  className="gap-1 text-xs border-amber-500/40 text-amber-300 hover:bg-amber-500/10 h-8"
+                                  title="Check if PocketFi payment has cleared"
+                                >
+                                  <RefreshCw className={`w-3 h-3 ${verifyingCampaignId === camp.id ? 'animate-spin' : ''}`} />
+                                  <span>Check Status</span>
+                                </Button>
+                              )}
+
+                              <Link href={`/advertiser/campaigns/${camp.id}`}>
+                                <Button size="sm" variant="outline" className="gap-1 text-xs h-8 border-slate-700">
+                                  <Eye className="w-3.5 h-3.5" />
+                                  <span className="hidden sm:inline">Analytics</span>
+                                </Button>
+                              </Link>
+
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleDeleteCampaign(camp.id, camp.title)}
+                                disabled={deletingCampaignId === camp.id}
+                                className="h-8 px-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
+                                title="Delete Campaign"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </Card>
       </div>

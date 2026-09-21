@@ -33,6 +33,11 @@ export function Navbar() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const getPortalLink = () => {
     if (role === 'ADMIN') return '/admin';
@@ -98,7 +103,7 @@ export function Navbar() {
               How It Works
             </a>
 
-            {isAuthenticated && (
+            {mounted && isAuthenticated && (
               <Link
                 href={getPortalLink()}
                 className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-1.5 ${
@@ -131,7 +136,7 @@ export function Navbar() {
           </button>
 
           {/* Authenticated State */}
-          {isAuthenticated ? (
+          {mounted && isAuthenticated ? (
             <div className="flex items-center gap-3">
               {/* Partner Wallet Quick Pill */}
               {role === 'COMMUNITY_PARTNER' && (
@@ -271,7 +276,7 @@ export function Navbar() {
               How It Works
             </a>
 
-            {isAuthenticated ? (
+            {mounted && isAuthenticated ? (
               <Link
                 href={getPortalLink()}
                 onClick={() => setMobileMenuOpen(false)}
@@ -283,7 +288,7 @@ export function Navbar() {
           </div>
 
           <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
-            {isAuthenticated ? (
+            {mounted && isAuthenticated ? (
               <button
                 onClick={handleSignOut}
                 className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 text-center"

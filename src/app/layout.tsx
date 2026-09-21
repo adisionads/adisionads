@@ -232,12 +232,15 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebSite) }}
         />
       </head>
-      <body className={`${fontSans.className} min-h-screen flex flex-col bg-slate-50 dark:bg-dark-900 text-slate-900 dark:text-slate-100 antialiased selection:bg-brand-500 selection:text-dark-900`}>
+      <body
+        className={`${fontSans.className} min-h-screen flex flex-col bg-slate-50 dark:bg-dark-900 text-slate-900 dark:text-slate-100 antialiased selection:bg-brand-500 selection:text-dark-900 overflow-x-hidden w-full max-w-full`}
+        suppressHydrationWarning
+      >
         <ThemeProvider>
           <AuthProvider>
             <AppProvider>
               <Navbar />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 w-full max-w-full overflow-x-hidden">{children}</main>
               <Footer />
               <PWAInstallBanner />
             </AppProvider>

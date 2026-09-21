@@ -24,7 +24,7 @@ export function WhatsAppMockup({
   ctaText = 'Visit Website 🚀',
   trackingCode = 'ad_live_preview',
 }: WhatsAppMockupProps) {
-  const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const currentTime = '09:41';
 
   return (
     <div className="w-full max-w-sm mx-auto rounded-[32px] overflow-hidden border-[6px] border-slate-800 bg-[#0c1317] shadow-2xl font-sans">
