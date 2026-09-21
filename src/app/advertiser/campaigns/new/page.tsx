@@ -75,7 +75,7 @@ export default function NewCampaignPage() {
       ? targetQuantity * 350
       : selectedPackage.billing_model === 'PER_CUSTOMER'
       ? targetQuantity * 750
-      : 7000;
+      : selectedPackage.price || 50;
 
   const handleSelectPackage = (pkgId: string) => {
     setSelectedPackageId(pkgId);
@@ -345,8 +345,8 @@ export default function NewCampaignPage() {
               </CardHeader>
 
               <div className="space-y-6">
-                {/* 3 Outcome Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Outcome Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {CAMPAIGN_PACKAGES.map((pkg) => (
                     <div
                       key={pkg.id}
@@ -368,13 +368,15 @@ export default function NewCampaignPage() {
                               ? '₦350'
                               : pkg.billing_model === 'PER_CUSTOMER'
                               ? '₦750'
-                              : '₦7,000'}
+                              : formatCurrency(pkg.price)}
                           </span>
                           <span className="text-[11px] text-slate-400 block">
                             {pkg.billing_model === 'PER_SIGNUP'
                               ? 'per qualified signup'
                               : pkg.billing_model === 'PER_CUSTOMER'
                               ? 'per paying customer'
+                              : pkg.id === 'pkg_test_50'
+                              ? 'single live test'
                               : 'fixed campaign fee'}
                           </span>
                         </div>
@@ -463,7 +465,9 @@ export default function NewCampaignPage() {
                   <div className="flex justify-between text-slate-400">
                     <span>Target Delivery:</span>
                     <span className="text-slate-200 font-semibold">
-                      {selectedPackage.billing_model === 'FIXED'
+                      {selectedPackage.id === 'pkg_test_50'
+                        ? '1 Day (Live Gateway Verification)'
+                        : selectedPackage.billing_model === 'FIXED'
                         ? '14 Days + 1 Bonus Day (15 Days Total)'
                         : selectedPackage.billing_model === 'PER_SIGNUP'
                         ? `${targetQuantity} Qualified Signups (@ ₦350 each)`
