@@ -99,15 +99,16 @@ export async function POST(request: NextRequest) {
 
     // 3. Idempotency Guard: Prevent double-crediting if already processed
     const paymentKey = paymentId || reference;
-    const { data: existingLedger } = await supabaseAdmin
+    const { data: alreadyCompleted } = await supabaseAdmin
       .from('ledger_transactions')
       .select('id')
       .eq('wallet_id', currentWallet.id)
       .eq('reference_type', 'POCKETFI_DEPOSIT')
+      .eq('status', 'COMPLETED')
       .ilike('description', `%${paymentKey}%`)
       .maybeSingle();
 
-    if (existingLedger) {
+    if (alreadyCompleted) {
       return NextResponse.json({
         status: true,
         success: true,
@@ -116,6 +117,16 @@ export async function POST(request: NextRequest) {
         amount: depositAmount,
       });
     }
+
+    // Check if there is a pending transaction row to settle
+    const { data: pendingTx } = await supabaseAdmin
+      .from('ledger_transactions')
+      .select('id')
+      .eq('wallet_id', currentWallet.id)
+      .eq('reference_type', 'POCKETFI_DEPOSIT')
+      .eq('status', 'PENDING')
+      .ilike('description', `%${paymentKey}%`)
+      .maybeSingle();
 
     // 4. Atomically Credit Wallet Balance
     const previousBalance = Number(currentWallet.available_balance || 0);
@@ -137,18 +148,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. Record Double-Entry Ledger Transaction
-    await supabaseAdmin.from('ledger_transactions').insert({
-      wallet_id: currentWallet.id,
-      user_id: userId,
-      transaction_type: 'DEPOSIT',
-      amount: depositAmount,
-      direction: 'CREDIT',
-      balance_after: newBalance,
-      reference_type: 'POCKETFI_DEPOSIT',
-      description: `Direct wallet deposit via PocketFi (${paymentKey})`,
-      status: 'COMPLETED',
-    });
+    // 5. Update Pending Ledger Transaction or Insert Completed
+    if (pendingTx) {
+      await supabaseAdmin
+        .from('ledger_transactions')
+        .update({
+          status: 'COMPLETED',
+          amount: depositAmount,
+          balance_after: newBalance,
+        })
+        .eq('id', pendingTx.id);
+    } else {
+      await supabaseAdmin.from('ledger_transactions').insert({
+        wallet_id: currentWallet.id,
+        user_id: userId,
+        transaction_type: 'DEPOSIT',
+        amount: depositAmount,
+        direction: 'CREDIT',
+        balance_after: newBalance,
+        reference_type: 'POCKETFI_DEPOSIT',
+        description: `Direct wallet deposit via PocketFi (${paymentKey})`,
+        status: 'COMPLETED',
+      });
+    }
 
     return NextResponse.json({
       status: true,
