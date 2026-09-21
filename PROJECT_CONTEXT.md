@@ -60,6 +60,7 @@ POCKETFI_ENV=live
    - Universal return endpoint for PocketFi redirect (`?payment_id=PFI|...`).
    - Checks if `payment_id` belongs to a campaign; if not, automatically credits the user's wallet instead of throwing "Campaign not found".
 5. **PocketFi Server Webhook:** `POST /api/webhooks/pocketfi`
+   - **Status:** ALREADY ACTIVE AND CONFIGURED in the PocketFi merchant dashboard.
    - Cryptographically verified with SHA-512 HMAC signature using `POCKETFI_SECRET_KEY`.
    - If `reference` starts with `wlt_`: marks `PENDING` deposit `COMPLETED` and updates wallet.
    - If campaign: executes PostgreSQL RPC `process_campaign_payment` to activate campaign and fund escrow.
