@@ -68,7 +68,8 @@ export async function POST(request: NextRequest) {
       rawStatus === 'successful' ||
       rawStatus.includes('success') ||
       rawStatus.includes('credit') ||
-      rawStatus.includes('paid');
+      rawStatus.includes('paid') ||
+      rawStatus.includes('completed');
 
     // Acknowledge non-success events without error to prevent continuous retries
     if (!isSuccess) {
@@ -86,8 +87,54 @@ export async function POST(request: NextRequest) {
 
     console.log(`[PocketFi Webhook] Verified Payment Event: Ref: ${reference} | Amount: ₦${amount}`);
 
-    // 2. Production Settlement via Atomic Database Stored Procedure
+    // 2. Production Settlement
     if (isSupabaseAdminConfigured()) {
+      // Branch A: Direct Wallet Funding
+      if (reference.startsWith('wlt_')) {
+        const paymentKey = payload.payment_id || reference;
+        // Check idempotency
+        const { data: existingLedger } = await supabaseAdmin
+          .from('ledger_transactions')
+          .select('id')
+          .eq('reference_type', 'POCKETFI_DEPOSIT')
+          .ilike('description', `%${paymentKey}%`)
+          .maybeSingle();
+
+        if (existingLedger) {
+          return NextResponse.json({ status: true, message: 'Wallet deposit already credited' });
+        }
+
+        // Credit wallet
+        const email = payload.email || payload.data?.email || payload.customer_email;
+        let walletQuery = supabaseAdmin.from('wallets').select('*');
+        if (email) {
+          const { data: profile } = await supabaseAdmin.from('profiles').select('id').eq('email', email).maybeSingle();
+          if (profile?.id) {
+            walletQuery = walletQuery.eq('user_id', profile.id);
+          }
+        }
+
+        const { data: wallet } = await walletQuery.limit(1).maybeSingle();
+        if (wallet) {
+          const newBal = Number(wallet.available_balance || 0) + amount;
+          await supabaseAdmin.from('wallets').update({ available_balance: newBal, updated_at: new Date().toISOString() }).eq('id', wallet.id);
+          await supabaseAdmin.from('ledger_transactions').insert({
+            wallet_id: wallet.id,
+            user_id: wallet.user_id,
+            transaction_type: 'DEPOSIT',
+            amount,
+            direction: 'CREDIT',
+            balance_after: newBal,
+            reference_type: 'POCKETFI_DEPOSIT',
+            description: `Direct wallet deposit via PocketFi (${paymentKey})`,
+            status: 'COMPLETED',
+          });
+        }
+
+        return NextResponse.json({ status: true, message: 'Wallet deposit credited successfully' });
+      }
+
+      // Branch B: Campaign Escrow Payment
       const { data, error } = await supabaseAdmin.rpc('process_campaign_payment', {
         p_payment_reference: reference,
         p_amount: amount,

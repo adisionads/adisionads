@@ -13,6 +13,8 @@ import { StatsCard } from '@/components/shared/StatsCard';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Modal } from '@/components/ui/Modal';
+import { Input } from '@/components/ui/Input';
 import {
   ArrowRight,
   CheckCircle2,
@@ -25,6 +27,11 @@ import {
   RefreshCw,
   Wallet as WalletIcon,
   X,
+  Trash2,
+  Building2,
+  ExternalLink,
+  Copy,
+  AlertCircle,
 } from 'lucide-react';
 
 function AdvertiserDashboardContent() {
@@ -32,6 +39,7 @@ function AdvertiserDashboardContent() {
   const rawPaymentId = searchParams.get('payment_id');
   const rawPaymentRef = searchParams.get('ref');
   const paymentStatus = searchParams.get('payment_status');
+  const walletFundedParam = searchParams.get('wallet_funded');
 
   // Robust multi-format parameter extraction (handles any query string formatting)
   let resolvedPaymentId = rawPaymentId;
@@ -54,6 +62,17 @@ function AdvertiserDashboardContent() {
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [paymentBanner, setPaymentBanner] = useState<string | null>(null);
+
+  // Fund Wallet State
+  const [isFundModalOpen, setIsFundModalOpen] = useState(false);
+  const [fundAmount, setFundAmount] = useState<number>(11); // Default to ₦11 for testing
+  const [isFunding, setIsFunding] = useState(false);
+  const [walletCheckoutData, setWalletCheckoutData] = useState<any>(null);
+  const [isCheckingWalletStatus, setIsCheckingWalletStatus] = useState(false);
+
+  // Action states for campaigns
+  const [verifyingCampaignId, setVerifyingCampaignId] = useState<string | null>(null);
+  const [deletingCampaignId, setDeletingCampaignId] = useState<string | null>(null);
 
   const fetchCampaigns = useCallback(async () => {
     if (!user?.id || !isSupabaseConfigured()) {
@@ -96,9 +115,33 @@ function AdvertiserDashboardContent() {
     fetchCampaigns();
   }, [fetchCampaigns]);
 
-  // Automatically verify payment when returning from PocketFi checkout redirect
+  // Handle return from PocketFi (Campaign payment or Wallet funding)
   useEffect(() => {
-    if (resolvedPaymentId || resolvedPaymentRef || paymentStatus === 'success') {
+    if (walletFundedParam || (resolvedPaymentId && resolvedPaymentRef?.startsWith('wlt_'))) {
+      const confirmWallet = async () => {
+        try {
+          const res = await authFetch('/api/wallet/confirm-funding', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paymentId: resolvedPaymentId || undefined,
+              reference: resolvedPaymentRef || undefined,
+            }),
+          });
+          const data = await res.json();
+          if (data.status || data.success) {
+            setPaymentBanner(`🎉 Wallet funded! Added ₦${(data.amount || 11).toLocaleString()} to your available balance.`);
+            fetchCampaigns();
+            if (typeof window !== 'undefined' && window.history?.replaceState) {
+              window.history.replaceState({}, document.title, window.location.pathname);
+            }
+          }
+        } catch (err) {
+          console.error('[Wallet Confirm Error]:', err);
+        }
+      };
+      confirmWallet();
+    } else if (resolvedPaymentId || resolvedPaymentRef || paymentStatus === 'success') {
       const verifyReturn = async () => {
         try {
           const res = await authFetch('/api/campaigns/confirm-payment', {
@@ -126,7 +169,121 @@ function AdvertiserDashboardContent() {
 
       verifyReturn();
     }
-  }, [resolvedPaymentId, resolvedPaymentRef, paymentStatus, fetchCampaigns]);
+  }, [resolvedPaymentId, resolvedPaymentRef, paymentStatus, walletFundedParam, fetchCampaigns]);
+
+  // Manually check status of any pending campaign
+  const handleCheckCampaignPayment = async (camp: Campaign) => {
+    setVerifyingCampaignId(camp.id);
+    try {
+      const paymentId = (camp.virtual_account_details as any)?.payment_id;
+      const ref = camp.payment_reference;
+      const res = await authFetch('/api/campaigns/confirm-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentId,
+          reference: ref,
+        }),
+      });
+      const data = await res.json();
+      if (data.status === 'PAID' || data.success) {
+        setPaymentBanner(`🎉 Payment confirmed! Campaign "${camp.title}" is now active.`);
+        await fetchCampaigns();
+      } else {
+        alert(data.message || 'Payment not yet detected by PocketFi. If you just sent the funds, please allow 1-2 minutes for bank settlement.');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to check status');
+    } finally {
+      setVerifyingCampaignId(null);
+    }
+  };
+
+  // Delete Campaign
+  const handleDeleteCampaign = async (id: string, title: string) => {
+    if (!window.confirm(`Are you sure you want to delete "${title}"?`)) {
+      return;
+    }
+    setDeletingCampaignId(id);
+    try {
+      const res = await authFetch(`/api/advertiser/campaigns/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.status) {
+        setCampaigns((prev) => prev.filter((c) => c.id !== id));
+        setPaymentBanner(`Campaign "${title}" has been deleted.`);
+      } else {
+        alert(data.message || 'Failed to delete campaign');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Error deleting campaign');
+    } finally {
+      setDeletingCampaignId(null);
+    }
+  };
+
+  // Proceed to Fund Wallet
+  const handleProceedFundWallet = async () => {
+    if (!fundAmount || fundAmount < 10) {
+      alert('Minimum deposit amount is ₦10.');
+      return;
+    }
+    setIsFunding(true);
+    try {
+      const res = await authFetch('/api/wallet/fund', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: fundAmount }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.status) {
+        throw new Error(data.message || 'Failed to generate deposit link');
+      }
+
+      setWalletCheckoutData(data.data);
+
+      // Direct gateway redirect to PocketFi checkout page
+      if (data.data?.payment_link && typeof window !== 'undefined') {
+        window.location.href = data.data.payment_link;
+        return;
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to initiate deposit. Please try again.');
+    } finally {
+      setIsFunding(false);
+    }
+  };
+
+  // Check Wallet Deposit Status
+  const handleCheckWalletFundingStatus = async () => {
+    if (!walletCheckoutData) return;
+    setIsCheckingWalletStatus(true);
+    try {
+      const res = await authFetch('/api/wallet/confirm-funding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentId: walletCheckoutData.payment_id,
+          reference: walletCheckoutData.reference,
+          amount: walletCheckoutData.amount,
+        }),
+      });
+      const data = await res.json();
+      if (data.status || data.success) {
+        setPaymentBanner(`🎉 Deposit confirmed! Added ₦${(data.amount || fundAmount).toLocaleString()} to your wallet.`);
+        setIsFundModalOpen(false);
+        setWalletCheckoutData(null);
+        await fetchCampaigns();
+      } else {
+        alert(data.message || 'Payment not yet detected by PocketFi. If you just completed the transfer, please allow 1-2 minutes.');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Could not verify deposit right now.');
+    } finally {
+      setIsCheckingWalletStatus(false);
+    }
+  };
 
   const totalClicks = campaigns.reduce((sum, c) => sum + (c.total_clicks || 0), 0);
   const totalUniqueClicks = campaigns.reduce((sum, c) => sum + (c.unique_clicks || 0), 0);
@@ -152,20 +309,35 @@ function AdvertiserDashboardContent() {
           </div>
         )}
 
-        {/* Header with Action */}
+        {/* Header with Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-extrabold text-white tracking-tight">Advertiser Dashboard</h1>
             <p className="text-sm text-slate-400 mt-1">
-              Track your active campaigns, link clicks, and WhatsApp community posts.
+              Track your campaigns, link clicks, and wallet balance in real time.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs">
-              <WalletIcon className="w-4 h-4 text-brand-400" />
-              <span className="text-slate-400">Wallet:</span>
-              <span className="font-extrabold text-white">{formatCurrency(walletBalance)}</span>
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Wallet Display & Fund Button */}
+            <div className="flex items-center gap-2 p-1.5 pl-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs">
+              <WalletIcon className="w-4 h-4 text-brand-400 shrink-0" />
+              <div className="flex items-center gap-1.5 mr-1">
+                <span className="text-slate-400">Balance:</span>
+                <span className="font-black text-white text-sm">{formatCurrency(walletBalance)}</span>
+              </div>
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={() => {
+                  setWalletCheckoutData(null);
+                  setIsFundModalOpen(true);
+                }}
+                className="h-8 px-3 font-bold text-xs bg-emerald-500 hover:bg-emerald-400 text-dark-950 shadow-md shadow-emerald-500/20 gap-1"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>Fund Wallet</span>
+              </Button>
             </div>
 
             <Button
@@ -173,16 +345,16 @@ function AdvertiserDashboardContent() {
               variant="outline"
               onClick={fetchCampaigns}
               disabled={isLoading}
-              className="text-xs text-slate-400 hover:text-white gap-1.5"
+              className="h-9 text-xs text-slate-400 hover:text-white gap-1.5 border-slate-800"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
             </Button>
 
             <Link href="/advertiser/campaigns/new">
-              <Button size="md" variant="primary" className="font-bold shadow-lg shadow-brand-500/20">
+              <Button size="md" variant="primary" className="h-9 font-bold shadow-lg shadow-brand-500/20 gap-1.5">
                 <PlusCircle className="w-4 h-4" />
-                <span>Create New Campaign</span>
+                <span>New Campaign</span>
               </Button>
             </Link>
           </div>
@@ -190,13 +362,24 @@ function AdvertiserDashboardContent() {
 
         {/* Top KPIs */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
-          <StatsCard
-            title="Wallet Balance"
-            value={formatCurrency(walletBalance)}
-            description="Available to fund ad campaigns"
-            icon={WalletIcon}
-            highlight
-          />
+          <div className="relative group">
+            <StatsCard
+              title="Wallet Balance"
+              value={formatCurrency(walletBalance)}
+              description="Ready to use for campaigns"
+              icon={WalletIcon}
+              highlight
+            />
+            <button
+              onClick={() => {
+                setWalletCheckoutData(null);
+                setIsFundModalOpen(true);
+              }}
+              className="absolute top-4 right-4 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 underline"
+            >
+              + Add Funds
+            </button>
+          </div>
           <StatsCard
             title="Total Link Clicks"
             value={formatNumber(totalClicks)}
@@ -206,19 +389,19 @@ function AdvertiserDashboardContent() {
           <StatsCard
             title="Active Campaigns"
             value={activeCampaigns}
-            description="Running in verified WhatsApp groups"
+            description="Broadcasting in groups"
             icon={Megaphone}
           />
           <StatsCard
             title="Active Groups"
             value={campaigns.reduce((sum, c) => sum + (c.assigned_count || 0), 0)}
-            description="Communities broadcasting your ad"
+            description="WhatsApp communities assigned"
             icon={Users}
           />
           <StatsCard
             title="Total Ad Spend"
             value={formatCurrency(totalSpent)}
-            description="Held safely until ads are posted"
+            description="Campaign deposits safely held"
             icon={TrendingUp}
           />
         </div>
@@ -242,7 +425,7 @@ function AdvertiserDashboardContent() {
               <Megaphone className="w-12 h-12 text-slate-600 mx-auto mb-4 opacity-60" />
               <h3 className="text-base font-bold text-white">No campaigns created yet</h3>
               <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto mb-6">
-                Launch your first targeted community ad campaign to start receiving clicks and verified placements.
+                Launch your first targeted WhatsApp community ad campaign to start receiving verified clicks and customers.
               </p>
               <Link href="/advertiser/campaigns/new">
                 <Button size="md" variant="primary" className="font-bold">
@@ -253,7 +436,7 @@ function AdvertiserDashboardContent() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm min-w-[640px]">
+              <table className="w-full text-left text-sm min-w-[700px]">
                 <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-semibold border-b border-slate-800">
                   <tr>
                     <th className="px-6 py-4">Campaign Name & Target</th>
@@ -261,66 +444,253 @@ function AdvertiserDashboardContent() {
                     <th className="px-6 py-4">Campaign Status</th>
                     <th className="px-6 py-4">Payment Status</th>
                     <th className="px-6 py-4">Clicks (Unique)</th>
-                    <th className="px-6 py-4">Communities</th>
-                    <th className="px-6 py-4 text-right">Action</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/80">
-                  {campaigns.map((camp) => (
-                    <tr key={camp.id} className="hover:bg-slate-800/30 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="font-bold text-white">{camp.title}</div>
-                        <div className="text-xs text-brand-400 font-medium mt-0.5">
-                          {formatCategoryName(camp.category)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="font-semibold text-white">{formatCurrency(camp.budget_amount)}</div>
-                        <div className="text-xs text-slate-400">{camp.package_name} ({camp.duration_days}d)</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <StatusBadge status={camp.status} />
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${
-                            camp.payment_status === 'PAID'
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                              : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                          }`}
-                        >
-                          {camp.payment_status === 'PAID' ? 'PAID (HELD SAFELY)' : camp.payment_status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="font-bold text-white">
-                          {camp.total_clicks || 0}{' '}
-                          <span className="text-xs text-slate-400 font-normal">
-                            ({camp.unique_clicks || 0} unique)
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="font-semibold text-slate-300">
-                          {camp.assigned_count || 1} Assigned
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <Link href={`/advertiser/campaigns/${camp.id}`}>
-                          <Button size="sm" variant="outline" className="gap-1 text-xs">
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>View Analytics</span>
-                          </Button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                  {campaigns.map((camp) => {
+                    const isPending = camp.payment_status !== 'PAID';
+                    const paymentLink = (camp.virtual_account_details as any)?.payment_link;
+
+                    return (
+                      <tr key={camp.id} className="hover:bg-slate-800/30 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="font-bold text-white">{camp.title}</div>
+                          <div className="text-xs text-brand-400 font-medium mt-0.5">
+                            {formatCategoryName(camp.category)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-semibold text-white">{formatCurrency(camp.budget_amount)}</div>
+                          <div className="text-xs text-slate-400">{camp.package_name} ({camp.duration_days}d)</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <StatusBadge status={camp.status} />
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="space-y-1">
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${
+                                !isPending
+                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                  : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                              }`}
+                            >
+                              {!isPending ? 'PAID (HELD SAFELY)' : 'PAYMENT PENDING'}
+                            </span>
+
+                            {isPending && paymentLink && (
+                              <a
+                                href={paymentLink}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="block text-[11px] text-brand-400 hover:underline font-semibold"
+                              >
+                                Pay ₦{camp.budget_amount} on PocketFi →
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-bold text-white">
+                            {camp.total_clicks || 0}{' '}
+                            <span className="text-xs text-slate-400 font-normal">
+                              ({camp.unique_clicks || 0} unique)
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {isPending && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleCheckCampaignPayment(camp)}
+                                disabled={verifyingCampaignId === camp.id}
+                                className="gap-1 text-xs border-amber-500/40 text-amber-300 hover:bg-amber-500/10 h-8"
+                                title="Check if PocketFi payment has cleared"
+                              >
+                                <RefreshCw className={`w-3 h-3 ${verifyingCampaignId === camp.id ? 'animate-spin' : ''}`} />
+                                <span>Check Status</span>
+                              </Button>
+                            )}
+
+                            <Link href={`/advertiser/campaigns/${camp.id}`}>
+                              <Button size="sm" variant="outline" className="gap-1 text-xs h-8 border-slate-700">
+                                <Eye className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">Analytics</span>
+                              </Button>
+                            </Link>
+
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDeleteCampaign(camp.id, camp.title)}
+                              disabled={deletingCampaignId === camp.id}
+                              className="h-8 px-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
+                              title="Delete Campaign"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           )}
         </Card>
       </div>
+
+      {/* FUND WALLET MODAL */}
+      <Modal
+        isOpen={isFundModalOpen}
+        onClose={() => {
+          setIsFundModalOpen(false);
+          setWalletCheckoutData(null);
+        }}
+        title="Fund Your Adision Wallet"
+        description="Add funds to your balance to run ad campaigns anytime. Secured by PocketFi."
+        maxWidth="md"
+      >
+        <div className="space-y-6">
+          {!walletCheckoutData ? (
+            <div className="space-y-4">
+              {/* Quick preset amount chips */}
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                  Select Quick Amount
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[11, 1000, 5000, 20000].map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => setFundAmount(amt)}
+                      className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
+                        fundAmount === amt
+                          ? 'border-brand-500 bg-brand-500/20 text-white shadow-sm'
+                          : 'border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700'
+                      }`}
+                    >
+                      ₦{amt.toLocaleString()}
+                      {amt === 11 && <span className="block text-[9px] text-brand-400 font-normal">Test</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Custom amount input */}
+              <Input
+                label="Or Enter Custom Amount (₦)"
+                type="number"
+                min={10}
+                value={fundAmount || ''}
+                onChange={(e) => setFundAmount(Number(e.target.value))}
+                helperText="Minimum deposit: ₦10. Your funds never expire."
+                required
+              />
+
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400 space-y-1">
+                <span className="font-bold text-white block">Payment Methods Supported:</span>
+                <p>Debit Card, Direct Bank Transfer, or USSD via PocketFi.</p>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2.5">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setIsFundModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={handleProceedFundWallet}
+                  isLoading={isFunding}
+                  className="font-bold gap-1.5 shadow-lg shadow-brand-500/20"
+                >
+                  <span>Pay ₦{fundAmount.toLocaleString()} with PocketFi</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-4 rounded-2xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-400 uppercase">Deposit Amount:</span>
+                  <div className="text-2xl font-black text-brand-400">
+                    ₦{walletCheckoutData.amount?.toLocaleString()}
+                  </div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-brand-500/20 text-brand-400">
+                  <Building2 className="w-6 h-6" />
+                </div>
+              </div>
+
+              {walletCheckoutData.virtual_account && (
+                <div className="space-y-3 p-5 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-400">Bank Name:</span>
+                    <span className="font-bold text-white">
+                      {walletCheckoutData.virtual_account.bank_name || 'Kuda Bank / PocketFi'}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1 border-t border-slate-900">
+                    <span className="text-slate-400">Account Number:</span>
+                    <span className="font-mono text-sm font-black text-brand-400">
+                      {walletCheckoutData.virtual_account.account_number}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1 border-t border-slate-900">
+                    <span className="text-slate-400">Account Name:</span>
+                    <span className="font-bold text-white">
+                      {walletCheckoutData.virtual_account.account_name || 'Adision Wallet'}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {walletCheckoutData.payment_link && (
+                <a
+                  href={walletCheckoutData.payment_link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block"
+                >
+                  <Button
+                    type="button"
+                    size="lg"
+                    variant="primary"
+                    className="w-full font-bold shadow-lg shadow-brand-500/20 gap-2"
+                  >
+                    <span>Open PocketFi Hosted Checkout</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </Button>
+                </a>
+              )}
+
+              <Button
+                type="button"
+                size="md"
+                variant="outline"
+                onClick={handleCheckWalletFundingStatus}
+                isLoading={isCheckingWalletStatus}
+                className="w-full font-bold gap-2 text-slate-200 border-slate-700 hover:bg-slate-800"
+              >
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>I Have Completed the Transfer — Check Status</span>
+              </Button>
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -201,3 +201,86 @@ export async function GET(
     );
   }
 }
+
+/**
+ * Delete a campaign
+ * Endpoint: DELETE /api/advertiser/campaigns/[id]
+ * Security: Requires ADVERTISER owning this campaign or ADMIN
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const auth = await requireUser(request, ['ADVERTISER']);
+    if (!auth.authorized) {
+      return auth.errorResponse!;
+    }
+
+    const { id: campaignId } = await params;
+    if (!campaignId) {
+      return NextResponse.json(
+        { status: false, message: 'Campaign ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const userId = auth.user!.id;
+    const isAdmin = auth.user?.role === 'ADMIN';
+
+    if (isSupabaseAdminConfigured()) {
+      // 1. Fetch Campaign to verify ownership
+      const { data: campaign, error: campErr } = await supabaseAdmin
+        .from('campaigns')
+        .select('id, advertiser_id, status, payment_status')
+        .eq('id', campaignId)
+        .single();
+
+      if (campErr || !campaign) {
+        return NextResponse.json(
+          { status: false, message: 'Campaign not found' },
+          { status: 404 }
+        );
+      }
+
+      // IDOR Protection: Verify caller is owner or platform admin
+      if (!isAdmin && campaign.advertiser_id !== userId) {
+        return NextResponse.json(
+          { status: false, message: 'Unauthorized: You do not own this campaign.' },
+          { status: 403 }
+        );
+      }
+
+      // 2. Delete campaign (Cascade handles assignments & tracking links)
+      const { error: delErr } = await supabaseAdmin
+        .from('campaigns')
+        .delete()
+        .eq('id', campaignId);
+
+      if (delErr) {
+        console.error('[Campaign Delete Error]:', delErr);
+        return NextResponse.json(
+          { status: false, message: 'Failed to delete campaign: ' + delErr.message },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        status: true,
+        message: 'Campaign deleted successfully',
+      });
+    }
+
+    return NextResponse.json({
+      status: true,
+      message: 'Campaign deleted (test mode)',
+    });
+  } catch (error: any) {
+    console.error('[Campaign Delete Exception]:', error);
+    return NextResponse.json(
+      { status: false, message: error.message || 'Failed to delete campaign' },
+      { status: 500 }
+    );
+  }
+}
+
