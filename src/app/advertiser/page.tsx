@@ -104,6 +104,20 @@ function AdvertiserDashboardContent() {
       if (walletData) {
         setWalletBalance(Number(walletData.available_balance || 0));
       }
+
+      // Automatically sync any pending PocketFi wallet deposits in the background
+      try {
+        const syncRes = await authFetch('/api/wallet/sync', { method: 'POST' });
+        const syncData = await syncRes.json();
+        if (syncData.success && typeof syncData.balance === 'number') {
+          setWalletBalance(syncData.balance);
+          if (syncData.credited_count > 0) {
+            setPaymentBanner(`🎉 PocketFi deposit confirmed! Added ₦${syncData.credited_amount.toLocaleString()} to your wallet balance.`);
+          }
+        }
+      } catch {
+        // Ignored
+      }
     } catch (err) {
       console.warn('[AdvertiserDashboard] Error loading live campaigns:', err);
     } finally {
@@ -115,61 +129,52 @@ function AdvertiserDashboardContent() {
     fetchCampaigns();
   }, [fetchCampaigns]);
 
-  // Handle return from PocketFi (Campaign payment or Wallet funding)
+  // Handle return from PocketFi (both Campaign payments and Wallet deposits)
   useEffect(() => {
-    if (walletFundedParam || (resolvedPaymentId && resolvedPaymentRef?.startsWith('wlt_'))) {
-      const confirmWallet = async () => {
-        try {
-          const res = await authFetch('/api/wallet/confirm-funding', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              paymentId: resolvedPaymentId || undefined,
-              reference: resolvedPaymentRef || undefined,
-            }),
-          });
-          const data = await res.json();
-          if (data.status || data.success) {
-            setPaymentBanner(`🎉 Wallet funded! Added ₦${(data.amount || 11).toLocaleString()} to your available balance.`);
-            fetchCampaigns();
-            if (typeof window !== 'undefined' && window.history?.replaceState) {
-              window.history.replaceState({}, document.title, window.location.pathname);
-            }
-          }
-        } catch (err) {
-          console.error('[Wallet Confirm Error]:', err);
-        }
-      };
-      confirmWallet();
-    } else if (resolvedPaymentId || resolvedPaymentRef || paymentStatus === 'success') {
+    // Check localStorage for any pending payment initiated from this browser
+    let storedPaymentId: string | null = null;
+    if (typeof window !== 'undefined') {
+      storedPaymentId = localStorage.getItem('adision_pending_pfi_payment');
+    }
+
+    const activePaymentId = resolvedPaymentId || storedPaymentId;
+
+    if (activePaymentId || resolvedPaymentRef || paymentStatus === 'success') {
       const verifyReturn = async () => {
         try {
           const res = await authFetch('/api/campaigns/confirm-payment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              paymentId: resolvedPaymentId || undefined,
+              paymentId: activePaymentId || undefined,
               reference: resolvedPaymentRef || undefined,
             }),
           });
           const data = await res.json();
           if (data.status === 'PAID' || data.success) {
-            setPaymentBanner('🎉 Payment confirmed by PocketFi! Your campaign deposit is secured and your campaign is now active.');
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('adision_pending_pfi_payment');
+            }
+            if (data.type === 'WALLET_DEPOSIT') {
+              setPaymentBanner(`🎉 Wallet funded! Added ₦${(data.amount || fundAmount).toLocaleString()} to your available balance.`);
+            } else {
+              setPaymentBanner('🎉 Payment confirmed by PocketFi! Your campaign deposit is secured and your campaign is now active.');
+            }
             fetchCampaigns();
             if (typeof window !== 'undefined' && window.history?.replaceState) {
               window.history.replaceState({}, document.title, window.location.pathname);
             }
-          } else {
-            setPaymentBanner('Return from payment received. Status: ' + (data.message || 'Settlement in progress...'));
+          } else if (data.message && !data.message.includes('not found')) {
+            setPaymentBanner('Payment status: ' + data.message);
           }
         } catch {
-          setPaymentBanner('Return from payment received. Checking status in the background.');
+          // Ignored
         }
       };
 
       verifyReturn();
     }
-  }, [resolvedPaymentId, resolvedPaymentRef, paymentStatus, walletFundedParam, fetchCampaigns]);
+  }, [resolvedPaymentId, resolvedPaymentRef, paymentStatus, walletFundedParam, fetchCampaigns, fundAmount]);
 
   // Manually check status of any pending campaign
   const handleCheckCampaignPayment = async (camp: Campaign) => {
@@ -242,6 +247,10 @@ function AdvertiserDashboardContent() {
       }
 
       setWalletCheckoutData(data.data);
+
+      if (typeof window !== 'undefined' && data.data?.payment_id) {
+        localStorage.setItem('adision_pending_pfi_payment', data.data.payment_id);
+      }
 
       // Direct gateway redirect to PocketFi checkout page
       if (data.data?.payment_link && typeof window !== 'undefined') {

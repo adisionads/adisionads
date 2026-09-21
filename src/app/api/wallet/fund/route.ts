@@ -62,20 +62,39 @@ export async function POST(request: NextRequest) {
       redirectUrl: `${appBaseUrl}/advertiser`,
     });
 
-    // 3. Ensure user has a wallet record in Supabase
+    // 3. Ensure user has a wallet record and log pending transaction
     if (isSupabaseAdminConfigured()) {
-      const { data: wallet } = await supabaseAdmin
+      let { data: wallet } = await supabaseAdmin
         .from('wallets')
-        .select('id')
+        .select('id, available_balance')
         .eq('user_id', userId)
         .maybeSingle();
 
       if (!wallet) {
-        await supabaseAdmin.from('wallets').insert({
+        const { data: newW } = await supabaseAdmin
+          .from('wallets')
+          .insert({
+            user_id: userId,
+            available_balance: 0,
+            pending_balance: 0,
+            currency: 'NGN',
+          })
+          .select('id, available_balance')
+          .single();
+        wallet = newW;
+      }
+
+      if (wallet && checkoutSession.paymentId) {
+        await supabaseAdmin.from('ledger_transactions').insert({
+          wallet_id: wallet.id,
           user_id: userId,
-          available_balance: 0,
-          pending_balance: 0,
-          currency: 'NGN',
+          transaction_type: 'DEPOSIT',
+          amount,
+          direction: 'CREDIT',
+          balance_after: Number(wallet.available_balance || 0),
+          reference_type: 'POCKETFI_DEPOSIT',
+          description: `PocketFi payment ID: ${checkoutSession.paymentId} | Ref: ${reference}`,
+          status: 'PENDING',
         });
       }
     }
