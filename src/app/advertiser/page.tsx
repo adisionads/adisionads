@@ -29,9 +29,23 @@ import {
 
 function AdvertiserDashboardContent() {
   const searchParams = useSearchParams();
-  const paymentId = searchParams.get('payment_id');
-  const paymentRef = searchParams.get('ref');
+  const rawPaymentId = searchParams.get('payment_id');
+  const rawPaymentRef = searchParams.get('ref');
   const paymentStatus = searchParams.get('payment_status');
+
+  // Robust multi-format parameter extraction (handles any query string formatting)
+  let resolvedPaymentId = rawPaymentId;
+  let resolvedPaymentRef = rawPaymentRef;
+  if (typeof window !== 'undefined') {
+    if (!resolvedPaymentId) {
+      const match = window.location.href.match(/[?&]payment_id=([^&#]+)/);
+      if (match) resolvedPaymentId = decodeURIComponent(match[1]);
+    }
+    if (!resolvedPaymentRef) {
+      const match = window.location.href.match(/[?&]ref=([^&#]+)/);
+      if (match) resolvedPaymentRef = decodeURIComponent(match[1]);
+    }
+  }
 
   const { campaigns: contextCampaigns } = useApp();
   const { user } = useAuth();
@@ -84,23 +98,26 @@ function AdvertiserDashboardContent() {
 
   // Automatically verify payment when returning from PocketFi checkout redirect
   useEffect(() => {
-    if (paymentId || paymentRef || paymentStatus === 'success') {
+    if (resolvedPaymentId || resolvedPaymentRef || paymentStatus === 'success') {
       const verifyReturn = async () => {
         try {
           const res = await authFetch('/api/campaigns/confirm-payment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              paymentId: paymentId || undefined,
-              reference: paymentRef || undefined,
+              paymentId: resolvedPaymentId || undefined,
+              reference: resolvedPaymentRef || undefined,
             }),
           });
           const data = await res.json();
           if (data.status === 'PAID' || data.success) {
             setPaymentBanner('🎉 Payment confirmed by PocketFi! Your campaign deposit is secured and your campaign is now active.');
             fetchCampaigns();
+            if (typeof window !== 'undefined' && window.history?.replaceState) {
+              window.history.replaceState({}, document.title, window.location.pathname);
+            }
           } else {
-            setPaymentBanner('Return from payment received. If you just completed the payment, it will be automatically confirmed within a minute.');
+            setPaymentBanner('Return from payment received. Status: ' + (data.message || 'Settlement in progress...'));
           }
         } catch {
           setPaymentBanner('Return from payment received. Checking status in the background.');
@@ -109,7 +126,7 @@ function AdvertiserDashboardContent() {
 
       verifyReturn();
     }
-  }, [paymentId, paymentRef, paymentStatus, fetchCampaigns]);
+  }, [resolvedPaymentId, resolvedPaymentRef, paymentStatus, fetchCampaigns]);
 
   const totalClicks = campaigns.reduce((sum, c) => sum + (c.total_clicks || 0), 0);
   const totalUniqueClicks = campaigns.reduce((sum, c) => sum + (c.unique_clicks || 0), 0);

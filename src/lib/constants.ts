@@ -2,17 +2,17 @@ import { CampaignPackage, CommunityCategory } from '@/types';
 
 export const CAMPAIGN_PACKAGES: CampaignPackage[] = [
   {
-    id: 'pkg_test_50',
+    id: 'pkg_test_11',
     name: 'Founder Test',
-    outcome_title: 'Live ₦50 Test',
+    outcome_title: 'Live ₦11 Test',
     outcome_description: 'Instant PocketFi checkout test',
-    price: 50,
+    price: 11,
     billing_model: 'FIXED',
     duration_days: 1,
     estimated_reach: 'Live Test Placement',
     community_count: 1,
     features: [
-      'Live ₦50 test transaction via PocketFi',
+      'Live ₦11 test transaction via PocketFi',
       'Test Debit Card & Bank Transfer payment',
       'Instant automated status activation verification',
     ],
@@ -128,8 +128,38 @@ export const COMMUNITY_CATEGORIES_LIST: { id: CommunityCategory; label: string; 
     icon: 'Trophy',
   },
   {
+    id: 'HEALTH_WELLNESS',
+    label: 'Health, Wellness & Fitness',
+    description: 'Gym, workouts, nutrition, skincare advice, mental health, medical tips.',
+    icon: 'HeartPulse',
+  },
+  {
+    id: 'FOOD_COOKING',
+    label: 'Food, Baking & Restaurants',
+    description: 'Recipes, food vendors, catering, restaurants, baking, snacks.',
+    icon: 'Utensils',
+  },
+  {
+    id: 'REAL_ESTATE',
+    label: 'Real Estate & Student Hostels',
+    description: 'Campus accommodation, apartments, short-let flats, property for rent/sale.',
+    icon: 'Home',
+  },
+  {
+    id: 'FAITH_DEVOTIONAL',
+    label: 'Faith, Religion & Motivation',
+    description: 'Daily devotionals, scripture sharing, church & mosque community groups.',
+    icon: 'Sparkles',
+  },
+  {
+    id: 'AUTOMOBILES',
+    label: 'Cars, Bikes & Logistics',
+    description: 'Car deals, auto parts, dispatch riders, logistics, vehicle maintenance.',
+    icon: 'Car',
+  },
+  {
     id: 'LOCAL_COMMUNITIES',
-    label: 'Local Communities',
+    label: 'Local Communities & Estates',
     description: 'State-specific hubs (Lagos, Abuja, Port Harcourt, Ibadan, Enugu, etc.).',
     icon: 'MapPin',
   },

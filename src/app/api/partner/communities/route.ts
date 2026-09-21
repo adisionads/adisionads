@@ -32,6 +32,21 @@ function mapNicheToCategory(niche: string): string {
   if (lower.includes('fun') || lower.includes('meme') || lower.includes('comedy') || lower.includes('entertain') || lower.includes('music')) {
     return 'ENTERTAINMENT';
   }
+  if (lower.includes('health') || lower.includes('fitness') || lower.includes('gym') || lower.includes('wellness') || lower.includes('skin')) {
+    return 'HEALTH_WELLNESS';
+  }
+  if (lower.includes('food') || lower.includes('bake') || lower.includes('cook') || lower.includes('cake') || lower.includes('restaurant')) {
+    return 'FOOD_COOKING';
+  }
+  if (lower.includes('estate') || lower.includes('hostel') || lower.includes('rent') || lower.includes('house') || lower.includes('lodge')) {
+    return 'REAL_ESTATE';
+  }
+  if (lower.includes('church') || lower.includes('mosque') || lower.includes('faith') || lower.includes('pray') || lower.includes('bible') || lower.includes('quran')) {
+    return 'FAITH_DEVOTIONAL';
+  }
+  if (lower.includes('car') || lower.includes('bike') || lower.includes('auto') || lower.includes('motor') || lower.includes('logistic')) {
+    return 'AUTOMOBILES';
+  }
   return 'GENERAL';
 }
 
@@ -106,7 +121,10 @@ export async function POST(request: NextRequest) {
     }
 
     const resolvedCategory = category || mapNicheToCategory(niche);
-    const resolvedLink = invite_link?.trim() || 'Pending link';
+    let resolvedLink = invite_link?.trim() || 'Pending link';
+    if (resolvedLink !== 'Pending link' && !/^https?:\/\//i.test(resolvedLink)) {
+      resolvedLink = `https://${resolvedLink}`;
+    }
     const resolvedDescription = niche?.trim()
       ? `Niche: ${niche.trim()}${description ? ` • ${description.trim()}` : ''}`
       : description?.trim() || 'Active WhatsApp Community';

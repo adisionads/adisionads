@@ -8,6 +8,7 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input, TextArea } from '@/components/ui/Input';
+import { ImageUpload } from '@/components/ui/ImageUpload';
 import { Modal } from '@/components/ui/Modal';
 import {
   ArrowLeft,
@@ -419,12 +420,11 @@ export default function PartnerAssignmentsPage() {
         maxWidth="md"
       >
         <form onSubmit={handleSubmitProof} className="space-y-4">
-          <Input
-            label="Screenshot Image Link (URL)"
-            placeholder="https://image-host.com/whatsapp-proof.jpg"
+          <ImageUpload
+            label="Screenshot Proof"
             value={proofImage}
-            onChange={(e) => setProofImage(e.target.value)}
-            helperText="Direct image URL showing your group name, message timestamp, and tracking link."
+            onChange={setProofImage}
+            helperText="Upload screenshot directly from your phone gallery or camera. Image links also accepted."
             required
           />
 

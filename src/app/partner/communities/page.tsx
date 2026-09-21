@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth/auth-context';
 import { authFetch } from '@/lib/auth/auth-fetch';
 import { formatNumber } from '@/lib/utils';
+import { COMMUNITY_CATEGORIES_LIST } from '@/lib/constants';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -46,10 +47,18 @@ export default function PartnerCommunitiesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [addName, setAddName] = useState('');
   const [addPlatform, setAddPlatform] = useState<'WHATSAPP_GROUP' | 'WHATSAPP_CHANNEL'>('WHATSAPP_GROUP');
+  const [addCategory, setAddCategory] = useState<string>('STUDENTS_CAMPUS');
   const [addNiche, setAddNiche] = useState('');
   const [addMemberCount, setAddMemberCount] = useState<number | ''>('');
   const [addInviteLink, setAddInviteLink] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const normalizeUrl = (url: string): string => {
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+  };
 
   // Edit Modal State
   const [editingCommunity, setEditingCommunity] = useState<CommunityItem | null>(null);
@@ -87,6 +96,8 @@ export default function PartnerCommunitiesPage() {
     setIsSubmitting(true);
     setErrorMessage(null);
 
+    const cleanLink = addInviteLink.trim() ? normalizeUrl(addInviteLink) : '';
+
     try {
       const res = await authFetch('/api/partner/communities', {
         method: 'POST',
@@ -94,8 +105,9 @@ export default function PartnerCommunitiesPage() {
         body: JSON.stringify({
           name: addName.trim(),
           platform: addPlatform,
+          category: addCategory,
           niche: addNiche.trim(),
-          invite_link: addInviteLink.trim(),
+          invite_link: cleanLink || undefined,
           member_count: Number(addMemberCount) || 0,
         }),
       });
@@ -108,6 +120,7 @@ export default function PartnerCommunitiesPage() {
       setIsAddModalOpen(false);
       // Reset form
       setAddName('');
+      setAddCategory('STUDENTS_CAMPUS');
       setAddNiche('');
       setAddInviteLink('');
       setAddMemberCount('');
@@ -131,12 +144,14 @@ export default function PartnerCommunitiesPage() {
     if (!editingCommunity) return;
 
     setIsSavingEdit(true);
+    const cleanLink = editInviteLink.trim() ? normalizeUrl(editInviteLink) : 'Pending link';
+
     try {
       const res = await authFetch(`/api/partner/communities/${editingCommunity.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          invite_link: editInviteLink.trim() || 'Pending link',
+          invite_link: cleanLink,
           member_count: Number(editMemberCount) || 0,
           description: editNiche.trim() ? `Niche: ${editNiche.trim()}` : undefined,
         }),
@@ -385,15 +400,32 @@ export default function PartnerCommunitiesPage() {
             />
           </div>
 
-          {/* Topic / Niche (TEXT FIELD) */}
+          {/* Community Category Dropdown */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Topic or Niche *
+              Community Category *
+            </label>
+            <select
+              value={addCategory}
+              onChange={(e) => setAddCategory(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              {COMMUNITY_CATEGORIES_LIST.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.label} ({cat.description})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Topic / Niche (Sub-detail) */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Specific Topic / Focus <span className="text-slate-400 font-normal">(Optional)</span>
             </label>
             <input
               type="text"
-              required
-              placeholder="e.g. University students, Tech, Crypto, Wholesale vendors"
+              placeholder="e.g. Unilag Engineering, Lagos Vendors, Crypto Signals"
               value={addNiche}
               onChange={(e) => setAddNiche(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -418,13 +450,18 @@ export default function PartnerCommunitiesPage() {
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                WhatsApp Link <span className="text-slate-400 font-normal">(Optional)</span>
+                WhatsApp Link <span className="text-slate-400 font-normal">(Auto-formats)</span>
               </label>
               <input
-                type="url"
-                placeholder="https://chat.whatsapp.com/..."
+                type="text"
+                placeholder="chat.whatsapp.com/... or channel link"
                 value={addInviteLink}
                 onChange={(e) => setAddInviteLink(e.target.value)}
+                onBlur={() => {
+                  if (addInviteLink.trim()) {
+                    setAddInviteLink(normalizeUrl(addInviteLink));
+                  }
+                }}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
@@ -458,10 +495,15 @@ export default function PartnerCommunitiesPage() {
                 WhatsApp Invite or Channel Link
               </label>
               <input
-                type="url"
-                placeholder="https://chat.whatsapp.com/... or channel link"
+                type="text"
+                placeholder="chat.whatsapp.com/... or channel link"
                 value={editInviteLink}
                 onChange={(e) => setEditInviteLink(e.target.value)}
+                onBlur={() => {
+                  if (editInviteLink.trim()) {
+                    setEditInviteLink(normalizeUrl(editInviteLink));
+                  }
+                }}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>

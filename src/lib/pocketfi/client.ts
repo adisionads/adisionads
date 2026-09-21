@@ -252,7 +252,11 @@ export class PocketFiClient {
 
       const data = await response.json();
       const statusStr = (data.status || '').toLowerCase();
-      const isSuccess = statusStr === 'success' || statusStr === 'successful';
+      const isSuccess =
+        statusStr === 'success' ||
+        statusStr === 'successful' ||
+        statusStr === 'completed' ||
+        statusStr === 'paid';
 
       return {
         success: isSuccess,

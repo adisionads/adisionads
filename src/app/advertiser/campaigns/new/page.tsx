@@ -9,6 +9,7 @@ import { CommunityCategory } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Input, TextArea } from '@/components/ui/Input';
+import { ImageUpload } from '@/components/ui/ImageUpload';
 import { Modal } from '@/components/ui/Modal';
 import {
   ArrowLeft,
@@ -63,11 +64,19 @@ export default function NewCampaignPage() {
   const [destinationUrl, setDestinationUrl] = useState('https://myshop.ng/deal');
   const [ctaText, setCtaText] = useState('Claim 50% Off 🛍️');
 
+  // URL normalizer helper: automatically adds https:// if missing
+  const normalizeUrl = (url: string): string => {
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+  };
+
   // Outcome-based Package State
-  const [selectedPackageId, setSelectedPackageId] = useState(CAMPAIGN_PACKAGES[1].id); // Corporate by default
+  const [selectedPackageId, setSelectedPackageId] = useState(CAMPAIGN_PACKAGES[0].id); // Default to Founder Test (₦11)
   const [targetQuantity, setTargetQuantity] = useState(50); // 50 signups or 20 customers
 
-  const selectedPackage = CAMPAIGN_PACKAGES.find((p) => p.id === selectedPackageId) || CAMPAIGN_PACKAGES[1];
+  const selectedPackage = CAMPAIGN_PACKAGES.find((p) => p.id === selectedPackageId) || CAMPAIGN_PACKAGES[0];
 
   // Calculate dynamic upfront budget deposit
   const calculatedBudget =
@@ -75,7 +84,7 @@ export default function NewCampaignPage() {
       ? targetQuantity * 350
       : selectedPackage.billing_model === 'PER_CUSTOMER'
       ? targetQuantity * 750
-      : selectedPackage.price || 50;
+      : selectedPackage.price ?? 11;
 
   const handleSelectPackage = (pkgId: string) => {
     setSelectedPackageId(pkgId);
@@ -94,6 +103,9 @@ export default function NewCampaignPage() {
       return;
     }
 
+    const cleanDestUrl = normalizeUrl(destinationUrl);
+    setDestinationUrl(cleanDestUrl);
+
     setIsGeneratingCheckout(true);
 
     try {
@@ -104,12 +116,12 @@ export default function NewCampaignPage() {
           advertiser_id: user?.id,
           advertiser_email: user?.email || profile?.email || 'advertiser@adision.co',
           advertiser_name: profile?.full_name || 'Advertiser',
-          title,
+          title: title.trim(),
           category,
-          ad_copy: adCopy,
-          media_url: mediaUrl,
-          destination_url: destinationUrl,
-          cta_text: ctaText,
+          ad_copy: adCopy.trim(),
+          media_url: mediaUrl.trim(),
+          destination_url: cleanDestUrl,
+          cta_text: ctaText.trim(),
           package_name: selectedPackage.name,
           duration_days: selectedPackage.duration_days,
           budget_amount: calculatedBudget,
@@ -252,10 +264,15 @@ export default function NewCampaignPage() {
 
                 <Input
                   label="Destination Link (Where Clicks Go)"
-                  placeholder="https://yourwebsite.com/deal"
+                  placeholder="mysite.ng/deal, instagram.com/..., or wa.me/..."
                   value={destinationUrl}
                   onChange={(e) => setDestinationUrl(e.target.value)}
-                  helperText="Every click will be tracked via Adision with bot protection."
+                  onBlur={() => {
+                    if (destinationUrl.trim()) {
+                      setDestinationUrl(normalizeUrl(destinationUrl));
+                    }
+                  }}
+                  helperText="Paste your link. We automatically add https:// if omitted."
                   required
                 />
               </div>
@@ -267,6 +284,7 @@ export default function NewCampaignPage() {
                   onClick={() => {
                     if (!title.trim()) return alert('Please enter a campaign title.');
                     if (!destinationUrl.trim()) return alert('Please enter a destination URL.');
+                    setDestinationUrl(normalizeUrl(destinationUrl));
                     setCurrentStep(2);
                   }}
                   className="font-bold gap-2"
@@ -302,12 +320,11 @@ export default function NewCampaignPage() {
                   required
                 />
 
-                <Input
-                  label="Image / Banner URL (Optional)"
-                  placeholder="https://yourdomain.com/ad-flyer.jpg"
+                <ImageUpload
+                  label="Ad Flyer / Product Image (Recommended)"
                   value={mediaUrl}
-                  onChange={(e) => setMediaUrl(e.target.value)}
-                  helperText="Direct image link that group admins will download and post with your text."
+                  onChange={setMediaUrl}
+                  helperText="Upload your flyer directly from your device or camera, or provide an image link."
                 />
 
                 <Input
@@ -375,7 +392,7 @@ export default function NewCampaignPage() {
                               ? 'per qualified signup'
                               : pkg.billing_model === 'PER_CUSTOMER'
                               ? 'per paying customer'
-                              : pkg.id === 'pkg_test_50'
+                              : pkg.id === 'pkg_test_11' || pkg.id === 'pkg_test_50'
                               ? 'single live test'
                               : 'fixed campaign fee'}
                           </span>
@@ -465,7 +482,7 @@ export default function NewCampaignPage() {
                   <div className="flex justify-between text-slate-400">
                     <span>Target Delivery:</span>
                     <span className="text-slate-200 font-semibold">
-                      {selectedPackage.id === 'pkg_test_50'
+                      {selectedPackage.id === 'pkg_test_11' || selectedPackage.id === 'pkg_test_50'
                         ? '1 Day (Live Gateway Verification)'
                         : selectedPackage.billing_model === 'FIXED'
                         ? '14 Days + 1 Bonus Day (15 Days Total)'

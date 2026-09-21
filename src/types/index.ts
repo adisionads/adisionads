@@ -11,8 +11,13 @@ export type CommunityCategory =
   | 'ENTERTAINMENT'
   | 'FASHION_LIFESTYLE'
   | 'SPORTS'
-  | 'GENERAL'
-  | 'LOCAL_COMMUNITIES';
+  | 'HEALTH_WELLNESS'
+  | 'FOOD_COOKING'
+  | 'REAL_ESTATE'
+  | 'FAITH_DEVOTIONAL'
+  | 'AUTOMOBILES'
+  | 'LOCAL_COMMUNITIES'
+  | 'GENERAL';
 
 export type CommunityStatus =
   | 'DRAFT'

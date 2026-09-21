@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     if (paymentId) {
       const confirmResult = await pocketFi.confirmCheckout(paymentId);
-      if (confirmResult.success && confirmResult.status === 'success') {
+      if (confirmResult.success) {
         isConfirmed = true;
         verifiedAmount = confirmResult.amount;
         if (!effectiveReference && confirmResult.reference) {
@@ -51,11 +51,21 @@ export async function POST(request: NextRequest) {
       const { data: matchedCamp } = await supabaseAdmin
         .from('campaigns')
         .select('payment_reference')
-        .contains('virtual_account_details', { payment_id: paymentId })
+        .filter('virtual_account_details->>payment_id', 'eq', paymentId)
         .maybeSingle();
 
       if (matchedCamp?.payment_reference) {
         effectiveReference = matchedCamp.payment_reference;
+      } else {
+        const { data: matchedContains } = await supabaseAdmin
+          .from('campaigns')
+          .select('payment_reference')
+          .contains('virtual_account_details', { payment_id: paymentId })
+          .maybeSingle();
+
+        if (matchedContains?.payment_reference) {
+          effectiveReference = matchedContains.payment_reference;
+        }
       }
     }
 

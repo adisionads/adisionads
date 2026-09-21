@@ -54,13 +54,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate destination URL format
-    const trimmedUrl = destination_url.trim();
-    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
-      return NextResponse.json(
-        { status: false, message: 'Destination URL must be a valid web link starting with http:// or https://' },
-        { status: 400 }
-      );
+    // Auto-normalize destination URL: automatically add https:// if missing
+    let normalizedUrl = destination_url.trim();
+    if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+      normalizedUrl = `https://${normalizedUrl}`;
     }
 
     // 1. Generate Unique Payment Reference
@@ -83,7 +80,7 @@ export async function POST(request: NextRequest) {
       name: advertiser_name || 'Adision Advertiser',
       phone: phone_number,
       reference,
-      redirectUrl: `${appBaseUrl}/advertiser?ref=${encodeURIComponent(reference)}&payment_status=success`,
+      redirectUrl: `${appBaseUrl}/advertiser`,
     });
 
     const distributablePool = Number(budget_amount) * 0.55; // 55% to community partners, 45% platform margin
@@ -102,7 +99,7 @@ export async function POST(request: NextRequest) {
           category: category || 'GENERAL',
           ad_copy: ad_copy || '',
           media_url: media_url || null,
-          destination_url,
+          destination_url: normalizedUrl,
           cta_text: cta_text || 'Learn More',
           package_name: package_name || 'Starter',
           duration_days: Number(duration_days) || 14,
