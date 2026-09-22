@@ -242,8 +242,6 @@ function AdvertiserDashboardContent() {
         throw new Error(data.message || 'Failed to generate deposit link');
       }
 
-      setWalletCheckoutData(data.data);
-
       if (typeof window !== 'undefined' && data.data?.payment_id) {
         localStorage.setItem('adision_pending_pfi_payment', data.data.payment_id);
       }
@@ -253,6 +251,9 @@ function AdvertiserDashboardContent() {
         window.location.href = data.data.payment_link;
         return;
       }
+
+      // Fallback only if no hosted payment link is available
+      setWalletCheckoutData(data.data);
     } catch (err: any) {
       alert(err.message || 'Failed to initiate deposit. Please try again.');
     } finally {
@@ -714,8 +715,8 @@ function AdvertiserDashboardContent() {
                   isLoading={isFunding}
                   className="font-bold gap-1.5 shadow-lg shadow-brand-500/20"
                 >
-                  <span>Pay ₦{fundAmount.toLocaleString()} with PocketFi</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>{isFunding ? 'Redirecting to PocketFi...' : `Pay ₦${fundAmount.toLocaleString()} with PocketFi`}</span>
+                  {!isFunding && <ExternalLink className="w-3.5 h-3.5" />}
                 </Button>
               </div>
             </div>
