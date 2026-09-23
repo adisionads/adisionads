@@ -2,22 +2,6 @@ import { CampaignPackage, CommunityCategory } from '@/types';
 
 export const CAMPAIGN_PACKAGES: CampaignPackage[] = [
   {
-    id: 'pkg_test_11',
-    name: 'Founder Test',
-    outcome_title: 'Live ₦11 Test',
-    outcome_description: 'Instant PocketFi checkout test',
-    price: 11,
-    billing_model: 'FIXED',
-    duration_days: 1,
-    estimated_reach: 'Live Test Placement',
-    community_count: 1,
-    features: [
-      'Live ₦11 test transaction via PocketFi',
-      'Test Debit Card & Bank Transfer payment',
-      'Instant automated status activation verification',
-    ],
-  },
-  {
     id: 'pkg_starter',
     name: 'Starter',
     outcome_title: 'I want reach.',

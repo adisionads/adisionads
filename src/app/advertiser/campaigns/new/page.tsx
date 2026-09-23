@@ -73,7 +73,7 @@ export default function NewCampaignPage() {
   };
 
   // Outcome-based Package State
-  const [selectedPackageId, setSelectedPackageId] = useState(CAMPAIGN_PACKAGES[0].id); // Default to Founder Test (₦11)
+  const [selectedPackageId, setSelectedPackageId] = useState(CAMPAIGN_PACKAGES[0].id); // Default to Starter (₦7,000)
   const [targetQuantity, setTargetQuantity] = useState(50); // 50 signups or 20 customers
 
   const selectedPackage = CAMPAIGN_PACKAGES.find((p) => p.id === selectedPackageId) || CAMPAIGN_PACKAGES[0];
@@ -392,8 +392,6 @@ export default function NewCampaignPage() {
                               ? 'per qualified signup'
                               : pkg.billing_model === 'PER_CUSTOMER'
                               ? 'per paying customer'
-                              : pkg.id === 'pkg_test_11' || pkg.id === 'pkg_test_50'
-                              ? 'single live test'
                               : 'fixed campaign fee'}
                           </span>
                         </div>
@@ -482,9 +480,7 @@ export default function NewCampaignPage() {
                   <div className="flex justify-between text-slate-400">
                     <span>Target Delivery:</span>
                     <span className="text-slate-200 font-semibold">
-                      {selectedPackage.id === 'pkg_test_11' || selectedPackage.id === 'pkg_test_50'
-                        ? '1 Day (Live Gateway Verification)'
-                        : selectedPackage.billing_model === 'FIXED'
+                      {selectedPackage.billing_model === 'FIXED'
                         ? '14 Days + 1 Bonus Day (15 Days Total)'
                         : selectedPackage.billing_model === 'PER_SIGNUP'
                         ? `${targetQuantity} Qualified Signups (@ ₦350 each)`

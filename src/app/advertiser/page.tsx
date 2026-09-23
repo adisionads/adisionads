@@ -666,7 +666,7 @@ function AdvertiserDashboardContent() {
                   Select Quick Amount
                 </label>
                 <div className="grid grid-cols-4 gap-2">
-                  {[11, 1000, 5000, 20000].map((amt) => (
+                  {[2000, 5000, 10000, 25000].map((amt) => (
                     <button
                       key={amt}
                       type="button"
@@ -678,7 +678,6 @@ function AdvertiserDashboardContent() {
                       }`}
                     >
                       ₦{amt.toLocaleString()}
-                      {amt === 11 && <span className="block text-[9px] text-brand-400 font-normal">Test</span>}
                     </button>
                   ))}
                 </div>
