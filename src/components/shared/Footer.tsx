@@ -115,7 +115,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} Adision. Designed & owned by <strong className="text-slate-700 dark:text-slate-300">Rektina</strong>. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Adision. Designed & owned by <strong className="text-slate-700 dark:text-slate-300">Rektina</strong>. Founded by <span className="text-slate-600 dark:text-slate-400 font-medium">Aquila.script</span> & <span className="text-slate-600 dark:text-slate-400 font-medium">Marvel Develops</span>. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link href="/signup" className="text-brand-600 dark:text-brand-400 font-semibold hover:underline">
               Create Free Account

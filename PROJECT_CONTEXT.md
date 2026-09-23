@@ -6,7 +6,7 @@
 ---
 
 ## 1. Project Overview & Business Model
-* **Product Name:** Adision (Owned by Rektina)
+* **Product Name:** Adision (Owned by Rektina | Founded by Aquila.script & Marvel Develops)
 * **Domain:** [adision.xyz](https://adision.xyz)
 * **What it is:** Nigeria's #1 performance advertising marketplace connecting businesses with verified WhatsApp Groups and WhatsApp Channels.
 * **Two Core User Types:**

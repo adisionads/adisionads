@@ -43,12 +43,22 @@ export const metadata: Metadata = {
     'The premier performance advertising marketplace for WhatsApp Groups and Channels in Nigeria. Connect businesses with verified communities, track genuine link clicks, and guarantee secure bank payouts.',
   applicationName: 'Adision',
   authors: [
+    { name: 'Aquila.script' },
+    { name: 'Marvel Develops' },
     { name: 'Rektina', url: 'https://rektina.com' },
     { name: 'Adision', url: siteUrl },
   ],
   creator: 'Rektina',
   publisher: 'Rektina',
   keywords: [
+    'Aquila.script',
+    'Marvel Develops',
+    'Aquila script',
+    'Marvel Develops Adision',
+    'Adision founders',
+    'Rektina',
+    'Adision Rektina',
+    'Rektina Adision',
     'WhatsApp advertising Nigeria',
     'WhatsApp marketing marketplace',
     'WhatsApp group ads',
@@ -150,6 +160,16 @@ const jsonLdOrganization = {
     name: 'Rektina',
     url: 'https://rektina.com',
   },
+  founders: [
+    {
+      '@type': 'Person',
+      name: 'Aquila.script',
+    },
+    {
+      '@type': 'Person',
+      name: 'Marvel Develops',
+    },
+  ],
   sameAs: [
     'https://rektina.com',
     'https://twitter.com/adisionads',
