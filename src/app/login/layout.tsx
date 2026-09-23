@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Sign In',
-  description: 'Sign in to your Adision account to manage campaigns, tracking, and wallet balances.',
+  title: 'Sign In to Adision | Advertiser & Community Portal',
+  description: 'Sign in to your Adision account to manage WhatsApp ad campaigns, real-time click tracking, and wallet payouts.',
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: '/login',
   },
 };
 

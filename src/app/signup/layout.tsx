@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Create an Account',
-  description: 'Join Adision as an Advertiser or Community Partner.',
+  title: 'Create Free Account | Start Advertising or Monetize WhatsApp',
+  description: 'Join Adision to broadcast ads across verified Nigerian WhatsApp groups, or monetize your own WhatsApp community with secure bank payouts.',
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: '/signup',
   },
 };
 

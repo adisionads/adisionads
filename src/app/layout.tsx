@@ -104,19 +104,27 @@ export const metadata: Metadata = {
       'Broadcast targeted ads across verified WhatsApp groups and channels. Track real human visits with screenshot proof and safe bank payouts.',
     images: [
       {
+        url: '/brand/logo-horizontal.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Adision — Community Advertising Marketplace',
+      },
+      {
         url: '/brand/logo-square.jpg',
         width: 800,
         height: 800,
-        alt: 'Adision — Community Advertising Marketplace',
+        alt: 'Adision Square Icon',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
+    site: '@adisionads',
+    creator: '@adisionads',
     title: 'Adision | #1 Performance Advertising Marketplace for WhatsApp Communities',
     description:
       'Broadcast targeted ads across verified WhatsApp groups and channels. Track real visits with screenshot proof and safe bank payouts.',
-    images: ['/brand/logo-square.jpg'],
+    images: ['/brand/logo-horizontal.jpg'],
   },
   robots: {
     index: true,
@@ -141,6 +149,15 @@ export const metadata: Metadata = {
   icons: {
     icon: '/icons/icon-192.png',
     apple: '/icons/apple-touch-icon.png',
+  },
+  other: {
+    'geo.region': 'NG',
+    'geo.placename': 'Nigeria',
+    'target': 'all',
+    'coverage': 'Nigeria',
+    'rating': 'general',
+    'revisit-after': '2 days',
+    'author': 'Aquila.script, Marvel Develops, Rektina',
   },
 };
 
@@ -230,6 +247,56 @@ const jsonLdWebSite = {
   },
 };
 
+const jsonLdService = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'WhatsApp Community Advertising & Influencer Marketing',
+  provider: {
+    '@type': 'Organization',
+    name: 'Adision',
+    url: siteUrl,
+  },
+  areaServed: {
+    '@type': 'Country',
+    name: 'Nigeria',
+  },
+  description:
+    'Broadcast marketing flyers and promotional links across targeted, verified WhatsApp communities in Nigeria with real-time click attribution and verified screenshot proof.',
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Adision Campaign Packages',
+    itemListElement: [
+      {
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name: 'Starter Package (Reach & Awareness)',
+        },
+        price: '7000',
+        priceCurrency: 'NGN',
+      },
+      {
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name: 'Corporate Growth (Targeted Signups)',
+        },
+        price: '350',
+        priceCurrency: 'NGN',
+      },
+      {
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name: 'Gold Salesman (Paying Customers)',
+        },
+        price: '750',
+        priceCurrency: 'NGN',
+      },
+    ],
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -251,6 +318,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebSite) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdService) }}
         />
       </head>
       <body
