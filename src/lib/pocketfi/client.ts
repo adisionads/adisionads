@@ -115,10 +115,34 @@ export class PocketFiClient {
         throw new Error(data.message || 'Failed to initialize PocketFi checkout');
       }
 
+      const paymentId = data.payment_id || data.data?.payment_id;
+      let virtualAccount: VirtualAccountInfo | undefined = undefined;
+
+      if (data.checkout_info) {
+        try {
+          const parsed = typeof data.checkout_info === 'string' ? JSON.parse(data.checkout_info) : data.checkout_info;
+          const checkoutObj = parsed.checkout || {};
+          const acc1 = (checkoutObj.account_1 || checkoutObj.account || Object.values(checkoutObj)[0]) as any;
+          if (acc1 && (acc1.account || acc1.account_number)) {
+            virtualAccount = {
+              bank_name: acc1.bank_name || acc1.bankName || 'SafeHaven MFB',
+              account_number: acc1.account || acc1.account_number,
+              account_name: acc1.account_name || acc1.accountName || 'PocketFi Checkout',
+              expiry_time: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+              amount: Number(acc1.totalPaymentAmount || acc1.amount || params.amount),
+              reference: paymentId || params.reference,
+            };
+          }
+        } catch (parseErr) {
+          console.warn('[PocketFi] Could not parse checkout_info payload:', parseErr);
+        }
+      }
+
       return {
         success: true,
-        paymentId: data.payment_id || data.data?.payment_id,
+        paymentId,
         paymentLink: data.payment_link || data.data?.payment_link,
+        virtualAccount,
       };
     } catch (error: any) {
       console.error('[PocketFi Checkout Error]:', error);
