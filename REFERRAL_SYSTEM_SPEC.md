@@ -175,3 +175,4 @@ CREATE INDEX IF NOT EXISTS idx_referral_conversions_status ON referral_conversio
 ---
 
 *Authored for Adision Production Launch Strategy. Document stored permanently in repository root.*
+

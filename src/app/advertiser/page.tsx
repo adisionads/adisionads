@@ -51,10 +51,12 @@ function AdvertiserDashboardContent() {
 
   // Fund Wallet State
   const [isFundModalOpen, setIsFundModalOpen] = useState(false);
-  const [fundAmount, setFundAmount] = useState<number>(11); // Default to ₦11 for testing
+  const [fundAmount, setFundAmount] = useState<number>(5000);
   const [isFunding, setIsFunding] = useState(false);
   const [walletCheckoutData, setWalletCheckoutData] = useState<any>(null);
   const [isCheckingWalletStatus, setIsCheckingWalletStatus] = useState(false);
+  const [copiedAccountNumber, setCopiedAccountNumber] = useState(false);
+  const [depositSuccess, setDepositSuccess] = useState(false);
 
   // Action states for campaigns
   const [verifyingCampaignId, setVerifyingCampaignId] = useState<string | null>(null);
@@ -246,13 +248,7 @@ function AdvertiserDashboardContent() {
         localStorage.setItem('adision_pending_pfi_payment', data.data.payment_id);
       }
 
-      // Direct gateway redirect to PocketFi checkout page
-      if (data.data?.payment_link && typeof window !== 'undefined') {
-        window.location.href = data.data.payment_link;
-        return;
-      }
-
-      // Fallback only if no hosted payment link is available
+      // 100% In-App: Keep advertiser on Adision and present dedicated Kuda virtual account
       setWalletCheckoutData(data.data);
     } catch (err: any) {
       alert(err.message || 'Failed to initiate deposit. Please try again.');
@@ -261,7 +257,41 @@ function AdvertiserDashboardContent() {
     }
   };
 
-  // Check Wallet Deposit Status
+  // Real-time auto-polling for wallet deposit confirmation
+  useEffect(() => {
+    if (!isFundModalOpen || !walletCheckoutData || depositSuccess) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await authFetch('/api/wallet/confirm-funding', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            paymentId: walletCheckoutData.payment_id,
+            reference: walletCheckoutData.reference,
+            amount: walletCheckoutData.amount,
+          }),
+        });
+        const data = await res.json();
+        if (data.status || data.success) {
+          setDepositSuccess(true);
+          setPaymentBanner(`🎉 Deposit confirmed! Added ₦${(data.amount || walletCheckoutData.amount || fundAmount).toLocaleString()} to your wallet.`);
+          await fetchCampaigns();
+          setTimeout(() => {
+            setIsFundModalOpen(false);
+            setWalletCheckoutData(null);
+            setDepositSuccess(false);
+          }, 2400);
+        }
+      } catch {
+        // silent background polling
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isFundModalOpen, walletCheckoutData, depositSuccess, fetchCampaigns, fundAmount]);
+
+  // Manual Check Wallet Deposit Status
   const handleCheckWalletFundingStatus = async () => {
     if (!walletCheckoutData) return;
     setIsCheckingWalletStatus(true);
@@ -277,10 +307,14 @@ function AdvertiserDashboardContent() {
       });
       const data = await res.json();
       if (data.status || data.success) {
+        setDepositSuccess(true);
         setPaymentBanner(`🎉 Deposit confirmed! Added ₦${(data.amount || fundAmount).toLocaleString()} to your wallet.`);
-        setIsFundModalOpen(false);
-        setWalletCheckoutData(null);
         await fetchCampaigns();
+        setTimeout(() => {
+          setIsFundModalOpen(false);
+          setWalletCheckoutData(null);
+          setDepositSuccess(false);
+        }, 2200);
       } else {
         alert(data.message || 'Payment not yet detected by PocketFi. If you just completed the transfer, please allow 1-2 minutes.');
       }
@@ -695,8 +729,8 @@ function AdvertiserDashboardContent() {
               />
 
               <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400 space-y-1">
-                <span className="font-bold text-white block">Payment Methods Supported:</span>
-                <p>Debit Card, Direct Bank Transfer, or USSD via PocketFi.</p>
+                <span className="font-bold text-white block">Payment Method:</span>
+                <p>Dedicated Kuda Microfinance Bank Transfer (Instant Automated Settlement).</p>
               </div>
 
               <div className="pt-2 flex justify-end gap-2.5">
@@ -714,10 +748,20 @@ function AdvertiserDashboardContent() {
                   isLoading={isFunding}
                   className="font-bold gap-1.5 shadow-lg shadow-brand-500/20"
                 >
-                  <span>{isFunding ? 'Redirecting to PocketFi...' : `Pay ₦${fundAmount.toLocaleString()} with PocketFi`}</span>
-                  {!isFunding && <ExternalLink className="w-3.5 h-3.5" />}
+                  <span>{isFunding ? 'Generating Bank Details...' : `Continue (₦${fundAmount.toLocaleString()})`}</span>
+                  {!isFunding && <ArrowRight className="w-3.5 h-3.5" />}
                 </Button>
               </div>
+            </div>
+          ) : depositSuccess ? (
+            <div className="py-8 text-center space-y-3">
+              <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center">
+                <CheckCircle2 className="w-10 h-10 animate-bounce" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Deposit Confirmed!</h3>
+              <p className="text-sm text-emerald-400 font-medium">
+                ₦{(walletCheckoutData?.amount || fundAmount).toLocaleString()} has been credited to your Adision wallet.
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -738,15 +782,32 @@ function AdvertiserDashboardContent() {
                   <div className="flex justify-between items-center py-1">
                     <span className="text-slate-400">Bank Name:</span>
                     <span className="font-bold text-white">
-                      {walletCheckoutData.virtual_account.bank_name || 'Kuda Bank / PocketFi'}
+                      {walletCheckoutData.virtual_account.bank_name || 'Kuda Microfinance Bank'}
                     </span>
                   </div>
 
                   <div className="flex justify-between items-center py-1 border-t border-slate-900">
                     <span className="text-slate-400">Account Number:</span>
-                    <span className="font-mono text-sm font-black text-brand-400">
-                      {walletCheckoutData.virtual_account.account_number}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm font-black text-brand-400">
+                        {walletCheckoutData.virtual_account.account_number}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const acc = walletCheckoutData.virtual_account.account_number;
+                          if (acc) {
+                            navigator.clipboard?.writeText(acc);
+                            setCopiedAccountNumber(true);
+                            setTimeout(() => setCopiedAccountNumber(false), 2000);
+                          }
+                        }}
+                        className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                        title="Copy Account Number"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex justify-between items-center py-1 border-t border-slate-900">
@@ -755,27 +816,32 @@ function AdvertiserDashboardContent() {
                       {walletCheckoutData.virtual_account.account_name || 'Adision Wallet'}
                     </span>
                   </div>
+
+                  <div className="flex justify-between items-center py-1 border-t border-slate-900">
+                    <span className="text-slate-400">Payment Reference:</span>
+                    <span className="font-mono text-[11px] text-slate-400">
+                      {walletCheckoutData.reference || 'Pending'}
+                    </span>
+                  </div>
                 </div>
               )}
 
-              {walletCheckoutData.payment_link && (
-                <a
-                  href={walletCheckoutData.payment_link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block"
-                >
-                  <Button
-                    type="button"
-                    size="lg"
-                    variant="primary"
-                    className="w-full font-bold shadow-lg shadow-brand-500/20 gap-2"
-                  >
-                    <span>Open PocketFi Hosted Checkout</span>
-                    <ExternalLink className="w-4 h-4" />
-                  </Button>
-                </a>
+              {copiedAccountNumber && (
+                <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 text-xs text-center font-semibold">
+                  Account Number copied to clipboard!
+                </div>
               )}
+
+              {/* Real-time listening indicator */}
+              <div className="p-3.5 rounded-xl bg-brand-500/5 border border-brand-500/20 flex items-center gap-3">
+                <span className="relative flex h-3 w-3 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
+                </span>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Listening for transfer in real-time. Transfer from any Nigerian bank app (Kuda, OPay, GTBank, Zenith, etc.) and your wallet will update automatically.
+                </p>
+              </div>
 
               <Button
                 type="button"
@@ -783,11 +849,15 @@ function AdvertiserDashboardContent() {
                 variant="outline"
                 onClick={handleCheckWalletFundingStatus}
                 isLoading={isCheckingWalletStatus}
-                className="w-full font-bold gap-2 text-slate-200 border-slate-700 hover:bg-slate-800"
+                className="w-full font-bold gap-2 text-slate-200 border-slate-700 hover:bg-slate-800 py-3"
               >
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 <span>I Have Completed the Transfer — Check Status</span>
               </Button>
+
+              <p className="text-[11px] text-center text-slate-500">
+                🔒 Protected by <strong>PocketFi</strong>. Funds are credited directly to your Adision balance.
+              </p>
             </div>
           )}
         </div>

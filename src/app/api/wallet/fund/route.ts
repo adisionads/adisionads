@@ -84,7 +84,8 @@ export async function POST(request: NextRequest) {
         wallet = newW;
       }
 
-      if (wallet && checkoutSession.paymentId) {
+      if (wallet) {
+        const paymentKey = checkoutSession.paymentId || reference;
         await supabaseAdmin.from('ledger_transactions').insert({
           wallet_id: wallet.id,
           user_id: userId,
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
           direction: 'CREDIT',
           balance_after: Number(wallet.available_balance || 0),
           reference_type: 'POCKETFI_DEPOSIT',
-          description: `PocketFi payment ID: ${checkoutSession.paymentId} | Ref: ${reference}`,
+          description: `PocketFi payment ID: ${paymentKey} | Ref: ${reference} | PFI: ${virtualAccount.reference || ''}`,
           status: 'PENDING',
         });
       }
