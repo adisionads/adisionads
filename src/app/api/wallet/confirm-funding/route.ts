@@ -28,57 +28,8 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = auth.user!.id;
-    const paymentKey = paymentId || reference;
-    const requestedAmount = Number(body.amount || 0);
 
-    // 1. If Supabase is configured, check if DB already has this deposit completed (e.g. via Webhook)
-    let currentWallet: any = null;
-    if (isSupabaseAdminConfigured()) {
-      const { data: wallet } = await supabaseAdmin
-        .from('wallets')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (!wallet) {
-        const { data: newW } = await supabaseAdmin
-          .from('wallets')
-          .insert({
-            user_id: userId,
-            available_balance: 0,
-            pending_balance: 0,
-            currency: 'NGN',
-          })
-          .select()
-          .single();
-        currentWallet = newW;
-      } else {
-        currentWallet = wallet;
-      }
-
-      if (currentWallet && paymentKey) {
-        const { data: alreadyCompleted } = await supabaseAdmin
-          .from('ledger_transactions')
-          .select('id, amount')
-          .eq('wallet_id', currentWallet.id)
-          .eq('reference_type', 'POCKETFI_DEPOSIT')
-          .eq('status', 'COMPLETED')
-          .ilike('description', `%${paymentKey}%`)
-          .maybeSingle();
-
-        if (alreadyCompleted) {
-          return NextResponse.json({
-            status: true,
-            success: true,
-            message: 'Deposit confirmed and credited to your wallet.',
-            balance: Number(currentWallet.available_balance || 0),
-            amount: Number(alreadyCompleted.amount || requestedAmount),
-          });
-        }
-      }
-    }
-
-    // 2. Query PocketFi server-to-server confirmation API
+    // 1. Confirm transaction with PocketFi server-to-server API
     let confirmResult: any = null;
     const lookupId = paymentId || reference;
     if (lookupId) {
@@ -92,7 +43,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const depositAmount = Number(confirmResult.amount || requestedAmount || 0);
+    const depositAmount = Number(confirmResult.amount || body.amount || 0);
     if (!depositAmount || depositAmount <= 0) {
       return NextResponse.json(
         { status: false, message: 'Invalid deposit amount returned by gateway' },
@@ -105,6 +56,64 @@ export async function POST(request: NextRequest) {
         status: true,
         success: true,
         message: 'Wallet funded successfully (test mode)',
+        amount: depositAmount,
+      });
+    }
+
+    // 2. Fetch or create User Wallet
+    const { data: wallet, error: wErr } = await supabaseAdmin
+      .from('wallets')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (wErr) {
+      console.error('[Wallet Confirm Fetch Error]:', wErr);
+      return NextResponse.json(
+        { status: false, message: 'Failed to access wallet record: ' + wErr.message },
+        { status: 500 }
+      );
+    }
+
+    let currentWallet = wallet;
+    if (!currentWallet) {
+      const { data: newW, error: createErr } = await supabaseAdmin
+        .from('wallets')
+        .insert({
+          user_id: userId,
+          available_balance: 0,
+          pending_balance: 0,
+          currency: 'NGN',
+        })
+        .select()
+        .single();
+
+      if (createErr || !newW) {
+        return NextResponse.json(
+          { status: false, message: 'Failed to initialize wallet' },
+          { status: 500 }
+        );
+      }
+      currentWallet = newW;
+    }
+
+    // 3. Idempotency Guard: Prevent double-crediting if already processed
+    const paymentKey = paymentId || reference;
+    const { data: alreadyCompleted } = await supabaseAdmin
+      .from('ledger_transactions')
+      .select('id')
+      .eq('wallet_id', currentWallet.id)
+      .eq('reference_type', 'POCKETFI_DEPOSIT')
+      .eq('status', 'COMPLETED')
+      .ilike('description', `%${paymentKey}%`)
+      .maybeSingle();
+
+    if (alreadyCompleted) {
+      return NextResponse.json({
+        status: true,
+        success: true,
+        message: 'Deposit was already credited to your wallet.',
+        balance: Number(currentWallet.available_balance || 0),
         amount: depositAmount,
       });
     }

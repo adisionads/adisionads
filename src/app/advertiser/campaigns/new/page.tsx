@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store/app-context';
 import { CAMPAIGN_PACKAGES, COMMUNITY_CATEGORIES_LIST } from '@/lib/constants';
@@ -138,7 +138,13 @@ export default function NewCampaignPage() {
 
       setCheckoutData(result.data);
 
-      // 100% In-App: Keep advertiser on Adision and present dedicated Kuda virtual account modal
+      // 1. Direct gateway redirect: If PocketFi provided a payment link, send advertiser straight to PocketFi hosted checkout
+      if (result.data?.payment_link && typeof window !== 'undefined') {
+        window.location.href = result.data.payment_link;
+        return;
+      }
+
+      // Fallback: If gateway redirect link is not available, show dedicated bank transfer modal
       setShowPaymentModal(true);
     } catch (err: any) {
       alert(err.message || 'Failed to initiate checkout. Please try again.');
@@ -149,37 +155,6 @@ export default function NewCampaignPage() {
 
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyNotice, setVerifyNotice] = useState<string | null>(null);
-
-  // Real-time auto-polling for campaign payment confirmation
-  useEffect(() => {
-    if (!showPaymentModal || !checkoutData || paymentSuccess) return;
-
-    const interval = setInterval(async () => {
-      try {
-        const res = await authFetch('/api/campaigns/confirm-payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            reference: checkoutData.reference,
-            paymentId: (checkoutData as any).payment_id,
-          }),
-        });
-
-        const result = await res.json();
-        if (result.status === 'PAID' || result.success) {
-          setPaymentSuccess(true);
-          setTimeout(() => {
-            setShowPaymentModal(false);
-            router.push('/advertiser');
-          }, 2000);
-        }
-      } catch {
-        // silent background polling
-      }
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [showPaymentModal, checkoutData, paymentSuccess, router]);
 
   const handleCheckPaymentStatus = async () => {
     if (!checkoutData) return;
@@ -638,16 +613,23 @@ export default function NewCampaignPage() {
                 </div>
               )}
 
-              {/* Real-time transfer listening indicator */}
-              <div className="p-3.5 rounded-xl bg-brand-500/5 border border-brand-500/20 flex items-center gap-3">
-                <span className="relative flex h-3 w-3 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
-                </span>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Listening for transfer in real-time. Transfer from any Nigerian bank app (Kuda, OPay, GTBank, Zenith, etc.) and your campaign will activate automatically.
-                </p>
-              </div>
+              {/* Primary Action: Go to PocketFi Hosted Checkout */}
+              {checkoutData?.payment_link && (
+                <a
+                  href={checkoutData.payment_link}
+                  className="block"
+                >
+                  <Button
+                    type="button"
+                    size="lg"
+                    variant="primary"
+                    className="w-full font-bold shadow-lg shadow-brand-500/20 gap-2 py-3.5"
+                  >
+                    <span>Pay with PocketFi (Card / Transfer / USSD)</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </Button>
+                </a>
+              )}
 
               {/* Status Verification for Direct Bank Transfer */}
               <div className="space-y-3 pt-1">
@@ -663,10 +645,10 @@ export default function NewCampaignPage() {
                   variant="outline"
                   onClick={handleCheckPaymentStatus}
                   isLoading={isVerifying}
-                  className="w-full font-bold gap-2 text-slate-200 border-slate-700 hover:bg-slate-800 py-3"
+                  className="w-full font-bold gap-2 text-slate-200 border-slate-700 hover:bg-slate-800"
                 >
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>I Have Completed the Transfer — Check Status</span>
+                  <CheckCircle2 className="w-4 h-4 text-brand-400" />
+                  <span>I Transferred to Dedicated Account — Check Status</span>
                 </Button>
 
                 <p className="text-[11px] text-center text-slate-400 leading-relaxed">

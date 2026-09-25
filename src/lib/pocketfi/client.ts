@@ -178,21 +178,17 @@ export class PocketFiClient {
         throw new Error(data.message || 'Failed to generate PocketFi virtual account');
       }
 
-      // PocketFi returns accounts at root or inside data.banks array
+      // PocketFi returns accounts inside data.banks array: [{ bankName, accountNumber, reference, totalPaymentAmount }]
       const firstBank = Array.isArray(data.banks) ? data.banks[0] : null;
       const accountData = data.data || data;
 
       const accountNumber =
-        data.accountNumber ||
-        data.account_number ||
         firstBank?.accountNumber ||
         accountData.account_number ||
         accountData.accountNumber ||
         '';
 
       const rawBankName =
-        data.bankName ||
-        data.bank_name ||
         firstBank?.bankName ||
         accountData.bank_name ||
         accountData.bank ||
@@ -207,9 +203,9 @@ export class PocketFiClient {
         bank_name: cleanBankName,
         account_number: accountNumber,
         account_name: `ADISION / ${firstName.toUpperCase()} ${lastName.toUpperCase()}`,
-        expiry_time: data.expiryDate || firstBank?.expiryDate || accountData.expiry_date || new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+        expiry_time: firstBank?.expiryDate || accountData.expiry_date || new Date(Date.now() + 60 * 60 * 1000).toISOString(),
         amount: params.amount,
-        reference: data.reference || firstBank?.reference || params.reference,
+        reference: firstBank?.reference || params.reference,
       };
     } catch (error) {
       console.error('[PocketFi Virtual Account Error]:', error);
