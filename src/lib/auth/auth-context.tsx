@@ -9,6 +9,7 @@ interface SignUpMeta {
   fullName: string;
   role: UserRole;
   phone?: string;
+  referralCode?: string;
 }
 
 interface AuthContextType {
@@ -233,6 +234,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             full_name: meta.fullName.trim(),
             role: meta.role,
             phone: meta.phone?.trim() || null,
+            referred_by_code: meta.referralCode?.trim().toUpperCase() || null,
           },
         },
       });

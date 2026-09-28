@@ -8,6 +8,7 @@ import { StatsCard } from '@/components/shared/StatsCard';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { ReferralCard } from '@/components/referrals/ReferralCard';
 import {
   ArrowRight,
   Award,
@@ -81,6 +82,9 @@ export default function PartnerDashboard() {
             icon={Award}
           />
         </div>
+
+        {/* Viral WhatsApp Referral Loop */}
+        <ReferralCard role="COMMUNITY_PARTNER" />
 
         {/* Pending Campaign Tasks Alert */}
         {activeAssignments.length > 0 && (

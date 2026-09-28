@@ -14,9 +14,14 @@ import {
   RefreshCw,
   Search,
   Users,
+  Share2,
+  CheckCircle2,
+  Sparkles,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 
 interface WaitlistEntry {
   id: string;
@@ -41,6 +46,11 @@ export default function AdminWaitlistPage() {
   const [viewMode, setViewMode] = useState<'BOTH' | 'COMMUNITIES' | 'ADVERTISERS'>('BOTH');
   const [copiedPartnerPhones, setCopiedPartnerPhones] = useState(false);
   const [copiedAdvertiserPhones, setCopiedAdvertiserPhones] = useState(false);
+  const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
+  const [broadcastAudience, setBroadcastAudience] = useState<'PARTNERS' | 'ADVERTISERS' | 'ALL'>('PARTNERS');
+  const [broadcastTemplate, setBroadcastTemplate] = useState<'LAUNCH' | 'EARN' | 'PROMO'>('LAUNCH');
+  const [copiedBroadcastText, setCopiedBroadcastText] = useState(false);
+  const [copiedBroadcastPhones, setCopiedBroadcastPhones] = useState(false);
 
   const fetchWaitlist = async () => {
     setLoading(true);
@@ -120,6 +130,40 @@ export default function AdminWaitlistPage() {
     document.body.removeChild(link);
   };
 
+  const exportVCard = (subset: 'ALL' | 'PARTNERS' | 'ADVERTISERS') => {
+    let target = entries;
+    if (subset === 'PARTNERS') target = entries.filter((e) => e.role === 'COMMUNITY_PARTNER');
+    if (subset === 'ADVERTISERS') target = entries.filter((e) => e.role === 'ADVERTISER');
+    if (target.length === 0) return;
+
+    const vcards = target
+      .map((e) => {
+        const cleanPhone = (e.phone || '').replace(/[^0-9+]/g, '');
+        const roleLabel = e.role === 'COMMUNITY_PARTNER' ? 'Group Admin' : 'Advertiser';
+        return [
+          'BEGIN:VCARD',
+          'VERSION:3.0',
+          `FN:${e.full_name || 'Member'} (${roleLabel} - Adision)`,
+          `ORG:Adision Waitlist;${e.company_or_community_name || 'Community'}`,
+          `TEL;TYPE=CELL,VOICE:${cleanPhone}`,
+          `EMAIL:${e.email || ''}`,
+          `NOTE:Adision Waitlist Position #${e.position} | Referral: ${e.referral_code}`,
+          'END:VCARD',
+        ].join('\r\n');
+      })
+      .join('\r\n');
+
+    const blob = new Blob([vcards], { type: 'text/vcard;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `adision_contacts_${subset.toLowerCase()}_${new Date().toISOString().slice(0, 10)}.vcf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const copyPhones = (target: WaitlistEntry[], type: 'PARTNER' | 'ADVERTISER') => {
     const numbers = target
       .map((e) => e.phone)
@@ -173,9 +217,20 @@ export default function AdminWaitlistPage() {
             </Button>
 
             <Button
-              onClick={() => exportCSV('ALL')}
+              onClick={() => setIsBroadcastModalOpen(true)}
               size="sm"
               variant="primary"
+              disabled={entries.length === 0}
+              className="gap-1.5 font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white border-0 shadow-lg shadow-emerald-600/20"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>WhatsApp Broadcast Suite</span>
+            </Button>
+
+            <Button
+              onClick={() => exportCSV('ALL')}
+              size="sm"
+              variant="outline"
               disabled={entries.length === 0}
               className="gap-1.5 font-bold text-xs"
             >
@@ -504,6 +559,218 @@ export default function AdminWaitlistPage() {
           </div>
         )}
       </div>
+
+      {/* ========================================================================= */}
+      {/* LAUNCH BROADCAST SUITE MODAL */}
+      {/* ========================================================================= */}
+      <Modal
+        isOpen={isBroadcastModalOpen}
+        onClose={() => setIsBroadcastModalOpen(false)}
+        title="WhatsApp Launch Broadcast Suite"
+        description="Format contacts, export address book vCards, and generate viral WhatsApp launch broadcasts."
+        maxWidth="lg"
+      >
+        <div className="space-y-6">
+          {/* Target Audience Selector */}
+          <div>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block mb-2">
+              1. Select Target Audience
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setBroadcastAudience('PARTNERS')}
+                className={`p-3 rounded-xl border text-xs font-bold transition-all text-left ${
+                  broadcastAudience === 'PARTNERS'
+                    ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400'
+                    : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Users className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>Group Admins</span>
+                </div>
+                <div className="text-[11px] text-slate-400 font-normal">
+                  {totalPartnerCount} registered community owners
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setBroadcastAudience('ADVERTISERS')}
+                className={`p-3 rounded-xl border text-xs font-bold transition-all text-left ${
+                  broadcastAudience === 'ADVERTISERS'
+                    ? 'bg-blue-500/10 border-blue-500 text-blue-400'
+                    : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Briefcase className="w-3.5 h-3.5 text-blue-500" />
+                  <span>Advertisers</span>
+                </div>
+                <div className="text-[11px] text-slate-400 font-normal">
+                  {totalAdvertiserCount} registered brands & businesses
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setBroadcastAudience('ALL')}
+                className={`p-3 rounded-xl border text-xs font-bold transition-all text-left ${
+                  broadcastAudience === 'ALL'
+                    ? 'bg-brand-500/10 border-brand-500 text-brand-400'
+                    : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Globe className="w-3.5 h-3.5 text-brand-500" />
+                  <span>Entire Waitlist</span>
+                </div>
+                <div className="text-[11px] text-slate-400 font-normal">
+                  {entries.length} total verified contacts
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Broadcast Message Copy Generator */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                2. Launch Announcement Template
+              </label>
+              <span className="text-[10px] text-brand-400 font-bold uppercase">
+                Optimized for Nigerian WhatsApp
+              </span>
+            </div>
+
+            {/* Generated Broadcast Copy Textarea */}
+            <div className="relative">
+              <textarea
+                readOnly
+                rows={7}
+                value={
+                  broadcastAudience === 'PARTNERS'
+                    ? `🚀 Adision is Officially Live! Start Monetizing Your WhatsApp Group Today\n\nHey bro! 👋 The wait is over. Adision is officially live. Connect your WhatsApp community to start getting paid sponsored flyer broadcasts directly from verified Nigerian businesses, with instant automated bank withdrawals to OPay, PalmPay, Kuda, or GTB.\n\nSign in to claim your admin spot now:\nhttps://adision.xyz/login\n\n🎁 Bonus: Earn ₦500 extra in your wallet for every fellow WhatsApp admin you invite!`
+                    : broadcastAudience === 'ADVERTISERS'
+                    ? `📢 Broadcast Your Business Across 100+ WhatsApp Communities\n\nHey! 👋 Adision is officially launched! Reach thousands of active Nigerian buyers inside vetted WhatsApp groups. Zero fake bots, real-time click tracking, and 100% escrow protection.\n\nLaunch your first ad campaign today:\nhttps://adision.xyz/advertiser/campaigns/new\n\n🎁 Founder Special: Earn ₦1,000 ad credit when you invite fellow businesses!`
+                    : `🎉 Adision Marketplace is Live in Nigeria!\n\nHey! 👋 Adision is officially live. The verified community ad platform connecting businesses with targeted WhatsApp groups in Nigeria.\n\n• For Group Admins: Get paid for flyer broadcasts.\n• For Businesses: Broadcast ads to 100+ vetted communities with real-time analytics.\n\nSign in now:\nhttps://adision.xyz/login`
+                }
+                className="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 font-mono leading-relaxed select-all focus:outline-none focus:border-brand-500"
+              />
+
+              <button
+                type="button"
+                onClick={() => {
+                  const text =
+                    broadcastAudience === 'PARTNERS'
+                      ? `🚀 Adision is Officially Live! Start Monetizing Your WhatsApp Group Today\n\nHey bro! 👋 The wait is over. Adision is officially live. Connect your WhatsApp community to start getting paid sponsored flyer broadcasts directly from verified Nigerian businesses, with instant automated bank withdrawals to OPay, PalmPay, Kuda, or GTB.\n\nSign in to claim your admin spot now:\nhttps://adision.xyz/login\n\n🎁 Bonus: Earn ₦500 extra in your wallet for every fellow WhatsApp admin you invite!`
+                      : broadcastAudience === 'ADVERTISERS'
+                      ? `📢 Broadcast Your Business Across 100+ WhatsApp Communities\n\nHey! 👋 Adision is officially launched! Reach thousands of active Nigerian buyers inside vetted WhatsApp groups. Zero fake bots, real-time click tracking, and 100% escrow protection.\n\nLaunch your first ad campaign today:\nhttps://adision.xyz/advertiser/campaigns/new\n\n🎁 Founder Special: Earn ₦1,000 ad credit when you invite fellow businesses!`
+                      : `🎉 Adision Marketplace is Live in Nigeria!\n\nHey! 👋 Adision is officially live. The verified community ad platform connecting businesses with targeted WhatsApp groups in Nigeria.\n\n• For Group Admins: Get paid for flyer broadcasts.\n• For Businesses: Broadcast ads to 100+ vetted communities with real-time analytics.\n\nSign in now:\nhttps://adision.xyz/login`;
+                  navigator.clipboard.writeText(text);
+                  setCopiedBroadcastText(true);
+                  setTimeout(() => setCopiedBroadcastText(false), 2000);
+                }}
+                className="absolute top-2.5 right-2.5 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-bold"
+              >
+                {copiedBroadcastText ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-400">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy Message</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Export & Contact Management Tools */}
+          <div>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block mb-2">
+              3. Contact Delivery & Phone Book Sync
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Copy Phone Numbers */}
+              <Button
+                type="button"
+                variant="outline"
+                size="md"
+                onClick={() => {
+                  let target = entries;
+                  if (broadcastAudience === 'PARTNERS') target = entries.filter((e) => e.role === 'COMMUNITY_PARTNER');
+                  if (broadcastAudience === 'ADVERTISERS') target = entries.filter((e) => e.role === 'ADVERTISER');
+                  const nums = target.map((e) => e.phone).filter(Boolean).join(', ');
+                  if (!nums) return;
+                  navigator.clipboard.writeText(nums);
+                  setCopiedBroadcastPhones(true);
+                  setTimeout(() => setCopiedBroadcastPhones(false), 2500);
+                }}
+                className="font-bold gap-2 justify-center border-slate-700 hover:bg-slate-800 text-xs py-3"
+              >
+                {copiedBroadcastPhones ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span className="text-emerald-400">All Phone Numbers Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4 text-brand-400" />
+                    <span>Copy Phone Numbers (+234...)</span>
+                  </>
+                )}
+              </Button>
+
+              {/* Export vCard for Contacts */}
+              <Button
+                type="button"
+                variant="outline"
+                size="md"
+                onClick={() => exportVCard(broadcastAudience)}
+                className="font-bold gap-2 justify-center border-slate-700 hover:bg-slate-800 text-xs py-3"
+              >
+                <Download className="w-4 h-4 text-emerald-400" />
+                <span>Export vCard (.vcf) for Phone</span>
+              </Button>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-2">
+              💡 <strong>vCard Export Tip:</strong> Download the .vcf file and tap it on your iPhone or Android to instantly save all waitlist members as WhatsApp contacts.
+            </p>
+          </div>
+
+          {/* Quick WhatsApp Web Launcher */}
+          <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsBroadcastModalOpen(false)}
+            >
+              Close
+            </Button>
+
+            <a
+              href="https://web.whatsapp.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button
+                type="button"
+                size="md"
+                variant="primary"
+                className="font-bold gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 border-0"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Open WhatsApp Web to Broadcast</span>
+              </Button>
+            </a>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

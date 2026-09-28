@@ -40,6 +40,23 @@ function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const [referralCode, setReferralCode] = useState<string>('');
+
+  React.useEffect(() => {
+    const urlRef = searchParams.get('ref') || searchParams.get('referral') || searchParams.get('r');
+    if (urlRef) {
+      const cleanRef = urlRef.trim().toUpperCase();
+      setReferralCode(cleanRef);
+      try {
+        localStorage.setItem('adision_ref_code', cleanRef);
+      } catch {}
+    } else {
+      try {
+        const savedRef = localStorage.getItem('adision_ref_code');
+        if (savedRef) setReferralCode(savedRef.trim().toUpperCase());
+      } catch {}
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +81,7 @@ function SignUpForm() {
       fullName: fullName.trim(),
       role,
       phone: formattedPhone,
+      referralCode: referralCode.trim() || undefined,
     });
 
     if (error) {
@@ -150,6 +168,18 @@ function SignUpForm() {
           Join Adision to reach active communities or monetize your WhatsApp audience.
         </p>
       </div>
+
+      {referralCode && (
+        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-4 h-4" />
+          </div>
+          <div className="text-xs">
+            <span className="font-bold text-emerald-400 block">Referral Invite Applied ({referralCode})</span>
+            <span className="text-slate-400">You and your referrer will earn bonuses on your first campaign or broadcast!</span>
+          </div>
+        </div>
+      )}
 
       {/* Role Selection Tabs */}
       <div>

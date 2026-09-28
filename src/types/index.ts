@@ -57,7 +57,8 @@ export type LedgerTransactionType =
   | 'COMMISSION_DEDUCTION'
   | 'CAMPAIGN_PAYOUT'
   | 'WITHDRAWAL'
-  | 'REFUND';
+  | 'REFUND'
+  | 'REFERRAL_REWARD';
 
 export type TransactionDirection = 'CREDIT' | 'DEBIT';
 
@@ -71,6 +72,9 @@ export interface UserProfile {
   full_name: string;
   avatar_url?: string;
   is_verified: boolean;
+  referral_code?: string;
+  referred_by_code?: string;
+  referred_by_id?: string;
   created_at: string;
   updated_at: string;
 }

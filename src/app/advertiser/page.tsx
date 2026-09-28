@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
+import { ReferralCard } from '@/components/referrals/ReferralCard';
 import {
   ArrowRight,
   CheckCircle2,
@@ -447,6 +448,9 @@ function AdvertiserDashboardContent() {
             icon={TrendingUp}
           />
         </div>
+
+        {/* Viral Referral Rewards */}
+        <ReferralCard role="ADVERTISER" />
 
         {/* Campaigns Table */}
         <Card className="p-0 overflow-hidden border-slate-800">

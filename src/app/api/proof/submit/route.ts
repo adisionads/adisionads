@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase/admin';
 import { requireUser } from '@/lib/auth/server-auth';
+import { uploadPlacementProofToStorage } from '@/lib/storage/proof-storage';
 
 export const runtime = 'nodejs';
 
@@ -33,6 +34,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Process image through resilient Supabase Storage pipeline (uploads to 'ad-proofs' bucket or falls back cleanly)
+    const storageResult = await uploadPlacementProofToStorage(proof_image_url, assignment_id);
+    const finalProofUrl = storageResult.url;
+
     if (isSupabaseAdminConfigured()) {
       // 1. Insert Proof Record
       const { data: proof, error: proofErr } = await supabaseAdmin
@@ -41,7 +46,7 @@ export async function POST(request: NextRequest) {
           assignment_id,
           community_id,
           submitted_by: effectiveSubmittedBy,
-          proof_image_url,
+          proof_image_url: finalProofUrl,
           placement_timestamp: placement_timestamp || new Date().toISOString(),
           notes: notes || null,
           status: 'PENDING',

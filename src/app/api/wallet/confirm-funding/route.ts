@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { pocketFi } from '@/lib/pocketfi/client';
 import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase/admin';
 import { requireUser } from '@/lib/auth/server-auth';
+import { processAdvertiserReferralReward } from '@/lib/referrals/settlement';
 
 export const runtime = 'nodejs';
 
@@ -171,6 +172,11 @@ export async function POST(request: NextRequest) {
         status: 'COMPLETED',
       });
     }
+
+    // Trigger viral referral reward for advertiser if qualified (₦5,000+ deposit)
+    processAdvertiserReferralReward(userId, depositAmount, paymentKey).catch((err) =>
+      console.error('[Wallet Confirm] Referral settlement error:', err)
+    );
 
     return NextResponse.json({
       status: true,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isSupabaseAdminConfigured, supabaseAdmin } from '@/lib/supabase/admin';
 import { requireAdmin } from '@/lib/auth/server-auth';
+import { processPartnerReferralReward } from '@/lib/referrals/settlement';
 
 export const runtime = 'nodejs';
 
@@ -38,7 +39,14 @@ export async function POST(request: NextRequest) {
 
     if (isSupabaseAdminConfigured()) {
       if (action === 'APPROVE') {
-        // Execute atomic double-entry wallet credit stored procedure
+        // 1. Fetch submitted_by user ID before approval
+        const { data: proofMeta } = await supabaseAdmin
+          .from('proof_records')
+          .select('submitted_by')
+          .eq('id', proof_id)
+          .maybeSingle();
+
+        // 2. Execute atomic double-entry wallet credit stored procedure
         const { data, error } = await supabaseAdmin.rpc('approve_proof_and_credit_partner', {
           p_proof_id: proof_id,
           p_admin_id: adminId,
@@ -50,6 +58,13 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(
             { status: false, message: error.message },
             { status: 500 }
+          );
+        }
+
+        // 3. Trigger viral referral reward settlement if partner was referred
+        if (proofMeta?.submitted_by) {
+          processPartnerReferralReward(proofMeta.submitted_by, proof_id).catch((err) =>
+            console.error('[Proof Review] Referral settlement error:', err)
           );
         }
 
