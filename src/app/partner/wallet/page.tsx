@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
+import { DedicatedAccountCard } from '@/components/wallet/DedicatedAccountCard';
 import {
   ArrowDownLeft,
   ArrowLeft,
@@ -277,6 +278,9 @@ export default function PartnerWalletPage() {
             icon={DollarSign}
           />
         </div>
+
+        {/* Dedicated Personal Bank Account for 24/7 Wallet Funding */}
+        <DedicatedAccountCard />
 
         {/* Transactions & Withdrawals Container */}
         <Card className="p-0 overflow-hidden border-slate-800">

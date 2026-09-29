@@ -89,7 +89,37 @@ export async function POST(request: NextRequest) {
 
     // 2. Production Settlement
     if (isSupabaseAdminConfigured()) {
-      // Branch A: Direct Wallet Funding
+      // Branch 0: Dedicated Virtual Account Deposit (24/7 Named Personal Account)
+      const accountNumber =
+        payload.account_number ||
+        payload.data?.account_number ||
+        payload.accountNumber ||
+        payload.data?.accountNumber ||
+        payload.account ||
+        '';
+
+      if (reference.startsWith('dva_') || accountNumber) {
+        const { data: dedicatedRes, error: dedicatedErr } = await supabaseAdmin.rpc(
+          'credit_dedicated_virtual_account_deposit',
+          {
+            p_account_number: String(accountNumber),
+            p_amount: amount,
+            p_payment_reference: reference,
+            p_provider: 'POCKETFI',
+          }
+        );
+
+        if (!dedicatedErr && dedicatedRes?.success) {
+          console.log('[PocketFi Webhook] Dedicated Virtual Account Deposit Credited:', dedicatedRes);
+          return NextResponse.json({
+            status: true,
+            message: 'Dedicated account deposit credited successfully',
+            data: dedicatedRes,
+          });
+        }
+      }
+
+      // Branch A: Direct Wallet Funding (Temporary checkout)
       if (reference.startsWith('wlt_')) {
         const paymentKey = payload.payment_id || reference;
         // Check idempotency: only ignore if ALREADY COMPLETED

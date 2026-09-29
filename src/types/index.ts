@@ -124,6 +124,21 @@ export interface VirtualAccountInfo {
   reference: string;
 }
 
+export interface DedicatedVirtualAccount {
+  id: string;
+  user_id: string;
+  wallet_id?: string;
+  bank_name: string;
+  bank_code?: string;
+  account_number: string;
+  account_name: string;
+  provider: 'POCKETFI' | 'PAYMENTPOINT';
+  reference: string;
+  status: 'ACTIVE' | 'PENDING' | 'INACTIVE';
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Campaign {
   id: string;
   advertiser_id: string;
