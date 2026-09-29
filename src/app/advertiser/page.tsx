@@ -467,18 +467,34 @@ function AdvertiserDashboardContent() {
           </div>
 
           {campaigns.length === 0 ? (
-            <div className="text-center py-16 px-4">
-              <Megaphone className="w-12 h-12 text-slate-600 mx-auto mb-4 opacity-60" />
-              <h3 className="text-base font-bold text-white">No campaigns created yet</h3>
-              <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto mb-6">
-                Launch your first targeted WhatsApp community ad campaign to start receiving verified clicks and customers.
-              </p>
-              <Link href="/advertiser/campaigns/new">
-                <Button size="md" variant="primary" className="font-bold">
-                  <PlusCircle className="w-4 h-4 mr-1.5" />
-                  <span>Create Your First Campaign</span>
-                </Button>
-              </Link>
+            <div className="py-10 px-6 sm:px-10 flex flex-col md:flex-row items-center justify-between gap-8 max-w-4xl mx-auto">
+              <div className="w-full md:w-60 aspect-[3/4] max-h-72 rounded-2xl overflow-hidden border border-brand-500/30 shadow-2xl shadow-brand-500/10 shrink-0 group">
+                <img
+                  src="/brand/business-visibility.jpg"
+                  alt="Your business deserves to be seen"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+              <div className="space-y-4 text-center md:text-left flex-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-bold uppercase tracking-wider">
+                  <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
+                  Direct Community Reach
+                </div>
+                <h3 className="text-2xl font-black text-white leading-tight">
+                  Your business deserves to be seen.
+                </h3>
+                <p className="text-sm text-slate-300 leading-relaxed max-w-lg">
+                  Broadcast your offer directly across verified Nigerian WhatsApp groups with real-time click tracking, screenshot proofs, and 100% escrow protection.
+                </p>
+                <div className="pt-2">
+                  <Link href="/advertiser/campaigns/new">
+                    <Button size="lg" variant="primary" className="font-bold gap-2">
+                      <PlusCircle className="w-5 h-5" />
+                      <span>Launch Your First Campaign</span>
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             </div>
           ) : (
             <>

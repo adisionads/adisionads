@@ -152,22 +152,67 @@ function SignUpForm() {
   }
 
   return (
-    <Card className="max-w-md w-full mx-auto p-8 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-2xl space-y-6">
-      <div className="text-center space-y-2">
-        <div className="h-10 w-auto rounded-xl overflow-hidden shadow-md bg-brand-500 inline-flex items-center px-1 mb-2">
+    <div className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      {/* Brand Visual Showcase (Desktop) */}
+      <div className="hidden lg:flex lg:col-span-5 flex-col justify-between p-7 rounded-3xl bg-slate-900 border border-brand-500/20 shadow-2xl space-y-6 relative overflow-hidden">
+        <div className="relative rounded-2xl overflow-hidden border border-brand-500/30 shadow-xl group">
           <img
-            src="/brand/logo-horizontal.jpg"
-            alt="Adision"
-            className="h-8 w-auto object-contain"
+            src="/brand/one-partner-network.jpg"
+            alt="One Partner - Adision"
+            className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-dark-950/70 via-transparent to-transparent pointer-events-none" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-          Create Your Account
-        </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-300">
-          Join Adision to reach active communities or monetize your WhatsApp audience.
-        </p>
+
+        <div className="space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-bold uppercase tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
+            Verified WhatsApp Ad Network
+          </div>
+
+          <h2 className="text-2xl font-black text-white leading-tight">
+            One Unified Partner for Visibility & Growth.
+          </h2>
+
+          <p className="text-sm text-slate-300 leading-relaxed">
+            Connect directly with verified WhatsApp communities across Nigeria, or monetize your active group with escrow-backed payouts.
+          </p>
+
+          <div className="pt-2 space-y-2 text-xs text-slate-300">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-brand-400 shrink-0" />
+              <span>100% Escrow-protected campaign funds</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-brand-400 shrink-0" />
+              <span>Timestamped screenshot proofs & click tracking</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-brand-400 shrink-0" />
+              <span>Direct automated withdrawals to any Nigerian bank</span>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Sign Up Form Container */}
+      <div className="lg:col-span-7">
+        <Card className="w-full p-6 sm:p-8 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-2xl space-y-6">
+          <div className="text-center space-y-2">
+            <div className="h-10 w-auto rounded-xl overflow-hidden shadow-md bg-brand-500 inline-flex items-center px-1 mb-2">
+              <img
+                src="/brand/logo-horizontal.jpg"
+                alt="Adision"
+                className="h-8 w-auto object-contain"
+              />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              Create Your Account
+            </h1>
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              Join Adision to reach active communities or monetize your WhatsApp audience.
+            </p>
+          </div>
 
       {referralCode && (
         <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3">
@@ -345,6 +390,8 @@ function SignUpForm() {
         </p>
       </div>
     </Card>
+      </div>
+    </div>
   );
 }
 

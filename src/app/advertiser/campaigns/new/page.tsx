@@ -250,7 +250,30 @@ export default function NewCampaignPage() {
           {/* STEP 1: CAMPAIGN DETAILS & TARGET */}
           {currentStep === 1 && (
             <Card className="p-6 sm:p-8 space-y-6 border-slate-800">
-              <CardHeader className="p-0 mb-4">
+              {/* Brand Inspiration Showcase */}
+              <div className="rounded-2xl overflow-hidden border border-brand-500/20 bg-gradient-to-r from-slate-900 via-slate-900 to-brand-950/40 p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 sm:gap-5 shadow-lg">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 border border-brand-500/30 shadow-md">
+                  <img
+                    src="/brand/business-visibility.jpg"
+                    alt="Your business deserves to be seen"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="space-y-1 text-center sm:text-left flex-1">
+                  <div className="inline-flex items-center gap-1.5 text-brand-400 text-[11px] font-bold uppercase tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse" />
+                    Verified WhatsApp Broadcast
+                  </div>
+                  <h4 className="text-base sm:text-lg font-black text-white">
+                    Your business deserves to be seen.
+                  </h4>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Broadcast your offer directly to verified WhatsApp groups with active buyers, students, founders, and professionals across Nigeria.
+                  </p>
+                </div>
+              </div>
+
+              <CardHeader className="p-0 mb-4 pt-2">
                 <div className="inline-flex items-center gap-2 text-brand-400 text-xs font-bold uppercase tracking-wider mb-1">
                   <Megaphone className="w-4 h-4" />
                   <span>Step 1: Campaign Details</span>
