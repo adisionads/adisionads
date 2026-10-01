@@ -18,7 +18,7 @@ interface AuthContextType {
   role: UserRole | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: string | null; role?: UserRole }>;
   signUp: (
     email: string,
     password: string,
@@ -152,18 +152,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const signIn = async (email: string, password: string): Promise<{ error: string | null }> => {
+  const signIn = async (email: string, password: string): Promise<{ error: string | null; role?: UserRole }> => {
     setIsLoading(true);
     try {
       if (!isSupabaseConfigured()) {
         // Simulated local login
+        const simRole: UserRole = email.includes('admin') ? 'ADMIN' : email.includes('partner') ? 'COMMUNITY_PARTNER' : 'ADVERTISER';
         const simUser = {
           id: `usr_${Date.now()}`,
           email,
           created_at: new Date().toISOString(),
           user_metadata: {
             full_name: email.split('@')[0],
-            role: email.includes('admin') ? 'ADMIN' : email.includes('partner') ? 'COMMUNITY_PARTNER' : 'ADVERTISER',
+            role: simRole,
           },
         } as any;
         setUser(simUser);
@@ -173,7 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           JSON.stringify({ user: simUser, profile: { ...simUser.user_metadata, id: simUser.id, email } })
         );
         setIsLoading(false);
-        return { error: null };
+        return { error: null, role: simRole };
       }
 
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -186,12 +187,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: error.message };
       }
 
+      let resolvedRole: UserRole = 'ADVERTISER';
       if (data.user) {
         setUser(data.user);
+        const { data: dbProfile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .maybeSingle();
+
+        if (dbProfile?.role) {
+          resolvedRole = dbProfile.role as UserRole;
+        } else {
+          resolvedRole = (data.user.user_metadata?.role as UserRole) || 'ADVERTISER';
+        }
         await fetchProfile(data.user);
       }
       setIsLoading(false);
-      return { error: null };
+      return { error: null, role: resolvedRole };
     } catch (err: any) {
       setIsLoading(false);
       return { error: err.message || 'Login failed. Please check your credentials.' };
