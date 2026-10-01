@@ -39,35 +39,16 @@ export async function uploadPlacementProofToStorage(
     const filename = `proofs/${assignmentId}_${Date.now()}.${ext}`;
 
     // 2. Upload to 'ad-proofs' storage bucket
-    const { data: uploadData, error: initialErr } = await supabaseAdmin.storage
+    const { data: uploadData, error: uploadErr } = await supabaseAdmin.storage
       .from('ad-proofs')
       .upload(filename, buffer, {
         contentType: mimeType,
         upsert: true,
       });
 
-    let uploadErr = initialErr;
-
-    if (uploadErr && uploadErr.message?.toLowerCase().includes('not found')) {
-      try {
-        await supabaseAdmin.storage.createBucket('ad-proofs', {
-          public: true,
-          fileSizeLimit: 10485760,
-          allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
-        });
-        const retry = await supabaseAdmin.storage
-          .from('ad-proofs')
-          .upload(filename, buffer, {
-            contentType: mimeType,
-            upsert: true,
-          });
-        uploadErr = retry.error;
-      } catch {}
-    }
-
     if (uploadErr) {
       console.warn(
-        `[Proof Storage] Upload to 'ad-proofs' bucket failed (${uploadErr.message}). Falling back to compressed data URL.`
+        `[Proof Storage] Upload to 'ad-proofs' bucket failed (${uploadErr.message}). Falling back to compressed data URL. (Ensure 'ad-proofs' bucket is created and Public in Supabase Dashboard)`
       );
       return { success: true, url: imageData, isFallback: true };
     }
