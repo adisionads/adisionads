@@ -18,7 +18,7 @@ interface AuthContextType {
   role: UserRole | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: string | null; role?: UserRole }>;
   signUp: (
     email: string,
     password: string,
@@ -38,17 +38,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch or construct profile from public.profiles
-  const fetchProfile = async (currentUser: User | null) => {
+  const fetchProfile = async (currentUser: User | null): Promise<UserProfile | null> => {
     if (!currentUser) {
       setProfile(null);
-      return;
+      return null;
     }
 
     if (!isSupabaseConfigured()) {
       // Local fallback simulation profile
       const metaRole = (currentUser.user_metadata?.role as UserRole) || 'ADVERTISER';
       const metaName = currentUser.user_metadata?.full_name || 'Adision User';
-      setProfile({
+      const simProf: UserProfile = {
         id: currentUser.id,
         email: currentUser.email || '',
         full_name: metaName,
@@ -57,8 +57,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         is_verified: true,
         created_at: currentUser.created_at,
         updated_at: currentUser.created_at,
-      });
-      return;
+      };
+      setProfile(simProf);
+      return simProf;
     }
 
     try {
@@ -69,12 +70,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .maybeSingle();
 
       if (data && !error) {
-        setProfile(data as UserProfile);
+        const prof = data as UserProfile;
+        setProfile(prof);
+        return prof;
       } else {
         // Fallback to auth metadata if profile trigger is still executing
         const metaRole = (currentUser.user_metadata?.role as UserRole) || 'COMMUNITY_PARTNER';
         const metaName = currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'User';
-        setProfile({
+        const fallbackProf: UserProfile = {
           id: currentUser.id,
           email: currentUser.email || '',
           full_name: metaName,
@@ -83,10 +86,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           is_verified: false,
           created_at: currentUser.created_at,
           updated_at: currentUser.created_at,
-        });
+        };
+        setProfile(fallbackProf);
+        return fallbackProf;
       }
     } catch (err) {
       console.warn('[AuthContext] Failed to load profile from DB:', err);
+      return null;
     }
   };
 
@@ -152,28 +158,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const signIn = async (email: string, password: string): Promise<{ error: string | null }> => {
+  const signIn = async (email: string, password: string): Promise<{ error: string | null; role?: UserRole }> => {
     setIsLoading(true);
     try {
       if (!isSupabaseConfigured()) {
         // Simulated local login
+        const simRole = email.includes('admin') ? 'ADMIN' : email.includes('partner') ? 'COMMUNITY_PARTNER' : 'ADVERTISER';
         const simUser = {
           id: `usr_${Date.now()}`,
           email,
           created_at: new Date().toISOString(),
           user_metadata: {
             full_name: email.split('@')[0],
-            role: email.includes('admin') ? 'ADMIN' : email.includes('partner') ? 'COMMUNITY_PARTNER' : 'ADVERTISER',
+            role: simRole,
           },
         } as any;
         setUser(simUser);
-        await fetchProfile(simUser);
+        const simProf = await fetchProfile(simUser);
         localStorage.setItem(
           'adision_sim_user',
           JSON.stringify({ user: simUser, profile: { ...simUser.user_metadata, id: simUser.id, email } })
         );
         setIsLoading(false);
-        return { error: null };
+        return { error: null, role: simProf?.role || (simRole as UserRole) };
       }
 
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -186,12 +193,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: error.message };
       }
 
+      let resolvedRole: UserRole | undefined;
       if (data.user) {
         setUser(data.user);
-        await fetchProfile(data.user);
+        const userProf = await fetchProfile(data.user);
+        resolvedRole = userProf?.role || (data.user.user_metadata?.role as UserRole);
       }
       setIsLoading(false);
-      return { error: null };
+      return { error: null, role: resolvedRole };
     } catch (err: any) {
       setIsLoading(false);
       return { error: err.message || 'Login failed. Please check your credentials.' };

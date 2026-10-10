@@ -26,7 +26,7 @@ function LoginForm() {
     setErrorMsg(null);
     setIsLoading(true);
 
-    const { error } = await signIn(email, password);
+    const { error, role: loggedInRole } = await signIn(email, password);
 
     if (error) {
       setErrorMsg(error);
@@ -34,12 +34,14 @@ function LoginForm() {
       return;
     }
 
+    const effectiveRole = loggedInRole || role;
+
     // Determine destination
     if (redirectParam && redirectParam.startsWith('/')) {
       router.push(redirectParam);
-    } else if (email.toLowerCase().includes('admin') || role === 'ADMIN') {
+    } else if (email.toLowerCase().includes('admin') || effectiveRole === 'ADMIN') {
       router.push('/admin');
-    } else if (role === 'COMMUNITY_PARTNER') {
+    } else if (effectiveRole === 'COMMUNITY_PARTNER') {
       router.push('/partner');
     } else {
       router.push('/advertiser');

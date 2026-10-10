@@ -5,7 +5,7 @@
 -- ==============================================================================
 
 -- 1. Extend profiles with referral tracking columns
-ALTER TABLE public.profiles 
+ALTER TABLE public.profiles
 ADD COLUMN IF NOT EXISTS referral_code TEXT UNIQUE,
 ADD COLUMN IF NOT EXISTS referred_by_code TEXT,
 ADD COLUMN IF NOT EXISTS referred_by_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL;
@@ -254,6 +254,12 @@ BEGIN
     RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 5. Attach Trigger on auth.users for Automatic Profile & Wallet Provisioning
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 -- =========================================================================
 -- ADISION — MIGRATION 006: DEDICATED PERSONAL VIRTUAL BANK ACCOUNTS

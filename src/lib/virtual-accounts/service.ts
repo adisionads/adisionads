@@ -39,6 +39,7 @@ export async function getOrCreateDedicatedVirtualAccount(userId: string): Promis
       .maybeSingle();
 
     if (existing && !fetchErr) {
+      return { success: true, account: existing as DedicatedVirtualAccount };
       const isLegacySimulated =
         existing.bank_name?.toLowerCase().includes('safehaven') ||
         (existing.account_number?.startsWith('60') && existing.bank_code === '090286');
@@ -115,6 +116,7 @@ export async function getOrCreateDedicatedVirtualAccount(userId: string): Promis
       .single();
 
     if (saveErr) {
+      // If conflict (e.g. duplicate key), fetch the existing one
       const { data: conflictRow } = await supabaseAdmin
         .from('user_virtual_accounts')
         .select('*')
