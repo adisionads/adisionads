@@ -39,7 +39,13 @@ export async function getOrCreateDedicatedVirtualAccount(userId: string): Promis
       .maybeSingle();
 
     if (existing && !fetchErr) {
-      return { success: true, account: existing as DedicatedVirtualAccount };
+      const isLegacySimulated =
+        existing.bank_name?.toLowerCase().includes('safehaven') ||
+        (existing.account_number?.startsWith('60') && existing.bank_code === '090286');
+
+      if (!isLegacySimulated) {
+        return { success: true, account: existing as DedicatedVirtualAccount };
+      }
     }
 
     // 2. Fetch User Profile to get their name, email, phone
@@ -87,25 +93,28 @@ export async function getOrCreateDedicatedVirtualAccount(userId: string): Promis
       return { success: false, message: 'Failed to generate bank account from payment gateway.' };
     }
 
-    // 5. Store in user_virtual_accounts table
+    // 5. Store or Update in user_virtual_accounts table
     const { data: saved, error: saveErr } = await supabaseAdmin
       .from('user_virtual_accounts')
-      .insert({
-        user_id: userId,
-        wallet_id: wallet?.id || null,
-        bank_name: pfiAccount.bank_name,
-        bank_code: pfiAccount.bank_code || '090286',
-        account_number: pfiAccount.account_number,
-        account_name: pfiAccount.account_name,
-        provider: 'POCKETFI',
-        reference,
-        status: 'ACTIVE',
-      })
+      .upsert(
+        {
+          user_id: userId,
+          wallet_id: wallet?.id || null,
+          bank_name: pfiAccount.bank_name,
+          bank_code: pfiAccount.bank_code || '090267',
+          account_number: pfiAccount.account_number,
+          account_name: pfiAccount.account_name,
+          provider: 'POCKETFI',
+          reference,
+          status: 'ACTIVE',
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id' }
+      )
       .select('*')
       .single();
 
     if (saveErr) {
-      // If conflict (e.g. duplicate key), fetch the existing one
       const { data: conflictRow } = await supabaseAdmin
         .from('user_virtual_accounts')
         .select('*')

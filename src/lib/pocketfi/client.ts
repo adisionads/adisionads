@@ -183,8 +183,8 @@ export class PocketFiClient {
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          business_id: this.businessId,
-          businessId: this.businessId,
+          business_id: Number(this.businessId),
+          businessId: Number(this.businessId),
           first_name: firstName,
           last_name: lastName,
           phone: phoneVal,
@@ -289,15 +289,14 @@ export class PocketFiClient {
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          business_id: this.businessId,
-          businessId: this.businessId,
+          business_id: Number(this.businessId),
+          businessId: Number(this.businessId),
           first_name: firstName,
           last_name: lastName,
           phone: phoneVal,
           phone_number: phoneVal,
           email: params.email,
-          bank: 'saveheaven',
-          type: 'reserved',
+          bank: 'kuda',
           reference: params.reference,
           ...(params.bvn ? { bvn: params.bvn } : {}),
         }),
@@ -321,26 +320,23 @@ export class PocketFiClient {
         firstBank?.bankName ||
         accountData.bank_name ||
         accountData.bank ||
-        'SafeHaven Microfinance Bank';
+        'Kuda Microfinance Bank';
+
+      const isKuda = rawBankName.toLowerCase().includes('kuda');
+      const bankName = isKuda ? 'Kuda Microfinance Bank' : rawBankName;
+      const bankCode = isKuda ? '090267' : (accountData.bank_code || '090267');
+      const resolvedAccountName = firstBank?.accountName || accountData.account_name || accountName;
 
       return {
-        bank_name: rawBankName,
-        bank_code: '090286',
+        bank_name: bankName,
+        bank_code: bankCode,
         account_number: accountNumber,
-        account_name: accountName,
+        account_name: resolvedAccountName,
         reference: params.reference,
       };
     } catch (error: any) {
       console.error('[PocketFi Dedicated Account Error]:', error);
-      // Fallback for resilient sandbox/demo
-      const testAccount = '60' + Math.floor(10000000 + Math.random() * 90000000);
-      return {
-        bank_name: 'SafeHaven Microfinance Bank',
-        bank_code: '090286',
-        account_number: testAccount,
-        account_name: accountName,
-        reference: params.reference,
-      };
+      throw error;
     }
   }
 

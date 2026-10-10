@@ -7,7 +7,7 @@ import { useApp } from '@/lib/store/app-context';
 import { useAuth } from '@/lib/auth/auth-context';
 import { authFetch } from '@/lib/auth/auth-fetch';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
-import { Campaign } from '@/types';
+import { Campaign, DedicatedVirtualAccount } from '@/types';
 import { formatCategoryName, formatCurrency, formatNumber } from '@/lib/utils';
 import { StatsCard } from '@/components/shared/StatsCard';
 import { StatusBadge } from '@/components/shared/StatusBadge';
@@ -34,6 +34,7 @@ import {
   ExternalLink,
   Copy,
   AlertCircle,
+  CreditCard,
 } from 'lucide-react';
 
 function AdvertiserDashboardContent() {
@@ -53,6 +54,10 @@ function AdvertiserDashboardContent() {
 
   // Fund Wallet State
   const [isFundModalOpen, setIsFundModalOpen] = useState(false);
+  const [fundMethodTab, setFundMethodTab] = useState<'dedicated' | 'dynamic'>('dedicated');
+  const [dedicatedAccount, setDedicatedAccount] = useState<DedicatedVirtualAccount | null>(null);
+  const [copiedDedicatedAccount, setCopiedDedicatedAccount] = useState(false);
+  const [isRefreshingBalance, setIsRefreshingBalance] = useState(false);
   const [fundAmount, setFundAmount] = useState<number>(5000);
   const [isFunding, setIsFunding] = useState(false);
   const [walletCheckoutData, setWalletCheckoutData] = useState<any>(null);
@@ -63,6 +68,18 @@ function AdvertiserDashboardContent() {
   // Action states for campaigns
   const [verifyingCampaignId, setVerifyingCampaignId] = useState<string | null>(null);
   const [deletingCampaignId, setDeletingCampaignId] = useState<string | null>(null);
+
+  const fetchDedicatedAccount = useCallback(async () => {
+    try {
+      const res = await authFetch('/api/wallet/dedicated-account');
+      const json = await res.json();
+      if (json.status && json.data) {
+        setDedicatedAccount(json.data);
+      }
+    } catch {
+      // Ignored
+    }
+  }, []);
 
   const fetchCampaigns = useCallback(async () => {
     if (!user?.id || !isSupabaseConfigured()) {
@@ -117,7 +134,8 @@ function AdvertiserDashboardContent() {
 
   useEffect(() => {
     fetchCampaigns();
-  }, [fetchCampaigns]);
+    fetchDedicatedAccount();
+  }, [fetchCampaigns, fetchDedicatedAccount]);
 
   // Handle return from PocketFi (both Campaign payments and Wallet deposits)
   useEffect(() => {
@@ -700,7 +718,120 @@ function AdvertiserDashboardContent() {
         maxWidth="md"
       >
         <div className="space-y-6">
-          {!walletCheckoutData ? (
+          {/* Method Selector Tabs */}
+          <div className="flex border-b border-slate-800">
+            <button
+              type="button"
+              onClick={() => {
+                setFundMethodTab('dedicated');
+                setWalletCheckoutData(null);
+              }}
+              className={`pb-3 px-4 text-xs font-bold transition-colors border-b-2 flex items-center gap-2 ${
+                fundMethodTab === 'dedicated'
+                  ? 'border-brand-500 text-brand-400'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <CreditCard className="w-4 h-4" />
+              <span>Dedicated Bank Account</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-extrabold">24/7</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFundMethodTab('dynamic')}
+              className={`pb-3 px-4 text-xs font-bold transition-colors border-b-2 flex items-center gap-2 ${
+                fundMethodTab === 'dynamic'
+                  ? 'border-brand-500 text-brand-400'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Building2 className="w-4 h-4" />
+              <span>One-Time Checkout</span>
+            </button>
+          </div>
+
+          {fundMethodTab === 'dedicated' ? (
+            <div className="space-y-4">
+              <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3 text-xs">
+                <div className="flex justify-between items-center py-1">
+                  <span className="text-slate-400">Bank Name:</span>
+                  <span className="font-bold text-white">
+                    {dedicatedAccount?.bank_name || 'Kuda Microfinance Bank'}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center py-1 border-t border-slate-900">
+                  <span className="text-slate-400">Account Number:</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-base font-black text-brand-400 tracking-wider">
+                      {dedicatedAccount?.account_number || 'Loading...'}
+                    </span>
+                    {dedicatedAccount?.account_number && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard?.writeText(dedicatedAccount.account_number);
+                          setCopiedDedicatedAccount(true);
+                          setTimeout(() => setCopiedDedicatedAccount(false), 2000);
+                        }}
+                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                        title="Copy Account Number"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center py-1 border-t border-slate-900">
+                  <span className="text-slate-400">Account Name:</span>
+                  <span className="font-bold text-white">
+                    {dedicatedAccount?.account_name || 'Adision Wallet'}
+                  </span>
+                </div>
+              </div>
+
+              {copiedDedicatedAccount && (
+                <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 text-xs text-center font-semibold">
+                  Account Number copied to clipboard!
+                </div>
+              )}
+
+              <div className="p-3.5 rounded-xl bg-brand-500/5 border border-brand-500/20 flex items-center gap-3">
+                <span className="relative flex h-3 w-3 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
+                </span>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Transfer <strong>ANY amount</strong> from your bank app (Kuda, OPay, PalmPay, GTB, Zenith, etc.). Your balance updates automatically in seconds without payment slips.
+                </p>
+              </div>
+
+              <div className="pt-2 flex justify-between gap-2.5">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setIsFundModalOpen(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  isLoading={isRefreshingBalance}
+                  onClick={async () => {
+                    setIsRefreshingBalance(true);
+                    await fetchCampaigns();
+                    setIsRefreshingBalance(false);
+                  }}
+                  className="font-bold gap-1.5 shadow-lg shadow-brand-500/20"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingBalance ? 'animate-spin' : ''}`} />
+                  <span>I've Sent the Transfer — Refresh Balance</span>
+                </Button>
+              </div>
+            </div>
+          ) : !walletCheckoutData ? (
             <div className="space-y-4">
               {/* Quick preset amount chips */}
               <div className="space-y-2">
@@ -738,7 +869,7 @@ function AdvertiserDashboardContent() {
 
               <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400 space-y-1">
                 <span className="font-bold text-white block">Payment Method:</span>
-                <p>Direct Bank Transfer (SafeHaven MFB / Kuda) — Instant Automated Settlement.</p>
+                <p>One-Time Dynamic Bank Transfer (Kuda Microfinance Bank) — Instant Automated Settlement.</p>
               </div>
 
               <div className="pt-2 flex justify-end gap-2.5">
